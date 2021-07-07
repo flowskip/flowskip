@@ -23,3 +23,5 @@ html {
 body {
     background: var(--gradient);
 }
+
+::placeholder { color: #000000; }
