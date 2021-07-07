@@ -12,6 +12,7 @@ export async function sessionStartSession(setFlag){
     const endpoint = [baseUrl, userEndpoint, "session", "start"];
     let myHeaders = new Headers();
     myHeaders.append('Authorization', 'Bearer ')
+    myHeaders.append('Content-Type', 'application/json')
     let requestOptions = {
         method: "POST",
         headers: myHeaders,
@@ -73,6 +74,7 @@ export async function spotifyAuthenticateUser(setUrl){
     
     let myHeaders = new Headers();
     myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem("session_key"))
+    myHeaders.append('Content-Type', 'application/json')
     let requestOptions = {
         method: "GET",
         headers: myHeaders,
