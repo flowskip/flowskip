@@ -17,6 +17,7 @@ main {
     display: grid;
     grid-template-rows: 30% 30% 30%;
     place-items: center center;
+    max-height: 300px;
 }
 
 .main__container--form {
@@ -47,16 +48,21 @@ input[type=submit] {
     cursor: pointer;
 }
 
-input[type=submit]:active {
-    transform: scale(.9);
-}
-
 input[type=text]:focus {
     outline: none;
 }
 
+input[type=submit]:active {
+    transform: scale(.9);
+}
+
+input[type=submit]:hover {
+    filter: brightness(150%);
+}
+
 .main__container--button {
     height: 80%;
+    max-height: 80px;
     border-radius: 20px;
     font-size: 1.6rem;
     background-color: var(--purple);
@@ -64,13 +70,19 @@ input[type=text]:focus {
     font-family: var(--font-bungee-bold);
     border: none;
     box-shadow: 5px 5px 10px 5px #00000033;
-    padding: 0 30px;
+    padding: 0 20px;
     cursor: pointer;
     transition: .3s;
+    width: 100%;
+    max-width: 300px;
 }
 
 .main__container--button:active {
     transform: scale(.9);
+}
+
+.main__container--button:hover {
+    filter: brightness(150%);
 }
 
 @media screen and (orientation: landscape) and (max-width: 900px) {
@@ -92,13 +104,13 @@ input[type=text]:focus {
     }
 
     .main__container {
-        height: 100%;
+        height: 80%;
     }
 }
 
 @media screen and (min-width: 1024px) {
     main {
-        padding: 1vw;
+        padding: 5vw 0 0;
         height: 100vh;
     }
     
@@ -106,6 +118,7 @@ input[type=text]:focus {
         display: grid;
         grid-template-rows: 50% 50%;
     }
+    
 }
 
 @media screen and (min-width: 1024px) and (orientation: portrait) {
@@ -117,5 +130,16 @@ input[type=text]:focus {
     .main {
         display: grid;
         grid-template-rows: 50% 50%;
+    }
+
+    .main__container {
+        grid-template-rows: 20% 20% 20% 40%;
+        place-items: center center;
+    }
+}
+
+@media screen and (min-width: 1024px) and (orientation: landscape) {
+    .main__container {
+        max-height: 400px;
     }
 }

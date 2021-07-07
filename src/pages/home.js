@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import './styles/home.css'
 
-import LogoImg from '../assets/svg/logo.svg'
+import LogoImg from '../assets/img/logo.png'
 
 export default class Home extends React.Component{
     render(){
