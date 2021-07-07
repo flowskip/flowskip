@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Hairline&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Hairline&family=Bungee+Shade&display=swap');
 
 :root {
     --font-bungee-bold: 'Bungee', cursive;
     --font-bungee-light: 'Bungee Hairline', cursive;
-    --blue: #23049D;
+    --font-bungee-shade: 'Bungee Shade', cursive;
     --purple: #AA2EE6;
     --pink: #FF79CD;
     --gradient: linear-gradient(90deg, rgba(35,4,157,1) 0%, rgba(170,46,230,1) 50%, rgba(255,121,205,1) 100%);
