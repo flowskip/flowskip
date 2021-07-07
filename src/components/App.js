@@ -7,11 +7,9 @@ import Home from '../pages/home.js'
 export default function App() {
   return (
     <BrowserRouter>
-      {/* <Layout> */}
         <Switch>
             <Route exact path="/" component={Home} />
         </Switch>
-      {/* </Layout> */}
     </BrowserRouter>
   );
 }
