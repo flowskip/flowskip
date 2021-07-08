@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { userCreate } from './FlowskipApi';
+import { createUser } from './FlowskipApi';
 import { spotifyAuthenticateUser } from './FlowskipApi';
-import { sessionStartSession } from './FlowskipApi';
+import { startSession } from './FlowskipApi';
 
 const defUrl = "myhome.com";
 const isSessionKeyInDb = localStorage.getItem('session_key') !== null;
@@ -13,12 +13,12 @@ export function TestingApi(){
     useEffect(()=>{
         if(!sessionKeyInDb){
             console.log("getting session_key");
-            sessionStartSession(setSessionKeyInDb)
+            startSession(setSessionKeyInDb)
         }
         else{
             if(!userCreated){
                 console.log("creating user");
-                userCreate(setUserCreated);
+                createUser(setUserCreated);
             }
             else{
                 // Here all the code to be done with a user
