@@ -2,6 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router';
 import styled from 'styled-components'
+import { Link } from "react-router-dom";
 
 import { startSession, createUser, getSpotifyAuthenticationUrl } from '../components/FlowskipApi';
 
@@ -86,5 +87,4 @@ const Welcome = styled.h1 `
     @media screen and (orientation: landscape) and (max-width: 900px) {
         font-size: clamp(2.5rem, 8vh, 4rem);
     }
-
 `
