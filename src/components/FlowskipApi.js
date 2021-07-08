@@ -1,5 +1,5 @@
 const baseUrl = "https://flowskip-api.herokuapp.com";
-const redirect_url = "http://localhost:3000";
+const redirect_url = "http://localhost:3000/create-room";
 const userEndpoint = "user";
 const roomEndpoint = "room";
 const spotifyEndpoint = "spotify";
@@ -194,7 +194,7 @@ export async function createRoom(setCode, votes_to_skip = 2, guests_can_pause = 
 }
 
 // spotify endpoints
-export async function spotifyAuthenticateUser(setUrl){
+export async function getSpotifyAuthenticationUrl(setUrl){
     const endpoint = [baseUrl, spotifyEndpoint, "authenticate-user"];
     const params = {
         redirect_url: redirect_url
@@ -208,7 +208,7 @@ export async function spotifyAuthenticateUser(setUrl){
     requestOptions.headers = headers;
     requestOptions.withCredentials = true;
     requestOptions.credentials = 'include';
-
+    console.log("Getting url");
     fetch(url, requestOptions)
     .then(res => res.json())
     .then(data => {

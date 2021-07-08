@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createUser } from './FlowskipApi';
-import { spotifyAuthenticateUser } from './FlowskipApi';
+import { getSpotifyAuthenticationUrl } from './FlowskipApi';
 import { startSession } from './FlowskipApi';
 
 const defUrl = "myhome.com";
@@ -23,7 +23,7 @@ export function TestingApi(){
             else{
                 // Here all the code to be done with a user
                 console.log("getting auth url");
-                spotifyAuthenticateUser(setUrl);
+                getSpotifyAuthenticationUrl(setUrl);
             }
         }
     }, [sessionKeyInDb, userCreated]);
