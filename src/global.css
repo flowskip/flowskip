@@ -24,4 +24,8 @@ body {
     background: var(--gradient);
 }
 
-::placeholder { color: #000000; }
+::placeholder { 
+    color: #000000; 
+    font-family: sans-serif;
+    font-size: bold;
+}
