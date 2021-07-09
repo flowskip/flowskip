@@ -1,16 +1,19 @@
-import React from 'react'
+import React from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 
-import Home from '../pages/home.js'
-import ConfigRoom from '../pages/configroom.js'
+import Home from "../pages/home";
+import ConfigRoom from "../pages/configroom";
+
+import GlobalStyle from "../styles/GlobalStyle";
 
 export default function App() {
   return (
     <BrowserRouter>
-        <Switch>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/config-room/:id" component={ConfigRoom} />
-        </Switch>
+      <GlobalStyle />
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/config-room" component={ConfigRoom} />
+      </Switch>
     </BrowserRouter>
   );
 }
