@@ -17,7 +17,11 @@ export default function ConfigRoom() {
   );
 }
 
-const MainContainer = styled.main``;
+const MainContainer = styled.main`
+  display: grid;
+  grid-template-areas: "Title
+                      Controls";
+`;
 
 // const Title = styled.h1`
 //   color: white;

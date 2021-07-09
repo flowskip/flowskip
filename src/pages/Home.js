@@ -55,11 +55,7 @@ export default function Home() {
             <InputText type="text" placeholder="Código" />
             <InputSubmit type="submit" value="&#9654;" />
           </Form>
-          <Button
-            onClick={() => verifySpotifyAuth()}
-            as={Link}
-            to="/config-room"
-          >
+          <Button onClick={() => verifySpotifyAuth()} as={Link}>
             Nueva Sala
           </Button>
         </CenterSection>
@@ -72,7 +68,7 @@ export default function Home() {
     if (localStorage.getItem("spotify_authenticated") === "true") {
       history.push("config-room");
     } else {
-      localStorage.setItem("next", "config-room/dummytext");
+      localStorage.setItem("next", "config-room");
       getSpotifyAuthenticationUrl(setUrl);
     }
   }
