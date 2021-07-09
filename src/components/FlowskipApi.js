@@ -65,6 +65,30 @@ export function createUser(setUserCreated){
     );
 }
 
+export function getUserDetails(setUserDetails){
+    const endpoint = [baseUrl, userEndpoint, "details"];
+    const url = new URL(endpoint.join("/"))
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', 'Bearer ' + localStorage.getItem("session_key"));
+    requestOptions.method = "GET";
+    requestOptions.headers = headers;
+    requestOptions.withCredentials = true;
+    requestOptions.credentials = 'include';
+
+    console.log("getting user details");
+    fetch(url, requestOptions)
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+        setUserDetails(data);
+    })
+    .catch
+    (
+        err => new Error(fetchErrorMsg + err)
+    );
+}
+
 // state endpoints
 export function voteToSkip(setVoteStatus, code, trackId){
     const endpoint = [baseUrl, roomEndpoint, "state", "create"];
