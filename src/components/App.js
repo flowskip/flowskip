@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 
-import Home from "../pages/home";
-import ConfigRoom from "../pages/configroom";
+import Home from "../pages/Home";
+import ConfigRoom from "../pages/ConfigRoom";
 
 import GlobalStyle from "../styles/GlobalStyle";
 

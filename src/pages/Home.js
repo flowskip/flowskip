@@ -1,12 +1,48 @@
 import React from "react";
+import { useState, useEffect } from "react";
+import { useHistory } from "react-router";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import {
+  startSession,
+  createUser,
+  getSpotifyAuthenticationUrl,
+} from "../components/FlowskipApi";
 
 import Button from "../components/Button";
 
 import LogoImg from "../assets/img/logo.png";
 
+const defUrl = "";
+const isSessionKeyInDbAtStart = localStorage.getItem("session_key") !== null;
+const isUserCreatedAtStart = localStorage.getItem("user_created") === "true";
+
 export default function Home() {
+  const [sessionKeyInDb, setSessionKeyInDb] = useState(isSessionKeyInDbAtStart);
+  const [userCreated, setUserCreated] = useState(isUserCreatedAtStart);
+  const [url, setUrl] = useState(defUrl);
+  const history = useHistory();
+  useEffect(() => {
+    if (!sessionKeyInDb) {
+      console.log("getting session_key");
+      startSession(setSessionKeyInDb);
+    } else {
+      if (!userCreated) {
+        console.log("creating user");
+        createUser(setUserCreated);
+      } else {
+        // Here all the code to be done with a user
+        console.log("blank");
+      }
+    }
+  }, [sessionKeyInDb, userCreated]);
+
+  useEffect(() => {
+    if (url !== "") {
+      window.open(url, "_self");
+    }
+  }, [url]);
+
   return (
     <React.Fragment>
       <MainContainer>
@@ -26,6 +62,16 @@ export default function Home() {
       </MainContainer>
     </React.Fragment>
   );
+
+  function verifySpotifyAuth() {
+    console.log("CLICK!");
+    if (localStorage.getItem("spotify_authenticated") === "true") {
+      history.push("config-room");
+    } else {
+      localStorage.setItem("next", "config-room/dummytext");
+      getSpotifyAuthenticationUrl(setUrl);
+    }
+  }
 }
 
 const MainContainer = styled.main`
