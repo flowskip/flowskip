@@ -55,7 +55,11 @@ export default function Home() {
             <InputText type="text" placeholder="Código" />
             <InputSubmit type="submit" value="&#9654;" />
           </Form>
-          <Button as={Link} to="/config-room">
+          <Button
+            onClick={() => verifySpotifyAuth()}
+            as={Link}
+            to="/config-room"
+          >
             Nueva Sala
           </Button>
         </CenterSection>
