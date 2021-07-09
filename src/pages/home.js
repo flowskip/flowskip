@@ -1,31 +1,74 @@
-import React from 'react'
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { useHistory } from 'react-router';
 import styled from 'styled-components'
 import { Link } from "react-router-dom";
+
+import { startSession, createUser, getSpotifyAuthenticationUrl } from '../components/FlowskipApi';
 
 import './styles/home.css'
 
 import LogoImg from '../assets/img/logo.png'
 
-let testId = "123"
-export default class Home extends React.Component{
-    render(){
-        return(
-            <React.Fragment>
-                <main className="main__home">
-                    <Logo>
-                        <img className="main__logo" src={LogoImg} alt="Logo" />
-                    </Logo>
-                    <div className="main__container">
-                        <Welcome>¡Bienvenido!</Welcome>
-                        <form className="main__container--form" action="">
-                            <input type="text" placeholder="Código" />
-                            <input type="submit" value="&#9654;" />
-                        </form>
-                        <Link to={`/config-room/${testId}`} className="main__container--button">Nueva Sala</Link>
-                    </div>
-                </main>
-            </React.Fragment>
-        )
+
+const defUrl = "";
+const isSessionKeyInDbAtStart = localStorage.getItem('session_key') !== null;
+const isUserCreatedAtStart = localStorage.getItem('user_created') === 'true';
+export default function Home(){
+    const [sessionKeyInDb, setSessionKeyInDb] = useState(isSessionKeyInDbAtStart);
+    const [userCreated, setUserCreated] = useState(isUserCreatedAtStart);
+    const [url, setUrl] = useState(defUrl);
+    const history = useHistory();
+    useEffect(()=>{
+        if(!sessionKeyInDb){
+            console.log("getting session_key");
+            startSession(setSessionKeyInDb)
+        }
+        else{
+            if(!userCreated){
+                console.log("creating user");
+                createUser(setUserCreated);
+            }
+            else{
+                // Here all the code to be done with a user
+                console.log("blank");
+            }
+        }
+    }, [sessionKeyInDb, userCreated]);
+
+    useEffect(()=>{
+        if(url !== ""){
+            window.open(url, "_self");
+        }
+    },[url])
+    
+    return(
+        <React.Fragment>
+            <main className="main">
+                <Logo>
+                    <img className="main__logo" src={LogoImg} alt="Logo" />
+                </Logo>
+                <div className="main__container">
+                    <Welcome>¡Bienvenido!</Welcome>
+                    <form className="main__container--form" action="">
+                        <input type="text" placeholder="Código" />
+                        <input type="submit" value="&#9654;" />
+                    </form>
+                    <button onClick={() => verifySpotifyAuth()} className="main__container--button">Crear Nueva Sala</button>
+                </div>
+            </main>
+        </React.Fragment>
+    );
+
+    function verifySpotifyAuth(){
+        console.log("CLICK!");
+        if(localStorage.getItem("spotify_authenticated") === 'true'){
+            history.push("config-room");
+        }
+        else{
+            localStorage.setItem("next", "config-room/dummytext");
+            getSpotifyAuthenticationUrl(setUrl);
+        }
     }
 }
 
