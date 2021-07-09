@@ -2,7 +2,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import {
   startSession,
   createUser,
@@ -55,7 +54,7 @@ export default function Home() {
             <InputText type="text" placeholder="Código" />
             <InputSubmit type="submit" value="&#9654;" />
           </Form>
-          <Button onClick={() => verifySpotifyAuth()} as={Link}>
+          <Button onClick={() => verifySpotifyAuth()}>
             Nueva Sala
           </Button>
         </CenterSection>
