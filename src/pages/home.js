@@ -38,7 +38,7 @@ export default function Home(){
 
     useEffect(()=>{
         if(url !== ""){
-            window.open(url,'_blank');
+            window.open(url, "_self");
         }
     },[url])
     
@@ -63,9 +63,10 @@ export default function Home(){
     function verifySpotifyAuth(){
         console.log("CLICK!");
         if(localStorage.getItem("spotify_authenticated") === 'true'){
-            history.push("create-room")
+            history.push("config-room");
         }
         else{
+            localStorage.setItem("next", "config-room/dummytext");
             getSpotifyAuthenticationUrl(setUrl);
         }
     }
