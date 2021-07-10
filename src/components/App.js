@@ -3,8 +3,8 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 
 import Home from "../pages/Home";
 import ConfigRoom from "../pages/ConfigRoom";
-import { TestingApi } from "./TestingApi.jsx";
-import RedirectFromApi from "./RedirectFromApi.jsx";
+import { TestingApi } from "./TestingApi.js";
+import RedirectFromApi from "./RedirectFromApi.js";
 
 import GlobalStyle from "../styles/GlobalStyle";
 
