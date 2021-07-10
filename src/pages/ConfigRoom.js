@@ -11,8 +11,10 @@ export default function ConfigRoom() {
   const history = useHistory();
   const [userDetails, setUserDetails] = useState(defUserDetails);
   const [isPremium, setIsPremium] = useState(defIsPremium);
-
+  const isSpotifyAuthenticated =
+    localStorage.getItem("spotify_authenticated") === "true";
   useEffect(() => {
+<<<<<<< HEAD
     if (
       Object.keys(userDetails).length === 0 &&
       userDetails.constructor === Object
@@ -25,8 +27,21 @@ export default function ConfigRoom() {
       } else if (userDetails.spotify_user.product === "premium") {
         setIsPremium(true);
         console.log("user is premium");
+=======
+    if (isSpotifyAuthenticated) {
+      if (
+        Object.keys(userDetails).length === 0 &&
+        userDetails.constructor === Object
+      ) {
+        getUserDetails(setUserDetails);
+>>>>>>> 8177d27f5e3b9bbd3e81bf2e16246ddd5f387393
       } else {
-        console.log("error");
+        if (userDetails.spotify_user.product === "premium") {
+          console.log("user is premium");
+        } else {
+          console.log("user is not premium");
+          setIsPremium(false);
+        }
       }
     }
   }, [userDetails]);
@@ -40,10 +55,15 @@ export default function ConfigRoom() {
 
   return (
     <React.Fragment>
-      {isPremium && renderConfigRoom()}
-      {!isPremium && renderUpgradeToSpotifyPremium()}
+      {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
+      {!isPremium && isSpotifyAuthenticated && renderUpgradeToSpotifyPremium()}
+      {!isSpotifyAuthenticated && returnToHome()}
     </React.Fragment>
   );
+
+  function returnToHome() {
+    history.push("/");
+  }
 
   function renderConfigRoom() {
     return (
@@ -83,6 +103,7 @@ export default function ConfigRoom() {
 
   function renderUpgradeToSpotifyPremium() {
     return (
+<<<<<<< HEAD
       <MainContainerNoPremium>
         <Span>😞</Span>
         <TitleNoPremium>
@@ -95,6 +116,21 @@ export default function ConfigRoom() {
           Return
         </BackButtonNoPremium>
       </MainContainerNoPremium>
+=======
+      <MainContainer>
+        <h1>Create a room requires spotify premium</h1>
+        <br></br>
+        <h3>Premium is the ultimate experience in spotify, Upgrade Now</h3>
+        <br></br>
+        <p>
+          put a link to spotify premium, es un guiño para que spotify nos ponga
+          en el carrusel c:
+        </p>
+        <br />
+        <Button>Crear Sala</Button>
+        <Button onClick={() => history.push("/")}>Return to home</Button>
+      </MainContainer>
+>>>>>>> 8177d27f5e3b9bbd3e81bf2e16246ddd5f387393
     );
   }
 }
