@@ -29,7 +29,7 @@ export default function ConfigRoom() {
         }
       }
     }
-  }, [userDetails]);
+  }, [userDetails, isSpotifyAuthenticated]);
 
   return (
     <React.Fragment>

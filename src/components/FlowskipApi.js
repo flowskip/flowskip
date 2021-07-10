@@ -124,32 +124,23 @@ export function voteToSkip(setVoteStatus, code, trackId) {
     .catch((err) => new Error(fetchErrorMsg + err));
 }
 
-export function getDeltas(
-  setTrackID,
-  setCurrentPlayback,
-  setParticipants,
-  setNewParticipants,
-  setGoneParticipants,
-  setVotesToSkip,
-  setNewVotesToSkip,
-  setQueue,
-  setNewQueueTracks,
-  setGoneQueueTracks,
-  trackId,
-  code,
-  participants = [],
-  votes = [],
-  queue = []
-) {
+export function getDeltas(setters, states) {
+  /*
+    trackId,
+    code,
+    participants = [],
+    votes = [],
+    queue = []
+  */
   const endpoint = [baseUrl, roomEndpoint, "state"];
   const url = new URL(endpoint.join("/"));
   let headers = new Headers();
   requestOptions.body = JSON.stringify({
-    code: code,
-    track_id: trackId,
-    participants: participants,
-    votes: votes,
-    queue: queue,
+    track_id: states["setTrackID"],
+    code: states["code"],
+    participants: states["participants"],
+    votes: states["votes"],
+    queue: states["queue"],
   });
   headers.append("Content-Type", "application/json");
   headers.append(
@@ -164,30 +155,38 @@ export function getDeltas(
   fetch(url, requestOptions)
     .then((res) => res.json())
     .then((data) => {
-      if (data.current_playback !== {}) {
-        setTrackID(data.current_playback.item.id);
+      /*
+      setTrackID,
+      setCurrentPlayback,
+      setParticipants,
+      setNewParticipants,
+      setGoneParticipants,
+      setVotesToSkip,
+      setNewVotesToSkip,
+      setQueue,
+      setNewQueueTracks,
+      setGoneQueueTracks,
+    */
+      if (data.current_playback.item === undefined) {
+        setters["setTrackID"]("");
       } else {
-        setTrackID("");
+        setters["setTrackID"](data.current_playback.item.id);
       }
-      setCurrentPlayback(data.current_playback);
-      setParticipants(data.participants.all);
-      setNewParticipants(data.participants.new);
-      setGoneParticipants(data.participants.gone);
-      setVotesToSkip(data.votes_to_skip.all);
-      setNewVotesToSkip(data.votes_to_skip.new);
-      setQueue(data.queue.all);
-      setNewQueueTracks(data.queue.new);
-      setGoneQueueTracks(data.queue.gone);
+      setters["setCurrentPlayback"](data.current_playback);
+      setters["setParticipants"](data.participants.all);
+      setters["setNewParticipants"](data.participants.new);
+      setters["setGoneParticipants"](data.participants.gone);
+      setters["setVotesToSkip"](data.votes_to_skip.all);
+      setters["setNewVotesToSkip"](data.votes_to_skip.new);
+      setters["setQueue"](data.queue.all);
+      setters["setNewQueueTracks"](data.queue.new);
+      setters["setGoneQueueTracks"](data.queue.gone);
     })
     .catch((err) => new Error(fetchErrorMsg + err));
 }
 
 // room endpoints
-export async function createRoom(
-  setCode,
-  votes_to_skip = 2,
-  guests_can_pause = false
-) {
+export async function createRoom(votes_to_skip = 2, guests_can_pause = false) {
   const endpoint = [baseUrl, roomEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
   requestOptions.body = JSON.stringify({
@@ -221,7 +220,6 @@ export async function createRoom(
         new Error(apiDebugSearch + "Error reported by backend");
       } else {
         localStorage.setItem("room_code", data.code);
-        setCode(data.code);
       }
     })
     .catch((err) => new Error(fetchErrorMsg + err));
