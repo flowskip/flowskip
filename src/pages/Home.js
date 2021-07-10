@@ -13,6 +13,7 @@ import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
 
 const defUrl = "";
+const defIsAlreadyAuthenticatedInSpotify = false;
 const isSessionKeyInDbAtStart = localStorage.getItem("session_key") !== null;
 const isUserCreatedAtStart = localStorage.getItem("user_created") === "true";
 
@@ -20,6 +21,8 @@ export default function Home() {
   const [sessionKeyInDb, setSessionKeyInDb] = useState(isSessionKeyInDbAtStart);
   const [userCreated, setUserCreated] = useState(isUserCreatedAtStart);
   const [url, setUrl] = useState(defUrl);
+  const [isAlreadyAuthenticatedInSpotify, setIsAlreadyAuthenticatedInSpotify] =
+    useState(defIsAlreadyAuthenticatedInSpotify);
   const history = useHistory();
   useEffect(() => {
     if (!sessionKeyInDb) {
@@ -37,13 +40,16 @@ export default function Home() {
   }, [sessionKeyInDb, userCreated]);
 
   useEffect(() => {
-    if (url !== "") {
+    if (url === "208") {
+      setIsAlreadyAuthenticatedInSpotify(true);
+    } else if (url !== "") {
       window.open(url, "_self");
     }
   }, [url]);
 
   return (
     <React.Fragment>
+      {isAlreadyAuthenticatedInSpotify && goToConfigRoom()}
       <MainContainer>
         <LogoContainer>
           <Logo src={LogoImg} alt="Logo" />
@@ -54,13 +60,15 @@ export default function Home() {
             <InputText type="text" placeholder="Código" />
             <InputSubmit type="submit" value="&#9654;" />
           </Form>
-          <Button onClick={() => verifySpotifyAuth()}>
-            Nueva Sala
-          </Button>
+          <Button onClick={() => verifySpotifyAuth()}>Nueva Sala</Button>
         </CenterSection>
       </MainContainer>
     </React.Fragment>
   );
+
+  function goToConfigRoom() {
+    history.push("config-room");
+  }
 
   function verifySpotifyAuth() {
     console.log("CLICK!");

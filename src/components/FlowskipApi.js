@@ -246,10 +246,21 @@ export async function getSpotifyAuthenticationUrl(setUrl) {
   requestOptions.withCredentials = true;
   requestOptions.credentials = "include";
   console.log("Getting url");
+  console.log(localStorage.getItem("session_key"));
   fetch(url, requestOptions)
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.status === 208) {
+        localStorage.setItem("spotify_authenticated", "true");
+      }
+      return res.json();
+    })
     .then((data) => {
-      setUrl(data.authorize_url);
+      if (data.authorize_url === undefined) {
+        localStorage.removeItem("next");
+        setUrl("208");
+      } else {
+        setUrl(data.authorize_url);
+      }
     })
     .catch((err) => new Error(fetchErrorMsg + err));
 }
