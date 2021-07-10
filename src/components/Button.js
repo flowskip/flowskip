@@ -18,6 +18,7 @@ const Button = styled.button`
   max-width: 300px;
   text-decoration: none;
   display: flex;
+  justify-self: center;
   justify-content: center;
   align-items: center;
 
