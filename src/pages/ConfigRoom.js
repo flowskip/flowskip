@@ -8,30 +8,27 @@ import { getUserDetails } from "../components/FlowskipApi";
 const defUserDetails = {};
 const defIsPremium = true;
 export default function ConfigRoom() {
-  const history = useHistory()
+  const history = useHistory();
   const [userDetails, setUserDetails] = useState(defUserDetails);
   const [isPremium, setIsPremium] = useState(defIsPremium);
 
   useEffect(() => {
-    if(Object.keys(userDetails).length === 0 && userDetails.constructor === Object){
+    if (
+      Object.keys(userDetails).length === 0 &&
+      userDetails.constructor === Object
+    ) {
       getUserDetails(setUserDetails);
-    }
-    else{
-      if(! userDetails.spotify_user.product === 'premium'){
+    } else {
+      if (!userDetails.spotify_user.product === "premium") {
         console.log("user is not premium");
         setIsPremium(false);
-      }
-      else if(userDetails.spotify_user.product === 'premium'){
+      } else if (userDetails.spotify_user.product === "premium") {
         console.log("user is premium");
-      }
-      else{
+      } else {
         console.log("error");
       }
     }
-    
-  }, [userDetails])
-
-  
+  }, [userDetails]);
 
   return (
     <React.Fragment>
@@ -40,23 +37,26 @@ export default function ConfigRoom() {
     </React.Fragment>
   );
 
-  function renderConfigRoom(){
-    return(
+  function renderConfigRoom() {
+    return (
       <MainContainer>
         <h1>User is premium, so... he/she can create a room</h1>
-        <br/>
+        <br />
         <Button onClick={() => history.push("/")}>Return to home</Button>
       </MainContainer>
     );
   }
 
-  function renderUpgradeToSpotifyPremium(){
-    return(
+  function renderUpgradeToSpotifyPremium() {
+    return (
       <MainContainer>
         <h1>Create a room requires spotify premium</h1>
         <h3>Premium is the ultimate experience in spotify, Upgrade Now</h3>
-        <p>put a link to spotify premium, es un guiño para que spotify nos ponga en el carrusel c:</p>
-        <br/>
+        <p>
+          put a link to spotify premium, es un guiño para que spotify nos ponga
+          en el carrusel c:
+        </p>
+        <br />
         <Button onClick={() => history.push("/")}>Return to home</Button>
       </MainContainer>
     );
