@@ -47,6 +47,12 @@ export default function Home() {
     }
   }, [url]);
 
+  if (localStorage.getItem("room_code") !== undefined) {
+    // * Uncomment to set auto redirect if there's a room code in local storage
+    console.log("Room code in LocalStorage!");
+    //history.push("room/" + localStorage.getItem("room_code"));
+  }
+
   return (
     <React.Fragment>
       {isAlreadyAuthenticatedInSpotify && goToConfigRoom()}
