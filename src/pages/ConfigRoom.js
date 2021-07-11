@@ -3,18 +3,28 @@ import styled from "styled-components";
 import Button from "../components/Button";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { getUserDetails } from "../components/FlowskipApi";
+import { getUserDetails, createRoom } from "../components/FlowskipApi";
 
 const defUserDetails = {};
 const defIsPremium = true;
+const defGuestCanPause = false;
+const defVotesToSkip = 2;
+const defRoomCodeInDb =
+  localStorage.getItem("room_code") === null
+    ? ""
+    : localStorage.getItem("room_code");
 export default function ConfigRoom() {
   const history = useHistory();
+  const [guestsCanPause, setGuestCanPause] = useState(defGuestCanPause);
+  const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
+  const [roomCodeInDb, setRoomCodeInDb] = useState(defRoomCodeInDb);
   const [userDetails, setUserDetails] = useState(defUserDetails);
   const [isPremium, setIsPremium] = useState(defIsPremium);
   const isSpotifyAuthenticated =
     localStorage.getItem("spotify_authenticated") === "true";
+
   useEffect(() => {
-    if (isSpotifyAuthenticated) {
+    if (isSpotifyAuthenticated && roomCodeInDb === "") {
       if (
         Object.keys(userDetails).length === 0 &&
         userDetails.constructor === Object
@@ -29,12 +39,25 @@ export default function ConfigRoom() {
         }
       }
     }
-  }, [userDetails, isSpotifyAuthenticated]);
+  }, [userDetails, isSpotifyAuthenticated, roomCodeInDb]);
+
+  if (!isSpotifyAuthenticated) {
+    history.push("/");
+  } else {
+    if (roomCodeInDb !== "")
+      history.push("room/" + localStorage.getItem("room_code"));
+  }
 
   function handleChange() {
+    // ! Bug here. issue: https://trello.com/c/sb2CeFfE
+    console.log("Triggered");
     var input = document.getElementById("votes");
     input.addEventListener("input", function () {
-      if (this.value.length > 2) this.value = this.value.slice(0, 2);
+      if (this.value.length > 0) {
+        this.value = this.value.slice(0, 2);
+        console.log("val " + this.value);
+        setVotesToSkip(this.value);
+      }
     });
   }
 
@@ -42,12 +65,11 @@ export default function ConfigRoom() {
     <React.Fragment>
       {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
       {!isPremium && isSpotifyAuthenticated && renderUpgradeToSpotifyPremium()}
-      {!isSpotifyAuthenticated && returnToHome()}
     </React.Fragment>
   );
 
-  function returnToHome() {
-    history.push("/");
+  function sendCreateRoomRequest() {
+    createRoom(setRoomCodeInDb, votesToSkip, guestsCanPause);
   }
 
   function renderConfigRoom() {
@@ -61,12 +83,14 @@ export default function ConfigRoom() {
               type="radio"
               name="controls"
               id="control"
+              onChange={() => setGuestCanPause(true)}
             ></RadioButton>
             <Label htmlFor="control">Reproducir / Pausar</Label>
             <RadioButton
               type="radio"
               name="controls"
               id="nocontrol"
+              onChange={() => setGuestCanPause(false)}
             ></RadioButton>
             <Label htmlFor="nocontrol">Ninguno</Label>
           </InputsContainer>
@@ -77,10 +101,12 @@ export default function ConfigRoom() {
             id="votes"
             onChange={handleChange}
             type="number"
-            placeholder="2"
+            placeholder={defVotesToSkip}
           ></Input>
         </Votes>
-        <RoomButton>¡Crear sala!</RoomButton>
+        <RoomButton onClick={() => sendCreateRoomRequest()}>
+          ¡Crear sala!
+        </RoomButton>
         <BackButton onClick={() => history.push("/")}>Return</BackButton>
       </MainContainer>
     );

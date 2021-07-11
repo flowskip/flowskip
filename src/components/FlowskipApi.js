@@ -186,12 +186,16 @@ export function getDeltas(setters, states) {
 }
 
 // room endpoints
-export async function createRoom(votes_to_skip = 2, guests_can_pause = false) {
+export async function createRoom(
+  setRoomCodeInDb,
+  votesToSkip = 2,
+  guestsCanPause = false
+) {
   const endpoint = [baseUrl, roomEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
   requestOptions.body = JSON.stringify({
-    votes_to_skip: votes_to_skip,
-    guests_can_pause: guests_can_pause,
+    votes_to_skip: votesToSkip,
+    guests_can_pause: guestsCanPause,
   });
   let headers = new Headers();
   headers.append("Content-Type", "application/json");
@@ -199,30 +203,35 @@ export async function createRoom(votes_to_skip = 2, guests_can_pause = false) {
     "Authorization",
     "Bearer " + localStorage.getItem("session_key")
   );
-  requestOptions.method = "GET";
+  requestOptions.method = "POST";
   requestOptions.headers = headers;
   requestOptions.withCredentials = true;
   requestOptions.credentials = "include";
 
   fetch(url, requestOptions)
     .then((res) => {
+      console.log(res);
       if (res.status === 200) {
+        console.log("200 ok");
         return res.json();
       } else if (res.status === 208) {
         console.log("already in room");
         return res.json();
       } else {
-        return {};
+        console.log("error");
+        return undefined;
       }
     })
     .then((data) => {
-      if (data === {}) {
+      console.log("data" + data);
+      if (data === undefined) {
         new Error(apiDebugSearch + "Error reported by backend");
       } else {
         localStorage.setItem("room_code", data.code);
+        setRoomCodeInDb(data.code);
       }
     })
-    .catch((err) => new Error(fetchErrorMsg + err));
+    .catch((err) => console.log("error" + err));
 }
 
 // spotify endpoints
