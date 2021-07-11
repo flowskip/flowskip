@@ -11,9 +11,8 @@ export default function Room() {
 
   if (roomCodeFromPath !== localStorage.getItem("room_code")) {
     if (localStorage.getItem("room_code") !== undefined) {
-      localStorage.removeItem("room_code");
+      history.push(localStorage.getItem("room_code"));
     }
-    history.push("/");
   }
 
   console.log(roomCodeFromPath);

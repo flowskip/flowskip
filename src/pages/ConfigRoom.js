@@ -14,12 +14,12 @@ const defRoomCodeInDb =
     ? ""
     : localStorage.getItem("room_code");
 export default function ConfigRoom() {
-  const history = useHistory();
   const [guestsCanPause, setGuestCanPause] = useState(defGuestCanPause);
   const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
   const [roomCodeInDb, setRoomCodeInDb] = useState(defRoomCodeInDb);
   const [userDetails, setUserDetails] = useState(defUserDetails);
   const [isPremium, setIsPremium] = useState(defIsPremium);
+  const history = useHistory();
   const isSpotifyAuthenticated =
     localStorage.getItem("spotify_authenticated") === "true";
 
@@ -43,22 +43,24 @@ export default function ConfigRoom() {
 
   if (!isSpotifyAuthenticated) {
     history.push("/");
-  } else {
-    if (roomCodeInDb !== "")
+  }
+  // ? Comment this else to avoid pushing to room code
+  // ? when a code is already in DB
+  else {
+    if (roomCodeInDb !== "") {
+      console.log("???");
       history.push("room/" + localStorage.getItem("room_code"));
+    }
   }
 
   function handleChange() {
-    // ! Bug here. issue: https://trello.com/c/sb2CeFfE
-    console.log("Triggered");
     var input = document.getElementById("votes");
     input.addEventListener("input", function () {
-      if (this.value.length > 0) {
+      if (this.value.length > 2) {
         this.value = this.value.slice(0, 2);
-        console.log("val " + this.value);
-        setVotesToSkip(this.value);
       }
     });
+    setVotesToSkip(/^\d+$/.test(input.value) ? input.value : defVotesToSkip);
   }
 
   return (
