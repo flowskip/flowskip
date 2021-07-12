@@ -1,13 +1,15 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router";
+import Button from "./Button";
+import { leaveRoom } from "./FlowskipApi";
 
 const defShowPlayer = true;
 export default function Room() {
+  const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
   const history = useHistory();
   const windowPath = window.location.pathname.split("/");
   const roomCodeFromPath = windowPath[2] ? windowPath[2].toString() : undefined;
-  const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
 
   if (roomCodeFromPath !== localStorage.getItem("room_code")) {
     if (localStorage.getItem("room_code") !== null) {
@@ -15,14 +17,24 @@ export default function Room() {
     }
   }
 
-  console.log(roomCodeFromPath);
-
   return (
     <React.Fragment>{showMusicPlayer && renderMusicPlayer()}</React.Fragment>
   );
 
   function renderMusicPlayer() {
-    return <h1>Your code: {localStorage.getItem("room_code")}</h1>;
+    return (
+      <React.Fragment>
+        <h1>Your code: {localStorage.getItem("room_code")}</h1>
+        <br></br>
+        <Button onClick={() => leavingRoom()}>Leave room</Button>
+      </React.Fragment>
+    );
+  }
+
+  function leavingRoom() {
+    leaveRoom();
+    localStorage.removeItem("room_code");
+    history.push("/");
   }
 }
 

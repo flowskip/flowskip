@@ -22,7 +22,7 @@ function constructRequestOptionsWithAuth(method) {
   return requestOptions;
 }
 
-// user -> session endpoints
+// session endpoints
 export function startSession(setFlag) {
   const endpoint = [baseUrl, userEndpoint, "session", "start"];
   const url = new URL(endpoint.join("/"));
@@ -172,6 +172,7 @@ export function createRoom(
   if (signal !== null) {
     requestOptions.signal = signal.signal;
   }
+
   fetch(url, requestOptions)
     .then((res) => {
       console.log(res);
@@ -202,6 +203,16 @@ export function createRoom(
         console.log("error" + err);
       }
     });
+}
+
+export function leaveRoom() {
+  const endpoint = [baseUrl, roomEndpoint, "participants", "leave"];
+  const url = new URL(endpoint.join("/"));
+  let requestOptions = constructRequestOptionsWithAuth("DELETE");
+
+  fetch(url, requestOptions).catch((err) => {
+    console.log("Error " + err);
+  });
 }
 
 // spotify endpoints
