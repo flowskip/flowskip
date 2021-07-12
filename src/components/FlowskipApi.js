@@ -158,6 +158,7 @@ export function getDeltas(setters, states) {
 // room endpoints
 export function createRoom(
   setRoomCodeInDb,
+  signal = null,
   votesToSkip = 2,
   guestsCanPause = false
 ) {
@@ -168,7 +169,9 @@ export function createRoom(
     votes_to_skip: votesToSkip,
     guests_can_pause: guestsCanPause,
   });
-
+  if (signal !== null) {
+    requestOptions.signal = signal.signal;
+  }
   fetch(url, requestOptions)
     .then((res) => {
       console.log(res);
@@ -192,7 +195,13 @@ export function createRoom(
         setRoomCodeInDb(data.code);
       }
     })
-    .catch((err) => console.log("error" + err));
+    .catch((err) => {
+      if (err.name === "AbortError") {
+        console.log("Aborting");
+      } else {
+        console.log("error" + err);
+      }
+    });
 }
 
 // spotify endpoints

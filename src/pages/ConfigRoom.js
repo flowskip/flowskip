@@ -13,6 +13,7 @@ const defRoomCodeInDb =
   localStorage.getItem("room_code") === null
     ? ""
     : localStorage.getItem("room_code");
+const defIsReadyToCreateRoom = false;
 export default function ConfigRoom() {
   const [guestsCanPause, setGuestCanPause] = useState(defGuestCanPause);
   const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
@@ -22,6 +23,9 @@ export default function ConfigRoom() {
   const history = useHistory();
   const isSpotifyAuthenticated =
     localStorage.getItem("spotify_authenticated") === "true";
+  const [isReadyToCreateRoom, setIsReadyToCreateRoom] = useState(
+    defIsReadyToCreateRoom
+  );
 
   useEffect(() => {
     if (isSpotifyAuthenticated && roomCodeInDb === "") {
@@ -41,16 +45,21 @@ export default function ConfigRoom() {
     }
   }, [userDetails, isSpotifyAuthenticated, roomCodeInDb]);
 
-  if (!isSpotifyAuthenticated) {
-    history.push("/");
-  }
-  // ? Comment this else to avoid pushing to room code
-  // ? when a code is already in DB
-  else {
+  useEffect(() => {
+    const abort = new AbortController();
+    if (isReadyToCreateRoom) {
+      createRoom(setRoomCodeInDb, abort, votesToSkip, guestsCanPause);
+    }
     if (roomCodeInDb !== "") {
-      console.log("???");
       history.push("room/" + localStorage.getItem("room_code"));
     }
+    return function cleanup() {
+      abort.abort();
+    };
+  }, [isReadyToCreateRoom, votesToSkip, guestsCanPause, roomCodeInDb, history]);
+
+  if (!isSpotifyAuthenticated) {
+    history.push("/");
   }
 
   function handleChange() {
@@ -65,13 +74,20 @@ export default function ConfigRoom() {
 
   return (
     <React.Fragment>
-      {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
-      {!isPremium && isSpotifyAuthenticated && renderUpgradeToSpotifyPremium()}
+      {isReadyToCreateRoom && loadingScreen()}
+      {isPremium &&
+        !isReadyToCreateRoom &&
+        isSpotifyAuthenticated &&
+        renderConfigRoom()}
+      {!isPremium &&
+        !isReadyToCreateRoom &&
+        isSpotifyAuthenticated &&
+        renderUpgradeToSpotifyPremium()}
     </React.Fragment>
   );
 
-  function sendCreateRoomRequest() {
-    createRoom(setRoomCodeInDb, votesToSkip, guestsCanPause);
+  function loadingScreen() {
+    return <h1>Loading</h1>;
   }
 
   function renderConfigRoom() {
@@ -106,7 +122,7 @@ export default function ConfigRoom() {
             placeholder={defVotesToSkip}
           ></Input>
         </Votes>
-        <RoomButton onClick={() => sendCreateRoomRequest()}>
+        <RoomButton onClick={() => setIsReadyToCreateRoom(true)}>
           ¡Crear sala!
         </RoomButton>
         <BackButton onClick={() => history.push("/")}>Return</BackButton>
