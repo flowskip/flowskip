@@ -10,7 +10,7 @@ export default function Room() {
   const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
 
   if (roomCodeFromPath !== localStorage.getItem("room_code")) {
-    if (localStorage.getItem("room_code") !== undefined) {
+    if (localStorage.getItem("room_code") !== null) {
       history.push(localStorage.getItem("room_code"));
     }
   }

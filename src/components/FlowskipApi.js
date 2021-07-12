@@ -7,17 +7,26 @@ const spotifyEndpoint = "spotify";
 const apiDebugSearch = "API !=! ";
 const fetchErrorMsg = apiDebugSearch + "failed to fetch api, reason ";
 
-let requestOptions = {};
-
-// user -> session endpoints
-export async function startSession(setFlag) {
-  const endpoint = [baseUrl, userEndpoint, "session", "start"];
-  const url = new URL(endpoint.join("/"));
+function constructRequestOptionsWithAuth(method) {
+  let requestOptions = {};
   let headers = new Headers();
   headers.append("Content-Type", "application/json");
-  headers.append("Authorization", "Bearer ");
-  requestOptions.method = "POST";
+  headers.append(
+    "Authorization",
+    "Bearer " + localStorage.getItem("session_key")
+  );
+  requestOptions.method = method;
   requestOptions.headers = headers;
+  requestOptions.withCredentials = true;
+  requestOptions.credentials = "include";
+  return requestOptions;
+}
+
+// user -> session endpoints
+export function startSession(setFlag) {
+  const endpoint = [baseUrl, userEndpoint, "session", "start"];
+  const url = new URL(endpoint.join("/"));
+  let requestOptions = constructRequestOptionsWithAuth("POST");
 
   fetch(url, requestOptions)
     .then((res) => res.json())
@@ -34,16 +43,7 @@ export async function startSession(setFlag) {
 export function createUser(setUserCreated) {
   const endpoint = [baseUrl, userEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
-  let headers = new Headers();
-  headers.append("Content-Type", "application/json");
-  headers.append(
-    "Authorization",
-    "Bearer " + localStorage.getItem("session_key")
-  );
-  requestOptions.method = "POST";
-  requestOptions.headers = headers;
-  requestOptions.withCredentials = true;
-  requestOptions.credentials = "include";
+  let requestOptions = constructRequestOptionsWithAuth("POST");
 
   fetch(url, requestOptions)
     .then((res) => {
@@ -67,16 +67,7 @@ export function createUser(setUserCreated) {
 export function getUserDetails(setUserDetails) {
   const endpoint = [baseUrl, userEndpoint, "details"];
   const url = new URL(endpoint.join("/"));
-  let headers = new Headers();
-  headers.append("Content-Type", "application/json");
-  headers.append(
-    "Authorization",
-    "Bearer " + localStorage.getItem("session_key")
-  );
-  requestOptions.method = "GET";
-  requestOptions.headers = headers;
-  requestOptions.withCredentials = true;
-  requestOptions.credentials = "include";
+  let requestOptions = constructRequestOptionsWithAuth("GET");
 
   console.log("getting user details");
   fetch(url, requestOptions)
@@ -92,20 +83,7 @@ export function getUserDetails(setUserDetails) {
 export function voteToSkip(setVoteStatus, code, trackId) {
   const endpoint = [baseUrl, roomEndpoint, "state", "create"];
   const url = new URL(endpoint.join("/"));
-  let headers = new Headers();
-  requestOptions.body = JSON.stringify({
-    code: code,
-    track_id: trackId,
-  });
-  headers.append("Content-Type", "application/json");
-  headers.append(
-    "Authorization",
-    "Bearer " + localStorage.getItem("session_key")
-  );
-  requestOptions.method = "POST";
-  requestOptions.headers = headers;
-  requestOptions.withCredentials = true;
-  requestOptions.credentials = "include";
+  let requestOptions = constructRequestOptionsWithAuth("POST");
 
   fetch(url, requestOptions)
     .then((res) => {
@@ -134,7 +112,8 @@ export function getDeltas(setters, states) {
   */
   const endpoint = [baseUrl, roomEndpoint, "state"];
   const url = new URL(endpoint.join("/"));
-  let headers = new Headers();
+  let requestOptions = constructRequestOptionsWithAuth("PATCH");
+
   requestOptions.body = JSON.stringify({
     track_id: states["setTrackID"],
     code: states["code"],
@@ -142,15 +121,6 @@ export function getDeltas(setters, states) {
     votes: states["votes"],
     queue: states["queue"],
   });
-  headers.append("Content-Type", "application/json");
-  headers.append(
-    "Authorization",
-    "Bearer " + localStorage.getItem("session_key")
-  );
-  requestOptions.method = "PATCH";
-  requestOptions.headers = headers;
-  requestOptions.withCredentials = true;
-  requestOptions.credentials = "include";
 
   fetch(url, requestOptions)
     .then((res) => res.json())
@@ -186,27 +156,18 @@ export function getDeltas(setters, states) {
 }
 
 // room endpoints
-export async function createRoom(
+export function createRoom(
   setRoomCodeInDb,
   votesToSkip = 2,
   guestsCanPause = false
 ) {
   const endpoint = [baseUrl, roomEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
+  let requestOptions = constructRequestOptionsWithAuth("POST");
   requestOptions.body = JSON.stringify({
     votes_to_skip: votesToSkip,
     guests_can_pause: guestsCanPause,
   });
-  let headers = new Headers();
-  headers.append("Content-Type", "application/json");
-  headers.append(
-    "Authorization",
-    "Bearer " + localStorage.getItem("session_key")
-  );
-  requestOptions.method = "POST";
-  requestOptions.headers = headers;
-  requestOptions.withCredentials = true;
-  requestOptions.credentials = "include";
 
   fetch(url, requestOptions)
     .then((res) => {
@@ -223,7 +184,7 @@ export async function createRoom(
       }
     })
     .then((data) => {
-      console.log("data" + data);
+      console.log("data " + data.code);
       if (data === undefined) {
         new Error(apiDebugSearch + "Error reported by backend");
       } else {
@@ -235,25 +196,17 @@ export async function createRoom(
 }
 
 // spotify endpoints
-export async function getSpotifyAuthenticationUrl(setUrl) {
+export function getSpotifyAuthenticationUrl(setUrl) {
   const endpoint = [baseUrl, spotifyEndpoint, "authenticate-user"];
   const params = {
     redirect_url: redirect_url,
   };
   const url = new URL(endpoint.join("/"));
   url.search = new URLSearchParams(params).toString();
-  let headers = new Headers();
-  headers.append("Content-Type", "application/json");
-  headers.append(
-    "Authorization",
-    "Bearer " + localStorage.getItem("session_key")
-  );
-  requestOptions.method = "GET";
-  requestOptions.headers = headers;
-  requestOptions.withCredentials = true;
-  requestOptions.credentials = "include";
+  let requestOptions = constructRequestOptionsWithAuth("GET");
   console.log("Getting url");
   console.log(localStorage.getItem("session_key"));
+
   fetch(url, requestOptions)
     .then((res) => {
       if (res.status === 208) {
