@@ -40,10 +40,9 @@ export default function ConfigRoom() {
 
   return (
     <React.Fragment>
-      {renderConfigRoom()}
-      {/* {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
+      {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
       {!isPremium && isSpotifyAuthenticated && renderUpgradeToSpotifyPremium()}
-      {!isSpotifyAuthenticated && returnToHome()} */}
+      {!isSpotifyAuthenticated && returnToHome()}
     </React.Fragment>
   );
 
