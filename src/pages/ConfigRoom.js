@@ -3,18 +3,32 @@ import styled from "styled-components";
 import Button from "../components/Button";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { getUserDetails } from "../components/FlowskipApi";
+import { getUserDetails, createRoom } from "../components/FlowskipApi";
 
 const defUserDetails = {};
 const defIsPremium = true;
+const defGuestCanPause = false;
+const defVotesToSkip = 2;
+const defRoomCodeInDb =
+  localStorage.getItem("room_code") === null
+    ? ""
+    : localStorage.getItem("room_code");
+const defIsReadyToCreateRoom = false;
 export default function ConfigRoom() {
-  const history = useHistory();
+  const [guestsCanPause, setGuestCanPause] = useState(defGuestCanPause);
+  const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
+  const [roomCodeInDb, setRoomCodeInDb] = useState(defRoomCodeInDb);
   const [userDetails, setUserDetails] = useState(defUserDetails);
   const [isPremium, setIsPremium] = useState(defIsPremium);
+  const history = useHistory();
   const isSpotifyAuthenticated =
     localStorage.getItem("spotify_authenticated") === "true";
+  const [isReadyToCreateRoom, setIsReadyToCreateRoom] = useState(
+    defIsReadyToCreateRoom
+  );
+
   useEffect(() => {
-    if (isSpotifyAuthenticated) {
+    if (isSpotifyAuthenticated && roomCodeInDb === "") {
       if (
         Object.keys(userDetails).length === 0 &&
         userDetails.constructor === Object
@@ -29,25 +43,51 @@ export default function ConfigRoom() {
         }
       }
     }
-  }, [userDetails]);
+  }, [userDetails, isSpotifyAuthenticated, roomCodeInDb]);
+
+  useEffect(() => {
+    const abort = new AbortController();
+    if (isReadyToCreateRoom) {
+      createRoom(setRoomCodeInDb, abort, votesToSkip, guestsCanPause);
+    }
+    if (roomCodeInDb !== "") {
+      history.push("room/" + localStorage.getItem("room_code"));
+    }
+    return function cleanup() {
+      abort.abort();
+    };
+  }, [isReadyToCreateRoom, votesToSkip, guestsCanPause, roomCodeInDb, history]);
+
+  if (!isSpotifyAuthenticated) {
+    history.push("/");
+  }
 
   function handleChange() {
     var input = document.getElementById("votes");
     input.addEventListener("input", function () {
-      if (this.value.length > 2) this.value = this.value.slice(0, 2);
+      if (this.value.length > 2) {
+        this.value = this.value.slice(0, 2);
+      }
     });
+    setVotesToSkip(/^\d+$/.test(input.value) ? input.value : defVotesToSkip);
   }
 
   return (
     <React.Fragment>
-      {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
-      {!isPremium && isSpotifyAuthenticated && renderUpgradeToSpotifyPremium()}
-      {!isSpotifyAuthenticated && returnToHome()}
+      {isReadyToCreateRoom && loadingScreen()}
+      {isPremium &&
+        !isReadyToCreateRoom &&
+        isSpotifyAuthenticated &&
+        renderConfigRoom()}
+      {!isPremium &&
+        !isReadyToCreateRoom &&
+        isSpotifyAuthenticated &&
+        renderUpgradeToSpotifyPremium()}
     </React.Fragment>
   );
 
-  function returnToHome() {
-    history.push("/");
+  function loadingScreen() {
+    return <h1>Loading</h1>;
   }
 
   function renderConfigRoom() {
@@ -61,12 +101,14 @@ export default function ConfigRoom() {
               type="radio"
               name="controls"
               id="control"
+              onChange={() => setGuestCanPause(true)}
             ></RadioButton>
             <Label htmlFor="control">Reproducir / Pausar</Label>
             <RadioButton
               type="radio"
               name="controls"
               id="nocontrol"
+              onChange={() => setGuestCanPause(false)}
             ></RadioButton>
             <Label htmlFor="nocontrol">Ninguno</Label>
           </InputsContainer>
@@ -77,7 +119,7 @@ export default function ConfigRoom() {
             id="votes"
             onChange={handleChange}
             type="number"
-            placeholder="2"
+            placeholder={defVotesToSkip}
           ></Input>
         </Votes>
         <RoomButton>¡Crear sala!</RoomButton>
