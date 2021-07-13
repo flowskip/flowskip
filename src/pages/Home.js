@@ -47,9 +47,15 @@ export default function Home() {
     }
   }, [url]);
 
+  if (localStorage.getItem("room_code") !== null) {
+    // ? Comment to avoid auto redirect if there's a room code in local storage
+    console.log("Room code in LocalStorage!");
+    history.push("room/" + localStorage.getItem("room_code"));
+  }
+  if (isAlreadyAuthenticatedInSpotify) history.push("config-room");
+
   return (
     <React.Fragment>
-      {isAlreadyAuthenticatedInSpotify && goToConfigRoom()}
       <MainContainer>
         <LogoContainer>
           <Logo src={LogoImg} alt="Logo" />
@@ -65,10 +71,6 @@ export default function Home() {
       </MainContainer>
     </React.Fragment>
   );
-
-  function goToConfigRoom() {
-    history.push("config-room");
-  }
 
   function verifySpotifyAuth() {
     console.log("CLICK!");
