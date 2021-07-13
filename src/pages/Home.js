@@ -6,6 +6,7 @@ import {
   startSession,
   createUser,
   getSpotifyAuthenticationUrl,
+  joinParticipant,
 } from "../components/FlowskipApi";
 
 import Button from "../components/Button";
@@ -13,16 +14,23 @@ import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
 
 const defUrl = "";
-const defIsAlreadyAuthenticatedInSpotify = false;
+const defIsReadyToCreateRoom = false;
 const isSessionKeyInDbAtStart = localStorage.getItem("session_key") !== null;
 const isUserCreatedAtStart = localStorage.getItem("user_created") === "true";
-
+const defRoomCodeInDb =
+  localStorage.getItem("room_code") !== null
+    ? localStorage.getItem("room_code")
+    : "";
+const defInputCode = "";
 export default function Home() {
   const [sessionKeyInDb, setSessionKeyInDb] = useState(isSessionKeyInDbAtStart);
   const [userCreated, setUserCreated] = useState(isUserCreatedAtStart);
+  const [roomCode, setRoomCode] = useState(defRoomCodeInDb);
+  const [inputCode, setInputCode] = useState(defInputCode);
   const [url, setUrl] = useState(defUrl);
-  const [isAlreadyAuthenticatedInSpotify, setIsAlreadyAuthenticatedInSpotify] =
-    useState(defIsAlreadyAuthenticatedInSpotify);
+  const [isReadyToCreateRoom, setIsReadyToCreateRoom] = useState(
+    defIsReadyToCreateRoom
+  );
   const history = useHistory();
   useEffect(() => {
     if (!sessionKeyInDb) {
@@ -41,18 +49,20 @@ export default function Home() {
 
   useEffect(() => {
     if (url === "208") {
-      setIsAlreadyAuthenticatedInSpotify(true);
+      setIsReadyToCreateRoom(true);
     } else if (url !== "") {
       window.open(url, "_self");
     }
   }, [url]);
 
-  if (localStorage.getItem("room_code") !== null) {
-    // ? Comment to avoid auto redirect if there's a room code in local storage
-    console.log("Room code in LocalStorage!");
-    history.push("room/" + localStorage.getItem("room_code"));
-  }
-  if (isAlreadyAuthenticatedInSpotify) goToConfigRoom();
+  useEffect(() => {
+    if (roomCode !== "") {
+      // ? Comment to avoid auto redirect if there's a room code in local storage
+      console.log("Room code in LocalStorage!");
+      history.push("room/" + roomCode);
+    }
+    if (isReadyToCreateRoom) history.push("config-room");
+  }, [isReadyToCreateRoom, history, roomCode]);
 
   return (
     <React.Fragment>
@@ -63,8 +73,13 @@ export default function Home() {
         <CenterSection>
           <Title>¡Bienvenido!</Title>
           <Form action="">
-            <InputText type="text" placeholder="Código" />
-            <InputSubmit type="submit" value="&#9654;" />
+            <InputText
+              onChange={() => readInput()}
+              id="code"
+              type="text"
+              placeholder="Código"
+            />
+            <InputSubmit onClick={() => joinRoomFromCode()} value="&#9654;" />
           </Form>
           <Button onClick={() => verifySpotifyAuth()}>Nueva Sala</Button>
         </CenterSection>
@@ -72,8 +87,17 @@ export default function Home() {
     </React.Fragment>
   );
 
-  function goToConfigRoom() {
-    history.push("config-room");
+  function joinRoomFromCode() {
+    if (inputCode !== "") {
+      console.log("Join From Room Code");
+      joinParticipant(setRoomCode, inputCode);
+    }
+  }
+
+  function readInput() {
+    var input = document.getElementById("code");
+    console.log(input.value);
+    setInputCode(input.value);
   }
 
   function verifySpotifyAuth() {
