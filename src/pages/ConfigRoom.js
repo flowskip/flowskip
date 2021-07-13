@@ -125,26 +125,25 @@ export default function ConfigRoom() {
         <RoomButton onClick={() => setIsReadyToCreateRoom(true)}>
           ¡Crear sala!
         </RoomButton>
-        <BackButton onClick={() => history.push("/")}>Return</BackButton>
+        <BackButton onClick={() => history.push("/")}>Regresar</BackButton>
       </MainContainer>
     );
   }
 
   function renderUpgradeToSpotifyPremium() {
     return (
-      <MainContainer>
-        <h1>Create a room requires spotify premium</h1>
-        <br></br>
-        <h3>Premium is the ultimate experience in spotify, Upgrade Now</h3>
-        <br></br>
-        <p>
-          put a link to spotify premium, es un guiño para que spotify nos ponga
-          en el carrusel c:
-        </p>
-        <br />
-        <Button>Crear Sala</Button>
-        <Button onClick={() => history.push("/")}>Return to home</Button>
-      </MainContainer>
+      <MainContainerNoPremium>
+        <Span>😞</Span>
+        <TitleNoPremium>
+          Lo sentimos, esta aplicación solo funciona con una cuenta premium.
+        </TitleNoPremium>
+        <SpotifyPremium as="a" href="https://www.spotify.com/mx/premium/">
+          ¡Sé premium ahora!
+        </SpotifyPremium>
+        <BackButtonNoPremium onClick={() => history.push("/")}>
+          Return
+        </BackButtonNoPremium>
+      </MainContainerNoPremium>
     );
   }
 }
@@ -153,7 +152,7 @@ const MainContainer = styled.main`
   display: grid;
   padding: 15vh 0;
   height: 100vh;
-  max-height: 800px;
+  max-height: 900px;
   width: 100%;
   max-width: 300px;
   margin: 0 auto;
@@ -167,9 +166,9 @@ const MainContainer = styled.main`
   gap: 10px;
   position: relative;
 
-  @media screen and (max-width: 777px) and (orientation: landscape) {
+  @media screen and (max-width: 900px) and (orientation: landscape) {
     padding: 0;
-    margin: 20px auto 0;
+    margin: auto;
     grid-template-columns: repeat(2, minmax(10%, 1fr));
     width: 100%;
     max-height: 500px;
@@ -214,6 +213,7 @@ const RadioButton = styled.input`
     padding: 5px 10px;
     background: var(--purple);
     box-shadow: 0 3px 10px 1px #00000033;
+    font-weight: bold;
   }
 
   &:checked + label::before {
@@ -265,6 +265,7 @@ const Input = styled.input`
 
   &::placeholder {
     color: white;
+    opacity: 0.6;
   }
 `;
 
@@ -277,4 +278,86 @@ const BackButton = styled(Button)`
   max-width: 150px;
   display: block;
   grid-area: ButtonTwo;
+`;
+
+// No premium styles
+
+const MainContainerNoPremium = styled.main`
+  padding: 5vh 0;
+  display: grid;
+  grid-template-rows: 150px auto repeat(2, 100px);
+  max-height: 800px;
+  place-items: center center;
+  grid-template-areas:
+    "SadFace"
+    "Title"
+    "BuySpotify"
+    "BackButton";
+  grid-gap: 20px;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    grid-template-rows: 150px 100px;
+    grid-template-areas:
+      "Title Title"
+      "BuySpotify BackButton";
+    grid-gap: 20px;
+  }
+`;
+
+const Span = styled.span`
+  font-size: 10rem;
+  text-align: center;
+  grid-area: SadFace;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    display: none;
+  }
+`;
+
+const TitleNoPremium = styled(Title)`
+  grid-area: Title;
+  line-height: clamp(3rem, 8vw, 4rem);
+`;
+
+const SpotifyPremium = styled(Button)`
+  grid-area: BuySpotify;
+  animation: animation 4s ease-in-out infinite;
+
+  @keyframes animation {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+      filter: brightness(105%);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    @keyframes animation {
+      0% {
+        transform: scale(0.8);
+      }
+      50% {
+        transform: scale(0.95);
+        filter: brightness(105%);
+      }
+      100% {
+        transform: scale(0.8);
+      }
+    }
+  }
+`;
+
+const BackButtonNoPremium = styled(Button)`
+  max-width: 150px;
+  display: block;
+  grid-area: BackButton;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    transform: scale(0.8);
+  }
 `;

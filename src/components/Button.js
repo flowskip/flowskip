@@ -21,13 +21,16 @@ const Button = styled.button`
   justify-self: center;
   justify-content: center;
   align-items: center;
+  opacity: 0.9;
 
   &:active {
     transform: scale(0.9);
+    opacity: 1;
   }
 
   &:hover {
     filter: brightness(120%);
+    opacity: 1;
   }
 `;
 
