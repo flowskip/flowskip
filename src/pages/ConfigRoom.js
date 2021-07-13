@@ -122,7 +122,9 @@ export default function ConfigRoom() {
             placeholder={defVotesToSkip}
           ></Input>
         </Votes>
-        <RoomButton>¡Crear sala!</RoomButton>
+        <RoomButton onClick={() => setIsReadyToCreateRoom(true)}>
+          ¡Crear sala!
+        </RoomButton>
         <BackButton onClick={() => history.push("/")}>Regresar</BackButton>
       </MainContainer>
     );
