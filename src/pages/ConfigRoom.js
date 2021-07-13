@@ -3,18 +3,32 @@ import styled from "styled-components";
 import Button from "../components/Button";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { getUserDetails } from "../components/FlowskipApi";
+import { getUserDetails, createRoom } from "../components/FlowskipApi";
 
 const defUserDetails = {};
 const defIsPremium = true;
+const defGuestCanPause = false;
+const defVotesToSkip = 2;
+const defRoomCodeInDb =
+  localStorage.getItem("room_code") === null
+    ? ""
+    : localStorage.getItem("room_code");
+const defIsReadyToCreateRoom = false;
 export default function ConfigRoom() {
-  const history = useHistory();
+  const [guestsCanPause, setGuestCanPause] = useState(defGuestCanPause);
+  const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
+  const [roomCodeInDb, setRoomCodeInDb] = useState(defRoomCodeInDb);
   const [userDetails, setUserDetails] = useState(defUserDetails);
   const [isPremium, setIsPremium] = useState(defIsPremium);
+  const history = useHistory();
   const isSpotifyAuthenticated =
     localStorage.getItem("spotify_authenticated") === "true";
+  const [isReadyToCreateRoom, setIsReadyToCreateRoom] = useState(
+    defIsReadyToCreateRoom
+  );
+
   useEffect(() => {
-    if (isSpotifyAuthenticated) {
+    if (isSpotifyAuthenticated && roomCodeInDb === "") {
       if (
         Object.keys(userDetails).length === 0 &&
         userDetails.constructor === Object
@@ -29,25 +43,51 @@ export default function ConfigRoom() {
         }
       }
     }
-  }, [userDetails]);
+  }, [userDetails, isSpotifyAuthenticated, roomCodeInDb]);
+
+  useEffect(() => {
+    const abort = new AbortController();
+    if (isReadyToCreateRoom) {
+      createRoom(setRoomCodeInDb, abort, votesToSkip, guestsCanPause);
+    }
+    if (roomCodeInDb !== "") {
+      history.push("room/" + localStorage.getItem("room_code"));
+    }
+    return function cleanup() {
+      abort.abort();
+    };
+  }, [isReadyToCreateRoom, votesToSkip, guestsCanPause, roomCodeInDb, history]);
+
+  if (!isSpotifyAuthenticated) {
+    history.push("/");
+  }
 
   function handleChange() {
     var input = document.getElementById("votes");
     input.addEventListener("input", function () {
-      if (this.value.length > 2) this.value = this.value.slice(0, 2);
+      if (this.value.length > 2) {
+        this.value = this.value.slice(0, 2);
+      }
     });
+    setVotesToSkip(/^\d+$/.test(input.value) ? input.value : defVotesToSkip);
   }
 
   return (
     <React.Fragment>
-      {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
-      {!isPremium && isSpotifyAuthenticated && renderUpgradeToSpotifyPremium()}
-      {!isSpotifyAuthenticated && returnToHome()}
+      {isReadyToCreateRoom && loadingScreen()}
+      {isPremium &&
+        !isReadyToCreateRoom &&
+        isSpotifyAuthenticated &&
+        renderConfigRoom()}
+      {!isPremium &&
+        !isReadyToCreateRoom &&
+        isSpotifyAuthenticated &&
+        renderUpgradeToSpotifyPremium()}
     </React.Fragment>
   );
 
-  function returnToHome() {
-    history.push("/");
+  function loadingScreen() {
+    return <h1>Loading</h1>;
   }
 
   function renderConfigRoom() {
@@ -61,12 +101,14 @@ export default function ConfigRoom() {
               type="radio"
               name="controls"
               id="control"
+              onChange={() => setGuestCanPause(true)}
             ></RadioButton>
             <Label htmlFor="control">Reproducir / Pausar</Label>
             <RadioButton
               type="radio"
               name="controls"
               id="nocontrol"
+              onChange={() => setGuestCanPause(false)}
             ></RadioButton>
             <Label htmlFor="nocontrol">Ninguno</Label>
           </InputsContainer>
@@ -77,30 +119,31 @@ export default function ConfigRoom() {
             id="votes"
             onChange={handleChange}
             type="number"
-            placeholder="2"
+            placeholder={defVotesToSkip}
           ></Input>
         </Votes>
-        <RoomButton>¡Crear sala!</RoomButton>
-        <BackButton onClick={() => history.push("/")}>Return</BackButton>
+        <RoomButton onClick={() => setIsReadyToCreateRoom(true)}>
+          ¡Crear sala!
+        </RoomButton>
+        <BackButton onClick={() => history.push("/")}>Regresar</BackButton>
       </MainContainer>
     );
   }
 
   function renderUpgradeToSpotifyPremium() {
     return (
-      <MainContainer>
-        <h1>Create a room requires spotify premium</h1>
-        <br></br>
-        <h3>Premium is the ultimate experience in spotify, Upgrade Now</h3>
-        <br></br>
-        <p>
-          put a link to spotify premium, es un guiño para que spotify nos ponga
-          en el carrusel c:
-        </p>
-        <br />
-        <Button>Crear Sala</Button>
-        <Button onClick={() => history.push("/")}>Return to home</Button>
-      </MainContainer>
+      <MainContainerNoPremium>
+        <Span>😞</Span>
+        <TitleNoPremium>
+          Lo sentimos, esta aplicación solo funciona con una cuenta premium.
+        </TitleNoPremium>
+        <SpotifyPremium as="a" href="https://www.spotify.com/mx/premium/">
+          ¡Sé premium ahora!
+        </SpotifyPremium>
+        <BackButtonNoPremium onClick={() => history.push("/")}>
+          Return
+        </BackButtonNoPremium>
+      </MainContainerNoPremium>
     );
   }
 }
@@ -109,7 +152,7 @@ const MainContainer = styled.main`
   display: grid;
   padding: 15vh 0;
   height: 100vh;
-  max-height: 800px;
+  max-height: 900px;
   width: 100%;
   max-width: 300px;
   margin: 0 auto;
@@ -123,9 +166,9 @@ const MainContainer = styled.main`
   gap: 10px;
   position: relative;
 
-  @media screen and (max-width: 777px) and (orientation: landscape) {
+  @media screen and (max-width: 900px) and (orientation: landscape) {
     padding: 0;
-    margin: 20px auto 0;
+    margin: auto;
     grid-template-columns: repeat(2, minmax(10%, 1fr));
     width: 100%;
     max-height: 500px;
@@ -170,6 +213,7 @@ const RadioButton = styled.input`
     padding: 5px 10px;
     background: var(--purple);
     box-shadow: 0 3px 10px 1px #00000033;
+    font-weight: bold;
   }
 
   &:checked + label::before {
@@ -221,6 +265,7 @@ const Input = styled.input`
 
   &::placeholder {
     color: white;
+    opacity: 0.6;
   }
 `;
 
@@ -233,4 +278,86 @@ const BackButton = styled(Button)`
   max-width: 150px;
   display: block;
   grid-area: ButtonTwo;
+`;
+
+// No premium styles
+
+const MainContainerNoPremium = styled.main`
+  padding: 5vh 0;
+  display: grid;
+  grid-template-rows: 150px auto repeat(2, 100px);
+  max-height: 800px;
+  place-items: center center;
+  grid-template-areas:
+    "SadFace"
+    "Title"
+    "BuySpotify"
+    "BackButton";
+  grid-gap: 20px;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    grid-template-rows: 150px 100px;
+    grid-template-areas:
+      "Title Title"
+      "BuySpotify BackButton";
+    grid-gap: 20px;
+  }
+`;
+
+const Span = styled.span`
+  font-size: 10rem;
+  text-align: center;
+  grid-area: SadFace;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    display: none;
+  }
+`;
+
+const TitleNoPremium = styled(Title)`
+  grid-area: Title;
+  line-height: clamp(3rem, 8vw, 4rem);
+`;
+
+const SpotifyPremium = styled(Button)`
+  grid-area: BuySpotify;
+  animation: animation 4s ease-in-out infinite;
+
+  @keyframes animation {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+      filter: brightness(105%);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    @keyframes animation {
+      0% {
+        transform: scale(0.8);
+      }
+      50% {
+        transform: scale(0.95);
+        filter: brightness(105%);
+      }
+      100% {
+        transform: scale(0.8);
+      }
+    }
+  }
+`;
+
+const BackButtonNoPremium = styled(Button)`
+  max-width: 150px;
+  display: block;
+  grid-area: BackButton;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    transform: scale(0.8);
+  }
 `;

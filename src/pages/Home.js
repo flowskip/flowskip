@@ -75,6 +75,7 @@ export default function Home() {
   function verifySpotifyAuth() {
     console.log("CLICK!");
     if (localStorage.getItem("spotify_authenticated") === "true") {
+      console.log("go to config-room");
       history.push("config-room");
     } else {
       localStorage.setItem("next", "config-room");
