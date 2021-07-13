@@ -14,27 +14,12 @@ export default function ConfigRoom() {
   const isSpotifyAuthenticated =
     localStorage.getItem("spotify_authenticated") === "true";
   useEffect(() => {
-<<<<<<< HEAD
-    if (
-      Object.keys(userDetails).length === 0 &&
-      userDetails.constructor === Object
-    ) {
-      getUserDetails(setUserDetails);
-    } else {
-      if (!userDetails.spotify_user.product === "premium") {
-        console.log("user is not premium");
-        setIsPremium(false);
-      } else if (userDetails.spotify_user.product === "premium") {
-        setIsPremium(true);
-        console.log("user is premium");
-=======
     if (isSpotifyAuthenticated) {
       if (
         Object.keys(userDetails).length === 0 &&
         userDetails.constructor === Object
       ) {
         getUserDetails(setUserDetails);
->>>>>>> 8177d27f5e3b9bbd3e81bf2e16246ddd5f387393
       } else {
         if (userDetails.spotify_user.product === "premium") {
           console.log("user is premium");
@@ -55,9 +40,10 @@ export default function ConfigRoom() {
 
   return (
     <React.Fragment>
-      {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
+      {renderConfigRoom()}
+      {/* {isPremium && isSpotifyAuthenticated && renderConfigRoom()}
       {!isPremium && isSpotifyAuthenticated && renderUpgradeToSpotifyPremium()}
-      {!isSpotifyAuthenticated && returnToHome()}
+      {!isSpotifyAuthenticated && returnToHome()} */}
     </React.Fragment>
   );
 
@@ -96,14 +82,13 @@ export default function ConfigRoom() {
           ></Input>
         </Votes>
         <RoomButton>¡Crear sala!</RoomButton>
-        <BackButton onClick={() => history.push("/")}>Return</BackButton>
+        <BackButton onClick={() => history.push("/")}>Regresar</BackButton>
       </MainContainer>
     );
   }
 
   function renderUpgradeToSpotifyPremium() {
     return (
-<<<<<<< HEAD
       <MainContainerNoPremium>
         <Span>😞</Span>
         <TitleNoPremium>
@@ -116,21 +101,6 @@ export default function ConfigRoom() {
           Return
         </BackButtonNoPremium>
       </MainContainerNoPremium>
-=======
-      <MainContainer>
-        <h1>Create a room requires spotify premium</h1>
-        <br></br>
-        <h3>Premium is the ultimate experience in spotify, Upgrade Now</h3>
-        <br></br>
-        <p>
-          put a link to spotify premium, es un guiño para que spotify nos ponga
-          en el carrusel c:
-        </p>
-        <br />
-        <Button>Crear Sala</Button>
-        <Button onClick={() => history.push("/")}>Return to home</Button>
-      </MainContainer>
->>>>>>> 8177d27f5e3b9bbd3e81bf2e16246ddd5f387393
     );
   }
 }
@@ -153,7 +123,7 @@ const MainContainer = styled.main`
   gap: 10px;
   position: relative;
 
-  @media screen and (max-width: 777px) and (orientation: landscape) {
+  @media screen and (max-width: 900px) and (orientation: landscape) {
     padding: 0;
     margin: auto;
     grid-template-columns: repeat(2, minmax(10%, 1fr));
@@ -276,16 +246,29 @@ const MainContainerNoPremium = styled.main`
   max-height: 800px;
   place-items: center center;
   grid-template-areas:
-    "SadFace" "Title"
+    "SadFace"
+    "Title"
     "BuySpotify"
     "BackButton";
   grid-gap: 20px;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    grid-template-rows: 150px 100px;
+    grid-template-areas:
+      "Title Title"
+      "BuySpotify BackButton";
+    grid-gap: 20px;
+  }
 `;
 
 const Span = styled.span`
   font-size: 10rem;
   text-align: center;
   grid-area: SadFace;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    display: none;
+  }
 `;
 
 const TitleNoPremium = styled(Title)`
@@ -295,7 +278,7 @@ const TitleNoPremium = styled(Title)`
 
 const SpotifyPremium = styled(Button)`
   grid-area: BuySpotify;
-  animation: animation 5s ease-in-out infinite;
+  animation: animation 4s ease-in-out infinite;
 
   @keyframes animation {
     0% {
@@ -309,10 +292,29 @@ const SpotifyPremium = styled(Button)`
       transform: scale(1);
     }
   }
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    @keyframes animation {
+      0% {
+        transform: scale(0.8);
+      }
+      50% {
+        transform: scale(0.95);
+        filter: brightness(105%);
+      }
+      100% {
+        transform: scale(0.8);
+      }
+    }
+  }
 `;
 
 const BackButtonNoPremium = styled(Button)`
   max-width: 150px;
   display: block;
   grid-area: BackButton;
+
+  @media screen and (max-width: 900px) and (orientation: landscape) {
+    transform: scale(0.8);
+  }
 `;
