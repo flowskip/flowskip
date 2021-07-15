@@ -14,9 +14,9 @@ export default function App() {
     <BrowserRouter>
       <GlobalStyle />
       <Switch>
-        <Route exact path="/flowskip/" component={Home} />
-        <Route exact path="/flowskip/test-api" component={TestingApi} />
-        <Route exact path="/flowskip/config-room" component={ConfigRoom} />
+        <Route exact path="/" component={Home} />
+        <Route exact path="/test-api" component={TestingApi} />
+        <Route exact path="/config-room" component={ConfigRoom} />
         <Route
           exact
           path="/flowskip/redirect-from-api"
