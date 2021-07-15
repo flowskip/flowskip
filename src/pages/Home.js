@@ -90,7 +90,7 @@ export default function Home() {
   function joinRoomFromCode() {
     if (inputCode !== "") {
       console.log("Join From Room Code");
-      joinParticipant(setRoomCode, inputCode);
+      joinParticipant(setRoomCode, { code: inputCode });
     }
   }
 

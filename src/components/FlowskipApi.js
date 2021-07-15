@@ -80,10 +80,11 @@ export function getUserDetails(setUserDetails) {
 }
 
 // state endpoints
-export function voteToSkip(setVoteStatus, code, trackId) {
-  const endpoint = [baseUrl, roomEndpoint, "state", "create"];
+export function voteToSkip(setVoteStatus, validations) {
+  const endpoint = [baseUrl, roomEndpoint, "state", "vote-to-skip"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = constructRequestOptionsWithAuth("POST");
+  requestOptions.body = JSON.stringify(validations);
 
   fetch(url, requestOptions)
     .then((res) => {
@@ -109,9 +110,17 @@ export function calculateDeltas(setState, actualState) {
   requestOptions.body = JSON.stringify(actualState);
 
   fetch(url, requestOptions)
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.status === 200) {
+        return res.json();
+      } else {
+        return null;
+      }
+    })
     .then((data) => {
-      setState(data);
+      if (data !== null) {
+        setState(data);
+      }
     })
     .catch((err) => new Error(fetchErrorMsg + err));
 }
@@ -123,9 +132,7 @@ export function joinParticipant(setRoomCode, roomCode) {
   let url = new URL(endpoint.join("/"));
   let requestOptions = constructRequestOptionsWithAuth("POST");
 
-  requestOptions.body = JSON.stringify({
-    code: roomCode,
-  });
+  requestOptions.body = JSON.stringify(roomCode);
 
   fetch(url, requestOptions)
     .then((res) => {
@@ -212,6 +219,7 @@ export function createRoom(
 }
 
 // spotify endpoints
+
 export function getSpotifyAuthenticationUrl(setUrl) {
   const endpoint = [baseUrl, spotifyEndpoint, "authenticate-user"];
   const params = {
