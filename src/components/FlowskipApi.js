@@ -155,7 +155,52 @@ export function getDeltas(setters, states) {
     .catch((err) => new Error(fetchErrorMsg + err));
 }
 
+// participants endpoints
+
+export function joinParticipant(setRoomCode, roomCode) {
+  const endpoint = [baseUrl, roomEndpoint, "participants", "join"];
+  let url = new URL(endpoint.join("/"));
+  let requestOptions = constructRequestOptionsWithAuth("POST");
+
+  requestOptions.body = JSON.stringify({
+    code: roomCode,
+  });
+
+  fetch(url, requestOptions)
+    .then((res) => {
+      if (res.status === 201) {
+        console.log("Successfully joined");
+        return { code: roomCode };
+      } else if (res.status === 208) {
+        console.log("User is already in room. Leave first!");
+        return res.json();
+      } else {
+        return undefined;
+      }
+    })
+    .then((data) => {
+      if (data === undefined) {
+        new Error(apiDebugSearch + "Error reported by backend");
+      } else {
+        console.log(data);
+        localStorage.setItem("room_code", data.code);
+        setRoomCode(data.code);
+      }
+    });
+}
+
+export function leaveRoom() {
+  const endpoint = [baseUrl, roomEndpoint, "participants", "leave"];
+  const url = new URL(endpoint.join("/"));
+  let requestOptions = constructRequestOptionsWithAuth("DELETE");
+
+  fetch(url, requestOptions).catch((err) => {
+    console.log("Error " + err);
+  });
+}
+
 // room endpoints
+
 export function createRoom(
   setRoomCodeInDb,
   signal = null,
@@ -176,8 +221,8 @@ export function createRoom(
   fetch(url, requestOptions)
     .then((res) => {
       console.log(res);
-      if (res.status === 200) {
-        console.log("200 ok");
+      if (res.status === 200 || res.status === 201) {
+        console.log("201 ok");
         return res.json();
       } else if (res.status === 208) {
         console.log("already in room");
@@ -203,16 +248,6 @@ export function createRoom(
         console.log("error" + err);
       }
     });
-}
-
-export function leaveRoom() {
-  const endpoint = [baseUrl, roomEndpoint, "participants", "leave"];
-  const url = new URL(endpoint.join("/"));
-  let requestOptions = constructRequestOptionsWithAuth("DELETE");
-
-  fetch(url, requestOptions).catch((err) => {
-    console.log("Error " + err);
-  });
 }
 
 // spotify endpoints
