@@ -5,7 +5,7 @@ import Home from "../pages/Home";
 import ConfigRoom from "../pages/ConfigRoom";
 import { TestingApi } from "./TestingApi.js";
 import RedirectFromApi from "./RedirectFromApi.js";
-import Room from "./Room";
+import Room from "../pages/Room";
 
 import GlobalStyle from "../styles/GlobalStyle";
 

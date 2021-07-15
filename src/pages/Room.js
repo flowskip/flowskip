@@ -1,8 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router";
-import Button from "./Button";
-import { leaveRoom } from "./FlowskipApi";
+import Button from "../components/Button";
+import { leaveRoom } from "../components/FlowskipApi";
 
 const defShowPlayer = true;
 export default function Room() {
