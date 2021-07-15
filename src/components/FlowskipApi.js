@@ -102,55 +102,16 @@ export function voteToSkip(setVoteStatus, code, trackId) {
     .catch((err) => new Error(fetchErrorMsg + err));
 }
 
-export function getDeltas(setters, states) {
-  /*
-    trackId,
-    code,
-    participants = [],
-    votes = [],
-    queue = []
-  */
+export function calculateDeltas(setState, actualState) {
   const endpoint = [baseUrl, roomEndpoint, "state"];
-  const url = new URL(endpoint.join("/"));
+  const url = new URL(endpoint.join("/") + "/");
   let requestOptions = constructRequestOptionsWithAuth("PATCH");
-
-  requestOptions.body = JSON.stringify({
-    track_id: states["setTrackID"],
-    code: states["code"],
-    participants: states["participants"],
-    votes: states["votes"],
-    queue: states["queue"],
-  });
+  requestOptions.body = JSON.stringify(actualState);
 
   fetch(url, requestOptions)
     .then((res) => res.json())
     .then((data) => {
-      /*
-      setTrackID,
-      setCurrentPlayback,
-      setParticipants,
-      setNewParticipants,
-      setGoneParticipants,
-      setVotesToSkip,
-      setNewVotesToSkip,
-      setQueue,
-      setNewQueueTracks,
-      setGoneQueueTracks,
-    */
-      if (data.current_playback.item === undefined) {
-        setters["setTrackID"]("");
-      } else {
-        setters["setTrackID"](data.current_playback.item.id);
-      }
-      setters["setCurrentPlayback"](data.current_playback);
-      setters["setParticipants"](data.participants.all);
-      setters["setNewParticipants"](data.participants.new);
-      setters["setGoneParticipants"](data.participants.gone);
-      setters["setVotesToSkip"](data.votes_to_skip.all);
-      setters["setNewVotesToSkip"](data.votes_to_skip.new);
-      setters["setQueue"](data.queue.all);
-      setters["setNewQueueTracks"](data.queue.new);
-      setters["setGoneQueueTracks"](data.queue.gone);
+      setState(data);
     })
     .catch((err) => new Error(fetchErrorMsg + err));
 }
