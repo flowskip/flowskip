@@ -1,13 +1,6 @@
 {
   "short_name": "Flowskip",
   "name": "Flowskip for Spotify",
-  "icons": [
-    {
-      "src": "logo.svg",
-      "type": "image/svg+xml",
-      "sizes": "192x192"
-    }
-  ],
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#FF79CD",
