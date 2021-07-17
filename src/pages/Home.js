@@ -10,7 +10,6 @@ import {
 } from "../components/FlowskipApi";
 
 import Button from "../components/Button";
-
 import LogoImg from "../assets/img/logo.png";
 
 const defSessionKey = localStorage.getItem("session_key") !== null;
