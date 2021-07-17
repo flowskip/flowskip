@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, HashRouter, Switch, Route } from "react-router-dom";
+import { HashRouter, Switch, Route } from "react-router-dom";
 
 import Home from "../pages/Home";
 import ConfigRoom from "../pages/ConfigRoom";
@@ -11,22 +11,15 @@ import GlobalStyle from "../styles/GlobalStyle";
 
 export default function App() {
   return (
-    <React.Fragment>
-      <HashRouter>
-        <GlobalStyle />
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route exact path="/config-room" component={ConfigRoom} />
-          <Route exact path="/room/:room_code" component={Room} />
-        </Switch>
-      </HashRouter>
-      <BrowserRouter>
-        <GlobalStyle />
-        <Switch>
-          <Route exact path="/test-api" component={TestingApi} />
-          <Route exact path="/redirect-from-api" component={RedirectFromApi} />
-        </Switch>
-      </BrowserRouter>
-    </React.Fragment>
+    <HashRouter>
+      <GlobalStyle />
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/test-api" component={TestingApi} />
+        <Route exact path="/config-room" component={ConfigRoom} />
+        <Route exact path="/redirect-from-api" component={RedirectFromApi} />
+        <Route exact path="/room/:room_code" component={Room} />
+      </Switch>
+    </HashRouter>
   );
 }
