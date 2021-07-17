@@ -1,5 +1,5 @@
 const baseUrl = "https://flowskip-api.herokuapp.com";
-const redirect_url = "https://flowskip.com/#/redirect-from-api";
+const redirect_url = "https://flowskip.com/redirect-from-api";
 const userEndpoint = "user";
 const roomEndpoint = "room";
 const spotifyEndpoint = "spotify";
