@@ -83,7 +83,7 @@ export default function Home() {
               type="submit"
               onClick={() => joinRoomFromCode()}
               value="&#9654;"
-            />{" "}
+            />
           </Form>
           <Button onClick={() => verifySpotifyAuth()}>Nueva Sala</Button>
         </CenterSection>
