@@ -102,6 +102,7 @@ export function calculateDeltas(body, onResponse, options = {}) {
     options
   );
   requestOptions.body = JSON.stringify(body);
+  console.log(requestOptions);
 
   executeRequest(url, requestOptions, onResponse);
 }
