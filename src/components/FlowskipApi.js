@@ -6,6 +6,7 @@ const spotifyEndpoint = "spotify";
 
 const apiDebugSearch = "API !=! ";
 const fetchErrorMsg = apiDebugSearch + "failed to fetch api, reason ";
+let responseCode = 500;
 
 function constructRequestOptionsWithAuth(method) {
   let requestOptions = {};
@@ -22,229 +23,143 @@ function constructRequestOptionsWithAuth(method) {
   return requestOptions;
 }
 
+async function executeRequest(url, requestOptions, onResponse) {
+  fetch(url, requestOptions)
+    .then((res) => {
+      responseCode = res.status;
+      return res.json();
+    })
+    .then((data) => onResponse(data, responseCode))
+    .catch((err) => new Error(fetchErrorMsg + err));
+}
+
 // session endpoints
-export function startSession(setFlag) {
+
+export function startSession(onResponse, options = {}) {
   const endpoint = [baseUrl, userEndpoint, "session", "start"];
   const url = new URL(endpoint.join("/"));
-  let requestOptions = constructRequestOptionsWithAuth("POST");
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
 
-  fetch(url, requestOptions)
-    .then((res) => res.json())
-    .then((data) => {
-      localStorage.setItem("session_key", data.session_key);
-      setFlag(true);
-    })
-    .catch((err) => new Error(fetchErrorMsg + err));
+  executeRequest(url, requestOptions, onResponse);
+}
 
-  console.log(apiDebugSearch + "Getting session key");
+export function getSessionDetails(onResponse, options = {}) {
+  const endpoint = [baseUrl, userEndpoint, "session", "details"];
+  const url = new URL(endpoint.join("/"));
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("GET"),
+    options
+  );
+
+  executeRequest(url, requestOptions, onResponse);
 }
 
 // user endpoints
-export function createUser(setUserCreated) {
+
+export function createUser(onResponse, options = {}) {
   const endpoint = [baseUrl, userEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
-  let requestOptions = constructRequestOptionsWithAuth("POST");
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
 
-  fetch(url, requestOptions)
-    .then((res) => {
-      if (res.status === 201) {
-        console.log(apiDebugSearch + "user created");
-        localStorage.setItem("user_created", true);
-        setUserCreated(true);
-      } else if (res.status === 208) {
-        console.log(apiDebugSearch + "user already exists");
-        localStorage.setItem("user_created", true);
-        setUserCreated(true);
-      } else {
-        new Error(
-          apiDebugSearch + "user not created, response = " + res.status
-        );
-      }
-    })
-    .catch((err) => new Error(fetchErrorMsg + err));
+  executeRequest(url, requestOptions, onResponse);
 }
 
-export function getUserDetails(setUserDetails) {
+export function getUserDetails(onResponse, options = {}) {
   const endpoint = [baseUrl, userEndpoint, "details"];
   const url = new URL(endpoint.join("/"));
-  let requestOptions = constructRequestOptionsWithAuth("GET");
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("GET"),
+    options
+  );
 
-  console.log("getting user details");
-  fetch(url, requestOptions)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
-      setUserDetails(data);
-    })
-    .catch((err) => new Error(fetchErrorMsg + err));
+  executeRequest(url, requestOptions, onResponse);
 }
 
 // state endpoints
-export function voteToSkip(setVoteStatus, validations) {
+export function voteToSkip(body, onResponse, options = {}) {
   const endpoint = [baseUrl, roomEndpoint, "state", "vote-to-skip"];
   const url = new URL(endpoint.join("/"));
-  let requestOptions = constructRequestOptionsWithAuth("POST");
-  requestOptions.body = JSON.stringify(validations);
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
 
-  fetch(url, requestOptions)
-    .then((res) => {
-      if (res.status === 201) {
-        setVoteStatus("created");
-      } else if (res.status === 208) {
-        setVoteStatus("reported");
-      } else if (res.status === 410) {
-        new Error(apiDebugSearch + "too late to vote");
-        setVoteStatus("gone");
-      } else if (res.status === 301) {
-        new Error(apiDebugSearch + "theres a new song");
-        setVoteStatus("moved");
-      }
-    })
-    .catch((err) => new Error(fetchErrorMsg + err));
+  executeRequest(url, requestOptions, onResponse);
 }
 
-export function calculateDeltas(setState, actualState) {
+export function calculateDeltas(body, onResponse, options = {}) {
   const endpoint = [baseUrl, roomEndpoint, "state"];
   const url = new URL(endpoint.join("/") + "/");
-  let requestOptions = constructRequestOptionsWithAuth("PATCH");
-  requestOptions.body = JSON.stringify(actualState);
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("PATCH"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
 
-  fetch(url, requestOptions)
-    .then((res) => {
-      if (res.status === 200) {
-        return res.json();
-      } else {
-        return null;
-      }
-    })
-    .then((data) => {
-      if (data !== null) {
-        setState(data);
-      }
-    })
-    .catch((err) => new Error(fetchErrorMsg + err));
+  executeRequest(url, requestOptions, onResponse);
 }
 
 // participants endpoints
 
-export function joinParticipant(setRoomCode, roomCode) {
+export function joinParticipant(body, onResponse, options = {}) {
   const endpoint = [baseUrl, roomEndpoint, "participants", "join"];
   let url = new URL(endpoint.join("/"));
-  let requestOptions = constructRequestOptionsWithAuth("POST");
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
 
-  requestOptions.body = JSON.stringify(roomCode);
-
-  fetch(url, requestOptions)
-    .then((res) => {
-      if (res.status === 201) {
-        console.log("Successfully joined");
-        return { code: roomCode };
-      } else if (res.status === 208) {
-        console.log("User is already in room. Leave first!");
-        return res.json();
-      } else {
-        return undefined;
-      }
-    })
-    .then((data) => {
-      if (data === undefined) {
-        new Error(apiDebugSearch + "Error reported by backend");
-      } else {
-        console.log(data);
-        localStorage.setItem("room_code", data.code);
-        setRoomCode(data.code);
-      }
-    });
+  executeRequest(url, requestOptions, onResponse);
 }
 
-export function leaveRoom() {
+export function leaveRoom(onResponse, options = {}) {
   const endpoint = [baseUrl, roomEndpoint, "participants", "leave"];
   const url = new URL(endpoint.join("/"));
-  let requestOptions = constructRequestOptionsWithAuth("DELETE");
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("DELETE"),
+    options
+  );
 
-  fetch(url, requestOptions).catch((err) => {
-    console.log("Error " + err);
-  });
+  executeRequest(url, requestOptions, onResponse);
 }
 
 // room endpoints
 
-export function createRoom(
-  setRoomCodeInDb,
-  signal = null,
-  votesToSkip = 2,
-  guestsCanPause = false
-) {
+export function createRoom(body, onResponse, options = {}) {
   const endpoint = [baseUrl, roomEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = constructRequestOptionsWithAuth("POST");
-  requestOptions.body = JSON.stringify({
-    votes_to_skip: votesToSkip,
-    guests_can_pause: guestsCanPause,
-  });
+  requestOptions.body = JSON.stringify(body);
+  /*
   if (signal !== null) {
     requestOptions.signal = signal.signal;
   }
+  */
 
-  fetch(url, requestOptions)
-    .then((res) => {
-      console.log(res);
-      if (res.status === 200 || res.status === 201) {
-        console.log("201 ok");
-        return res.json();
-      } else if (res.status === 208) {
-        console.log("already in room");
-        return res.json();
-      } else {
-        console.log("error");
-        return undefined;
-      }
-    })
-    .then((data) => {
-      console.log("data " + data.code);
-      if (data === undefined) {
-        new Error(apiDebugSearch + "Error reported by backend");
-      } else {
-        localStorage.setItem("room_code", data.code);
-        setRoomCodeInDb(data.code);
-      }
-    })
-    .catch((err) => {
-      if (err.name === "AbortError") {
-        console.log("Aborting");
-      } else {
-        console.log("error" + err);
-      }
-    });
+  executeRequest(url, requestOptions, onResponse);
 }
 
 // spotify endpoints
 
-export function getSpotifyAuthenticationUrl(setUrl) {
+export function getSpotifyAuthenticationUrl(onResponse, options = {}) {
   const endpoint = [baseUrl, spotifyEndpoint, "authenticate-user"];
   const params = {
     redirect_url: redirect_url,
   };
   const url = new URL(endpoint.join("/"));
   url.search = new URLSearchParams(params).toString();
-  let requestOptions = constructRequestOptionsWithAuth("GET");
-  console.log("Getting url");
-  console.log(localStorage.getItem("session_key"));
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("GET"),
+    options
+  );
 
-  fetch(url, requestOptions)
-    .then((res) => {
-      if (res.status === 208) {
-        localStorage.setItem("spotify_authenticated", "true");
-      }
-      return res.json();
-    })
-    .then((data) => {
-      if (data.authorize_url === undefined) {
-        localStorage.removeItem("next");
-        setUrl("208");
-      } else {
-        setUrl(data.authorize_url);
-      }
-    })
-    .catch((err) => new Error(fetchErrorMsg + err));
+  executeRequest(url, requestOptions, onResponse);
 }
