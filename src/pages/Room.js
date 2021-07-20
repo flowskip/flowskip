@@ -1,15 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router";
-import Button from "./Button";
-import { leaveRoom, getDeltas, calculateDeltas } from "./FlowskipApi";
+import Button from "../components/Button";
+import { leaveRoom, calculateDeltas } from "../components/FlowskipApi";
 
 const defTrackId = "";
 const defCurrentPlayback = {};
-const defRoomCode =
-  localStorage.getItem("room_code") === null
-    ? ""
-    : localStorage.getItem("room_code");
 const defParticipants = [];
 const defNewParticipants = [];
 const defGoneParticipants = [];
@@ -24,7 +20,11 @@ export default function Room() {
   const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
   const [trackId, setTrackId] = useState(defTrackId);
   const [currentPlayback, setCurrentPlayback] = useState(defCurrentPlayback);
-  const [roomCode, setRoomCode] = useState(defRoomCode);
+  const [roomCode, setRoomCode] = useState(
+    localStorage.getItem("room_code") === null
+      ? ""
+      : localStorage.getItem("room_code")
+  );
   const [participants, setParticipants] = useState(defParticipants);
   const [newParticipants, setNewParticipants] = useState(defNewParticipants);
   const [goneParticipants, setGoneParticipants] = useState(defGoneParticipants);
@@ -71,7 +71,7 @@ export default function Room() {
       votes: votesToSkip,
       queue: queue,
     };
-    calculateDeltas(setDeltas, actualState);
+    calculateDeltas(actualState, calculateDeltasResponse);
   }
 
   if (roomCodeFromPath !== localStorage.getItem("room_code")) {
@@ -116,8 +116,23 @@ export default function Room() {
   }
 
   function leavingRoom() {
-    leaveRoom();
-    localStorage.removeItem("room_code");
-    history.push("/");
+    leaveRoom(leaveRoomResponse);
+    // loading screen here
+  }
+
+  function leaveRoomResponse(data, responseCode) {
+    if (responseCode === 204) {
+      localStorage.removeItem("room_code");
+      history.push("/");
+    } else {
+      console.log("Leave room with problem");
+      // do something here
+    }
+  }
+
+  function calculateDeltasResponse(data, responseCode) {
+    if (responseCode === 200) {
+      setDeltas(data);
+    }
   }
 }
