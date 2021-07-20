@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:8000";
+const baseUrl = "https://flowskip-api.herokuapp.com";
 const redirect_url = "http://localhost:3000/redirect-from-api";
 const userEndpoint = "user";
 const roomEndpoint = "room";
