@@ -23,14 +23,41 @@ function constructRequestOptionsWithAuth(method) {
   return requestOptions;
 }
 
-async function executeRequest(url, requestOptions, onResponse) {
+async function executeRequest(
+  url,
+  requestOptions,
+  onResponse,
+  onFinally = null,
+  onCatch = null
+) {
   fetch(url, requestOptions)
     .then((res) => {
       responseCode = res.status;
-      return res.json();
+      if (responseCode !== 204) {
+        return res.json();
+      } else {
+        return null;
+      }
     })
-    .then((data) => onResponse(data, responseCode))
-    .catch((err) => new Error(fetchErrorMsg + err));
+    .then((data) => {
+      if (data === null) {
+        onResponse(null, responseCode);
+      } else {
+        onResponse(data, responseCode);
+      }
+    })
+    .finally(() => {
+      if (onFinally !== null) {
+        onFinally();
+      }
+    })
+    .catch((err) => {
+      if (onCatch !== null) {
+        onCatch(err);
+      } else {
+        new Error(fetchErrorMsg + err);
+      }
+    });
 }
 
 // session endpoints
@@ -102,7 +129,6 @@ export function calculateDeltas(body, onResponse, options = {}) {
     options
   );
   requestOptions.body = JSON.stringify(body);
-  console.log(requestOptions);
 
   executeRequest(url, requestOptions, onResponse);
 }
@@ -128,7 +154,6 @@ export function leaveRoom(onResponse, options = {}) {
     constructRequestOptionsWithAuth("DELETE"),
     options
   );
-
   executeRequest(url, requestOptions, onResponse);
 }
 
@@ -139,11 +164,6 @@ export function createRoom(body, onResponse, options = {}) {
   const url = new URL(endpoint.join("/"));
   let requestOptions = constructRequestOptionsWithAuth("POST");
   requestOptions.body = JSON.stringify(body);
-  /*
-  if (signal !== null) {
-    requestOptions.signal = signal.signal;
-  }
-  */
 
   executeRequest(url, requestOptions, onResponse);
 }
