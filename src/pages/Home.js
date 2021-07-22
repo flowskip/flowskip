@@ -13,9 +13,7 @@ import Button from "../components/Button";
 
 import LogoImg from "../assets/img/logo.png";
 
-const defUrl = "";
-const defIsReadyToCreateRoom = false;
-const isSessionKeyInDbAtStart = localStorage.getItem("session_key") !== null;
+const defSessionKey = localStorage.getItem("session_key") !== null;
 const isUserCreatedAtStart = localStorage.getItem("user_created") === "true";
 const defRoomCodeInDb =
   localStorage.getItem("room_code") !== null
@@ -23,37 +21,24 @@ const defRoomCodeInDb =
     : "";
 const defInputCode = "";
 export default function Home() {
-  const [sessionKeyInDb, setSessionKeyInDb] = useState(isSessionKeyInDbAtStart);
+  const [sessionKey, setSessionKey] = useState(defSessionKey);
   const [userCreated, setUserCreated] = useState(isUserCreatedAtStart);
   const [roomCode, setRoomCode] = useState(defRoomCodeInDb);
   const [inputCode, setInputCode] = useState(defInputCode);
-  const [url, setUrl] = useState(defUrl);
-  const [isReadyToCreateRoom, setIsReadyToCreateRoom] = useState(
-    defIsReadyToCreateRoom
-  );
   const history = useHistory();
   useEffect(() => {
-    if (!sessionKeyInDb) {
-      console.log("getting session_key");
-      startSession(setSessionKeyInDb);
+    if (!sessionKey) {
+      startSession(startSessionResponse);
     } else {
       if (!userCreated) {
         console.log("creating user");
-        createUser(setUserCreated);
+        createUser(createUserResponse);
       } else {
         // Here all the code to be done with a user
-        console.log("blank");
+        console.log("session and user check");
       }
     }
-  }, [sessionKeyInDb, userCreated]);
-
-  useEffect(() => {
-    if (url === "208") {
-      setIsReadyToCreateRoom(true);
-    } else if (url !== "") {
-      window.open(url, "_self");
-    }
-  }, [url]);
+  }, [sessionKey, userCreated]);
 
   useEffect(() => {
     if (roomCode !== "") {
@@ -61,8 +46,7 @@ export default function Home() {
       console.log("Room code in LocalStorage!");
       history.push("room/" + roomCode);
     }
-    if (isReadyToCreateRoom) history.push("config-room");
-  }, [isReadyToCreateRoom, history, roomCode]);
+  }, [history, roomCode]);
 
   return (
     <React.Fragment>
@@ -91,10 +75,45 @@ export default function Home() {
     </React.Fragment>
   );
 
+  function startSessionResponse(data, responseCode) {
+    if (responseCode === 201 || responseCode === 208) {
+      localStorage.setItem("session_key", data.session_key);
+      setSessionKey(data.session_key);
+    }
+  }
+
+  function createUserResponse(data, responseCode) {
+    if (responseCode === 201 || responseCode === 208) {
+      localStorage.setItem("user_created", true);
+      setUserCreated(true);
+    }
+  }
+
+  function getSpotifyAuthenticationUrlResponse(data, responseCode) {
+    if (responseCode === 208) {
+      localStorage.setItem("spotify_authenticated", "true");
+      history.push("config-room");
+    } else if (responseCode === 200) {
+      window.open(data.authorize_url, "_self");
+    }
+  }
+
+  function joinParticipantResponse(data, responseCode) {
+    if (responseCode === 201) {
+      setRoomCode(inputCode);
+    } else if (responseCode === 208) {
+      setRoomCode(data.code);
+    } else {
+      console.log("Wrong Code");
+      // ? Maybe, restart the text field?
+    }
+  }
+
   function joinRoomFromCode() {
     if (inputCode !== "") {
       console.log("Join From Room Code");
-      joinParticipant(setRoomCode, inputCode);
+      joinParticipant(joinParticipantResponse, { code: inputCode });
+      // here. Set loading screen!
     }
   }
 
@@ -105,13 +124,18 @@ export default function Home() {
   }
 
   function verifySpotifyAuth() {
-    console.log("CLICK!");
-    if (localStorage.getItem("spotify_authenticated") === "true") {
-      console.log("go to config-room");
-      history.push("config-room");
+    const isEvenWithApi =
+      localStorage.getItem("session_key") !== null &&
+      localStorage.getItem("user_created") === "true";
+    if (isEvenWithApi) {
+      if (localStorage.getItem("spotify_authenticated") === "true") {
+        history.push("config-room");
+      } else {
+        localStorage.setItem("next", "config-room");
+        getSpotifyAuthenticationUrl(getSpotifyAuthenticationUrlResponse);
+      }
     } else {
-      localStorage.setItem("next", "config-room");
-      getSpotifyAuthenticationUrl(setUrl);
+      window.location.reload();
     }
   }
 }

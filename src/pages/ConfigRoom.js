@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { getUserDetails, createRoom } from "../components/FlowskipApi";
 
-const defUserDetails = {};
+const defUserDetails = null;
 const defIsPremium = true;
 const defGuestCanPause = false;
 const defVotesToSkip = 2;
@@ -29,11 +29,8 @@ export default function ConfigRoom() {
 
   useEffect(() => {
     if (isSpotifyAuthenticated && roomCodeInDb === "") {
-      if (
-        Object.keys(userDetails).length === 0 &&
-        userDetails.constructor === Object
-      ) {
-        getUserDetails(setUserDetails);
+      if (userDetails === null) {
+        getUserDetails(getUserDetailsResponse);
       } else {
         if (userDetails.spotify_user.product === "premium") {
           console.log("user is premium");
@@ -46,9 +43,16 @@ export default function ConfigRoom() {
   }, [userDetails, isSpotifyAuthenticated, roomCodeInDb]);
 
   useEffect(() => {
-    const abort = new AbortController();
+    let abort = new AbortController();
     if (isReadyToCreateRoom) {
-      createRoom(setRoomCodeInDb, abort, votesToSkip, guestsCanPause);
+      let body = {
+        votes_to_skip: votesToSkip,
+        guests_can_pause: guestsCanPause,
+      };
+      let options = {
+        signal: abort,
+      };
+      createRoom(body, createRoomResponse, options);
     }
     if (roomCodeInDb !== "") {
       history.push("room/" + localStorage.getItem("room_code"));
@@ -60,6 +64,23 @@ export default function ConfigRoom() {
 
   if (!isSpotifyAuthenticated) {
     history.push("/");
+  }
+
+  function getUserDetailsResponse(data, responseCode) {
+    if (responseCode === 200) {
+      setUserDetails(data);
+    }
+  }
+
+  function createRoomResponse(data, responseCode) {
+    if (responseCode === 201 || responseCode === 208) {
+      if (responseCode === 208) {
+        console.log("Here: alert the user that is already on a room");
+        // leave the room first please or something like that
+      }
+      localStorage.setItem("room_code", data.code);
+      setRoomCodeInDb(data.code);
+    }
   }
 
   function handleChange() {
