@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router";
 import Button from "../components/Button";
 import { leaveRoom, calculateDeltas } from "../components/FlowskipApi";
@@ -38,9 +38,10 @@ export default function Room() {
   const windowPath = window.location.pathname.split("/");
   const roomCodeFromPath = windowPath[2] ? windowPath[2].toString() : undefined;
   const history = useHistory();
+  const interval = useRef(null);
 
   useEffect(() => {
-    let interval = setInterval(updateState, 2000);
+    interval.current = setInterval(updateState, 2000);
   }, []);
 
   useEffect(() => {
@@ -89,7 +90,7 @@ export default function Room() {
       <React.Fragment>
         <h1>Your code: {localStorage.getItem("room_code")}</h1>
         <br></br>
-        <Button onClick={() => leavingRoom()}>Leave room</Button>
+        <Button onClick={() => leaveButtonRequest()}>Leave room</Button>
         <h1>
           {currentPlayback.item === undefined
             ? "Start a song"
@@ -115,15 +116,19 @@ export default function Room() {
     );
   }
 
-  function leavingRoom() {
+  function leaveButtonRequest() {
+    clearInterval(interval.current);
     leaveRoom(leaveRoomResponse);
     // loading screen here
   }
 
   function leaveRoomResponse(data, responseCode) {
-    if (responseCode === 204) {
+    console.log(responseCode);
+    if (responseCode === 200) {
       localStorage.removeItem("room_code");
       history.push("/");
+    } else if (responseCode === 404) {
+      console.log("Leaving a non existing room");
     } else {
       console.log("Leave room with problem");
       // do something here

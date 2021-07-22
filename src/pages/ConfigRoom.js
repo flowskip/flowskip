@@ -53,6 +53,7 @@ export default function ConfigRoom() {
         signal: abort,
       };
       createRoom(body, createRoomResponse, options);
+      setIsReadyToCreateRoom(false);
     }
     if (roomCodeInDb !== "") {
       history.push("room/" + localStorage.getItem("room_code"));
@@ -77,6 +78,9 @@ export default function ConfigRoom() {
       if (responseCode === 208) {
         console.log("Here: alert the user that is already on a room");
         // leave the room first please or something like that
+      }
+      if (responseCode === 201) {
+        console.log("New room created");
       }
       localStorage.setItem("room_code", data.code);
       setRoomCodeInDb(data.code);
