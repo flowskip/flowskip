@@ -27,9 +27,12 @@ async function executeRequest(url, requestOptions, onResponse) {
   fetch(url, requestOptions)
     .then((res) => {
       responseCode = res.status;
-      return res.json();
+      if (responseCode !== 204) {
+        res.json().then((data) => onResponse(data, responseCode));
+      } else {
+        onResponse(null, responseCode);
+      }
     })
-    .then((data) => onResponse(data, responseCode))
     .catch((err) => new Error(fetchErrorMsg + err));
 }
 
@@ -127,7 +130,6 @@ export function leaveRoom(onResponse, options = {}) {
     constructRequestOptionsWithAuth("DELETE"),
     options
   );
-
   executeRequest(url, requestOptions, onResponse);
 }
 
