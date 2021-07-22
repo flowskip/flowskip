@@ -124,14 +124,14 @@ export default function Room() {
 
   function leaveRoomResponse(data, responseCode) {
     console.log(responseCode);
+    localStorage.removeItem("room_code");
+    history.push("/");
     if (responseCode === 200) {
-      localStorage.removeItem("room_code");
-      history.push("/");
+      console.log("Everything ok");
     } else if (responseCode === 404) {
-      console.log("Leaving a non existing room");
+      console.log("Room doesn't exist");
     } else {
       console.log("Leave room with problem");
-      // do something here
     }
   }
 
