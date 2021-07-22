@@ -102,7 +102,6 @@ export function calculateDeltas(body, onResponse, options = {}) {
     options
   );
   requestOptions.body = JSON.stringify(body);
-  console.log(requestOptions);
 
   executeRequest(url, requestOptions, onResponse);
 }
@@ -139,11 +138,6 @@ export function createRoom(body, onResponse, options = {}) {
   const url = new URL(endpoint.join("/"));
   let requestOptions = constructRequestOptionsWithAuth("POST");
   requestOptions.body = JSON.stringify(body);
-  /*
-  if (signal !== null) {
-    requestOptions.signal = signal.signal;
-  }
-  */
 
   executeRequest(url, requestOptions, onResponse);
 }
