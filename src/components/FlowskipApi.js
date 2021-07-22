@@ -23,17 +23,41 @@ function constructRequestOptionsWithAuth(method) {
   return requestOptions;
 }
 
-async function executeRequest(url, requestOptions, onResponse) {
+async function executeRequest(
+  url,
+  requestOptions,
+  onResponse,
+  onFinally = null,
+  onCatch = null
+) {
   fetch(url, requestOptions)
     .then((res) => {
       responseCode = res.status;
       if (responseCode !== 204) {
-        res.json().then((data) => onResponse(data, responseCode));
+        return res.json();
       } else {
-        onResponse(null, responseCode);
+        return null;
       }
     })
-    .catch((err) => new Error(fetchErrorMsg + err));
+    .then((data) => {
+      if (data === null) {
+        onResponse(null, responseCode);
+      } else {
+        onResponse(data, responseCode);
+      }
+    })
+    .finally(() => {
+      if (onFinally !== null) {
+        onFinally();
+      }
+    })
+    .catch((err) => {
+      if (onCatch !== null) {
+        onCatch(err);
+      } else {
+        new Error(fetchErrorMsg + err);
+      }
+    });
 }
 
 // session endpoints
