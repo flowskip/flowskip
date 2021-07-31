@@ -48,30 +48,28 @@ export default function Home() {
   }, [history, roomCode]);
 
   return (
-    <React.Fragment>
-      <MainContainer>
-        <LogoContainer>
-          <Logo src={LogoImg} alt="Logo" />
-        </LogoContainer>
-        <CenterSection>
-          <Title>¡Bienvenido!</Title>
-          <Form action="">
-            <InputText
-              onChange={() => readInput()}
-              id="code"
-              type="text"
-              placeholder="Código"
-            />
-            <InputSubmit
-              type="submit"
-              onClick={() => joinRoomFromCode()}
-              value="&#9654;"
-            />
-          </Form>
-          <Button onClick={() => verifySpotifyAuth()}>Nueva Sala</Button>
-        </CenterSection>
-      </MainContainer>
-    </React.Fragment>
+    <MainContainer>
+      <LogoContainer>
+        <Logo src={LogoImg} alt="Logo" />
+      </LogoContainer>
+      <CenterSection>
+        <Title>¡Bienvenido!</Title>
+        <Form action="">
+          <InputText
+            onChange={() => readInput()}
+            id="code"
+            type="text"
+            placeholder="Código"
+          />
+          <InputSubmit
+            type="submit"
+            onClick={() => joinRoomFromCode()}
+            value="&#9654;"
+          />
+        </Form>
+        <Button onClick={() => verifySpotifyAuth()}>Nueva Sala</Button>
+      </CenterSection>
+    </MainContainer>
   );
 
   function startSessionResponse(data, responseCode) {
@@ -153,9 +151,10 @@ const MainContainer = styled.main`
     grid-template-rows: 1fr;
     grid-template-columns: 50% 50%;
     place-items: center center;
+    gap: 20px;
   }
 
-  @media screen and (min-width: 1024px) {
+  @media screen and (min-width: 901px) {
     padding: 5vw 0 0;
     height: 100vh;
     display: grid;
@@ -181,8 +180,8 @@ const Logo = styled.img`
   width: 100%;
   max-width: 300px;
 
-  @media screen and (orientation: landscape) and (max-width: 900px) {
-    padding: 0 10vw 0 0;
+  @media screen and (max-width: 1023px) and (orientation: portrait) {
+    max-width: 200px;
   }
 `;
 
@@ -190,10 +189,12 @@ const CenterSection = styled.section`
   display: grid;
   grid-template-rows: 30% 30% 30%;
   place-items: center center;
-  max-height: 300px;
+  max-width: 300px;
+  margin: 0 auto;
 
   @media screen and (orientation: landscape) and (max-width: 900px) {
-    height: 80%;
+    height: 100%;
+    max-height: 300px;
   }
 
   @media screen and (min-width: 1024px) and (orientation: portrait) {

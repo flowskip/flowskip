@@ -14,6 +14,11 @@ const variables = css`
       rgba(170, 46, 230, 1) 50%,
       rgba(255, 121, 205, 1) 100%
     );
+    --progressbar: linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 1) 0%,
+      rgba(170, 0, 0, 1) 100%
+    );
   }
 `;
 
