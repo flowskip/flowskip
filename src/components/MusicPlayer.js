@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Flowskip from "../assets/svg/logo.svg";
 
-export default function renderMusicPlayer() {
+export default function renderMusicPlayer(props) {
   function copyRoomCode() {
     navigator.clipboard
       .writeText(localStorage.getItem("room_code"))
@@ -17,15 +17,13 @@ export default function renderMusicPlayer() {
         console.log("%cCode not copied 😭", "color:red");
       });
   }
+  const { item, shuffle_state, progress_ms, duration_ms } =
+    props.currentPlayback;
   return (
     <MainContainer>
       <Card
         alt="logo"
-        src={
-          currentPlayback.item === undefined
-            ? Flowskip
-            : currentPlayback.item.album.images[1].url
-        }
+        src={item === undefined ? Flowskip : item.album.images[1].url}
       />
       <Controls>
         <Title>
@@ -38,7 +36,7 @@ export default function renderMusicPlayer() {
           <Avance start id="start">
             0:00
           </Avance>
-          <Progress id="progress" value="40" max="100" />
+          <Progress id="progress" value="" max="100" />
           <Avance id="end">7:48</Avance>
         </ProgressBar>
       </Controls>

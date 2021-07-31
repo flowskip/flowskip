@@ -1,8 +1,8 @@
 import React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router";
-import Button from "../components/Button";
 import { leaveRoom, calculateDeltas } from "../components/FlowskipApi";
+import MusicPlayer from "../components/MusicPlayer";
 
 const defTrackId = "";
 const defCurrentPlayback = {};
@@ -87,32 +87,33 @@ export default function Room() {
 
   function renderMusicPlayer() {
     return (
-      <React.Fragment>
-        <h1>Your code: {localStorage.getItem("room_code")}</h1>
-        <br></br>
-        <Button onClick={() => leaveButtonRequest()}>Leave room</Button>
-        <h1>
-          {currentPlayback.item === undefined
-            ? "Start a song"
-            : currentPlayback.item.name}
-        </h1>
-        <h1>
-          {currentPlayback.item === undefined
-            ? "In Spotify"
-            : currentPlayback.item.album.name}
-        </h1>
-        <img
-          alt="logo"
-          src={
-            currentPlayback.item === undefined
-              ? "https://kgo.googleusercontent.com/profile_vrt_raw_bytes_1587515358_10512.png"
-              : currentPlayback.item.album.images[1].url
-          }
-        />
-        <h1>
-          {participants.length !== 0 ? participants[0].display_name : "Anonimo"}
-        </h1>
-      </React.Fragment>
+      <MusicPlayer currentPlayback={currentPlayback} />
+      // <React.Fragment>
+      //   <h1>Your code: {localStorage.getItem("room_code")}</h1>
+      //   <br></br>
+      //   <Button onClick={() => leaveButtonRequest()}>Leave room</Button>
+      //   <h1>
+      //     {currentPlayback.item === undefined
+      //       ? "Start a song"
+      //       : currentPlayback.item.name}
+      //   </h1>
+      //   <h1>
+      //     {currentPlayback.item === undefined
+      //       ? "In Spotify"
+      //       : currentPlayback.item.album.name}
+      //   </h1>
+      //   <img
+      //     alt="logo"
+      //     src={
+      //       currentPlayback.item === undefined
+      //         ? "https://kgo.googleusercontent.com/profile_vrt_raw_bytes_1587515358_10512.png"
+      //         : currentPlayback.item.album.images[1].url
+      //     }
+      //   />
+      //   <h1>
+      //     {participants.length !== 0 ? participants[0].display_name : "Anonimo"}
+      //   </h1>
+      // </React.Fragment>
     );
   }
 

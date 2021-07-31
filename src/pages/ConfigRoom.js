@@ -93,8 +93,15 @@ export default function ConfigRoom() {
       if (this.value.length > 2) {
         this.value = this.value.slice(0, 2);
       }
+      if (!/^\d+$/.test(input.value) || input.value < 1) {
+        this.value = "";
+      }
     });
-    setVotesToSkip(/^\d+$/.test(input.value) ? input.value : defVotesToSkip);
+    setVotesToSkip(
+      !/^\d+$/.test(input.value) || input.value < 1
+        ? input.value
+        : defVotesToSkip
+    );
   }
 
   return (
@@ -133,6 +140,7 @@ export default function ConfigRoom() {
               type="radio"
               name="controls"
               id="nocontrol"
+              checked
               onChange={() => setGuestCanPause(false)}
             ></RadioButton>
             <Label htmlFor="nocontrol">Ninguno</Label>
@@ -143,7 +151,7 @@ export default function ConfigRoom() {
           <Input
             id="votes"
             onChange={handleChange}
-            type="number"
+            type="text"
             placeholder={defVotesToSkip}
           ></Input>
         </Votes>
