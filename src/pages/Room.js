@@ -7,13 +7,8 @@ import MusicPlayer from "../components/MusicPlayer";
 const defTrackId = "";
 const defCurrentPlayback = {};
 const defParticipants = [];
-const defNewParticipants = [];
-const defGoneParticipants = [];
 const defVotesToSkip = [];
-const defNewVotesToSkip = [];
 const defQueue = [];
-const defNewQueue = [];
-const defGoneQueue = [];
 
 const defShowPlayer = true;
 export default function Room() {
@@ -26,13 +21,8 @@ export default function Room() {
       : localStorage.getItem("room_code")
   );
   const [participants, setParticipants] = useState(defParticipants);
-  const [newParticipants, setNewParticipants] = useState(defNewParticipants);
-  const [goneParticipants, setGoneParticipants] = useState(defGoneParticipants);
   const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
-  const [newVotesToSkip, setNewVotesToSkip] = useState(defNewVotesToSkip);
   const [queue, setQueue] = useState(defQueue);
-  const [newQueue, setNewQueue] = useState(defNewQueue);
-  const [goneQueue, setGoneQueue] = useState(defGoneQueue);
   const [deltas, setDeltas] = useState(null);
 
   const windowPath = window.location.pathname.split("/");
@@ -42,6 +32,10 @@ export default function Room() {
 
   useEffect(() => {
     interval.current = setInterval(updateState, 2000);
+    localStorage.setItem("track_id", trackId);
+    return function cleanup() {
+      clearInterval(interval.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -53,14 +47,9 @@ export default function Room() {
         setTrackId(deltas.current_playback.item.id);
       }
       setCurrentPlayback(deltas.current_playback);
-      setParticipants(deltas.participants.all);
-      setNewParticipants(deltas.participants.new);
-      setGoneParticipants(deltas.participants.gone);
-      setVotesToSkip(deltas.votes.all);
-      setNewVotesToSkip(deltas.votes.new);
-      setQueue(deltas.queue.all);
-      setNewQueue(deltas.queue.new);
-      setGoneQueue(deltas.queue.gone);
+      setParticipants(deltas.participants);
+      setVotesToSkip(deltas.votes);
+      setQueue(deltas.queue);
     }
   }, [deltas]);
 
@@ -87,33 +76,12 @@ export default function Room() {
 
   function renderMusicPlayer() {
     return (
-      <MusicPlayer currentPlayback={currentPlayback} />
-      // <React.Fragment>
-      //   <h1>Your code: {localStorage.getItem("room_code")}</h1>
-      //   <br></br>
-      //   <Button onClick={() => leaveButtonRequest()}>Leave room</Button>
-      //   <h1>
-      //     {currentPlayback.item === undefined
-      //       ? "Start a song"
-      //       : currentPlayback.item.name}
-      //   </h1>
-      //   <h1>
-      //     {currentPlayback.item === undefined
-      //       ? "In Spotify"
-      //       : currentPlayback.item.album.name}
-      //   </h1>
-      //   <img
-      //     alt="logo"
-      //     src={
-      //       currentPlayback.item === undefined
-      //         ? "https://kgo.googleusercontent.com/profile_vrt_raw_bytes_1587515358_10512.png"
-      //         : currentPlayback.item.album.images[1].url
-      //     }
-      //   />
-      //   <h1>
-      //     {participants.length !== 0 ? participants[0].display_name : "Anonimo"}
-      //   </h1>
-      // </React.Fragment>
+      <MusicPlayer
+        currentPlayback={currentPlayback}
+        participants={participants}
+        votesToSkip={votesToSkip}
+        queue={queue}
+      />
     );
   }
 
