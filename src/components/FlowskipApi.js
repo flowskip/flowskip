@@ -55,14 +55,19 @@ async function executeRequest(
       if (onCatch !== null) {
         onCatch(err);
       } else {
-        new Error(fetchErrorMsg + err);
+        console.error(fetchErrorMsg + err);
       }
     });
 }
 
 // session endpoints
 
-export function startSession(onResponse, options = {}) {
+export function startSession(
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, userEndpoint, "session", "start"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
@@ -73,7 +78,12 @@ export function startSession(onResponse, options = {}) {
   executeRequest(url, requestOptions, onResponse);
 }
 
-export function getSessionDetails(onResponse, options = {}) {
+export function getSessionDetails(
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, userEndpoint, "session", "details"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
@@ -86,7 +96,12 @@ export function getSessionDetails(onResponse, options = {}) {
 
 // user endpoints
 
-export function createUser(onResponse, options = {}) {
+export function createUser(
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, userEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
@@ -97,7 +112,12 @@ export function createUser(onResponse, options = {}) {
   executeRequest(url, requestOptions, onResponse);
 }
 
-export function getUserDetails(onResponse, options = {}) {
+export function getUserDetails(
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, userEndpoint, "details"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
@@ -109,7 +129,14 @@ export function getUserDetails(onResponse, options = {}) {
 }
 
 // state endpoints
-export function voteToSkip(body, onResponse, options = {}) {
+
+export function voteToSkip(
+  body,
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, roomEndpoint, "state", "vote-to-skip"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
@@ -121,7 +148,13 @@ export function voteToSkip(body, onResponse, options = {}) {
   executeRequest(url, requestOptions, onResponse);
 }
 
-export function calculateDeltas(body, onResponse, options = {}) {
+export function calculateDeltas(
+  body,
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, roomEndpoint, "state"];
   const url = new URL(endpoint.join("/") + "/");
   let requestOptions = Object.assign(
@@ -135,7 +168,13 @@ export function calculateDeltas(body, onResponse, options = {}) {
 
 // participants endpoints
 
-export function joinParticipant(body, onResponse, options = {}) {
+export function joinParticipant(
+  body,
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, roomEndpoint, "participants", "join"];
   let url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
@@ -147,7 +186,12 @@ export function joinParticipant(body, onResponse, options = {}) {
   executeRequest(url, requestOptions, onResponse);
 }
 
-export function leaveRoom(onResponse, options = {}) {
+export function leaveRoom(
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, roomEndpoint, "participants", "leave"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
@@ -159,7 +203,13 @@ export function leaveRoom(onResponse, options = {}) {
 
 // room endpoints
 
-export function createRoom(body, onResponse, options = {}) {
+export function createRoom(
+  body,
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, roomEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = constructRequestOptionsWithAuth("POST");
@@ -170,7 +220,12 @@ export function createRoom(body, onResponse, options = {}) {
 
 // spotify endpoints
 
-export function getSpotifyAuthenticationUrl(onResponse, options = {}) {
+export function getSpotifyAuthenticationUrl(
+  onResponse,
+  options = {},
+  onFinally = null,
+  onCatch = null
+) {
   const endpoint = [baseUrl, spotifyEndpoint, "authenticate-user"];
   const params = {
     redirect_url: redirect_url,
