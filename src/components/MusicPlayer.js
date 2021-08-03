@@ -6,8 +6,6 @@ import Play from "../assets/svg/Play.svg";
 import Skip from "../assets/svg/Skip.svg";
 import Repeat from "../assets/svg/Skip.svg";
 
-const progressBar = document.getElementById("progress");
-
 export default function renderMusicPlayer(props) {
   function copyRoomCode() {
     navigator.clipboard
@@ -22,14 +20,7 @@ export default function renderMusicPlayer(props) {
         console.log("%cCode not copied 😭", "color:red");
       });
   }
-  const { item, shuffle_state, progress_ms, duration_ms } =
-    props.currentPlayback;
-
-  const updateProgress = () => {
-    if (progress_ms > 0) {
-      progressBar.value = (progress_ms / duration_ms) * 100;
-    }
-  };
+  const { item, shuffle_state, progress_ms } = props.currentPlayback;
 
   return (
     <MainContainer>
@@ -44,10 +35,13 @@ export default function renderMusicPlayer(props) {
             {localStorage.getItem("room_code")}
           </RoomCodeText>
         </Title>
-        <ProgressBar>
-          <Progress id="progress" value="0" max="100" />
-        </ProgressBar>
-        <Buttons></Buttons>
+        <Progress
+          id="progress"
+          value={
+            item === undefined ? 0 : (progress_ms / item.duration_ms) * 100
+          }
+          max="100"
+        />
       </Controls>
 
       {/* <h1>
@@ -103,12 +97,6 @@ const RoomCodeText = styled.span`
   cursor: pointer;
   text-decoration: underline;
   font: 2rem var(--font-bungee-bold);
-`;
-
-const ProgressBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 `;
 
 const Progress = styled.progress`
