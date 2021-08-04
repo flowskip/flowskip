@@ -2,42 +2,20 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
-import {
-  startSession,
-  createUser,
-  getSpotifyAuthenticationUrl,
-  joinParticipant,
-} from "../components/FlowskipApi";
+import { joinParticipant } from "../components/FlowskipApi";
 
 import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
 
-const defSessionKey = localStorage.getItem("session_key") !== null;
-const isUserCreatedAtStart = localStorage.getItem("user_created") === "true";
 const defRoomCodeInDb =
   localStorage.getItem("room_code") !== null
     ? localStorage.getItem("room_code")
     : "";
 const defInputCode = "";
 export default function Home() {
-  const [sessionKey, setSessionKey] = useState(defSessionKey);
-  const [userCreated, setUserCreated] = useState(isUserCreatedAtStart);
   const [roomCode, setRoomCode] = useState(defRoomCodeInDb);
   const [inputCode, setInputCode] = useState(defInputCode);
   const history = useHistory();
-  useEffect(() => {
-    if (!sessionKey) {
-      startSession(startSessionResponse);
-    } else {
-      if (!userCreated) {
-        console.log("creating user");
-        createUser(createUserResponse);
-      } else {
-        // Here all the code to be done with a user
-        console.log("session and user check");
-      }
-    }
-  }, [sessionKey, userCreated]);
 
   useEffect(() => {
     if (roomCode !== "") {
@@ -67,33 +45,10 @@ export default function Home() {
             value="&#9654;"
           />
         </Form>
-        <Button onClick={() => verifySpotifyAuth()}>Nueva Sala</Button>
+        <Button onClick={() => history.push("config-room")}>Nueva Sala</Button>
       </CenterSection>
     </MainContainer>
   );
-
-  function startSessionResponse(data, responseCode) {
-    if (responseCode === 201 || responseCode === 208) {
-      localStorage.setItem("session_key", data.session_key);
-      setSessionKey(data.session_key);
-    }
-  }
-
-  function createUserResponse(data, responseCode) {
-    if (responseCode === 201 || responseCode === 208) {
-      localStorage.setItem("user_created", true);
-      setUserCreated(true);
-    }
-  }
-
-  function getSpotifyAuthenticationUrlResponse(data, responseCode) {
-    if (responseCode === 208) {
-      localStorage.setItem("spotify_authenticated", "true");
-      history.push("config-room");
-    } else if (responseCode === 200) {
-      window.open(data.authorize_url, "_self");
-    }
-  }
 
   function joinParticipantResponse(data, responseCode) {
     if (responseCode === 201) {
@@ -118,22 +73,6 @@ export default function Home() {
     var input = document.getElementById("code");
     console.log(input.value);
     setInputCode(input.value);
-  }
-
-  function verifySpotifyAuth() {
-    const isEvenWithApi =
-      localStorage.getItem("session_key") !== null &&
-      localStorage.getItem("user_created") === "true";
-    if (isEvenWithApi) {
-      if (localStorage.getItem("spotify_authenticated") === "true") {
-        history.push("config-room");
-      } else {
-        localStorage.setItem("next", "config-room");
-        getSpotifyAuthenticationUrl(getSpotifyAuthenticationUrlResponse);
-      }
-    } else {
-      window.location.reload();
-    }
   }
 }
 
