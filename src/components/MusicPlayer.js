@@ -2,6 +2,11 @@ import React from "react";
 import styled from "styled-components";
 
 import Flowskip from "../assets/svg/logo.svg";
+import Play from "../assets/svg/Play.svg";
+import Skip from "../assets/svg/Skip.svg";
+import Repeat from "../assets/svg/Skip.svg";
+
+const progressBar = document.getElementById("progress");
 
 export default function renderMusicPlayer(props) {
   function copyRoomCode() {
@@ -11,7 +16,7 @@ export default function renderMusicPlayer(props) {
         console.log("%cCode copied successfully!", "color:#00ff00");
       })
       .then(() => {
-        // Pseudoelement: copied
+        // Pseudo element: copied
       })
       .catch(() => {
         console.log("%cCode not copied 😭", "color:red");
@@ -19,6 +24,13 @@ export default function renderMusicPlayer(props) {
   }
   const { item, shuffle_state, progress_ms, duration_ms } =
     props.currentPlayback;
+
+  const updateProgress = () => {
+    if (progress_ms > 0) {
+      progressBar.value = (progress_ms / duration_ms) * 100;
+    }
+  };
+
   return (
     <MainContainer>
       <Card
@@ -33,12 +45,9 @@ export default function renderMusicPlayer(props) {
           </RoomCodeText>
         </Title>
         <ProgressBar>
-          <Avance start id="start">
-            0:00
-          </Avance>
-          <Progress id="progress" value="" max="100" />
-          <Avance id="end">7:48</Avance>
+          <Progress id="progress" value="0" max="100" />
         </ProgressBar>
+        <Buttons></Buttons>
       </Controls>
 
       {/* <h1>
@@ -77,6 +86,10 @@ const Card = styled.img`
 
 const Controls = styled.div`
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: space-evenly;
 `;
 
 const Title = styled.h1`
@@ -98,14 +111,8 @@ const ProgressBar = styled.div`
   align-items: center;
 `;
 
-const Avance = styled.p`
-  color: white;
-  font-size: 16px;
-  font: 1.6rem var(--font-bungee-bold);
-`;
-
 const Progress = styled.progress`
-  width: calc(100% - 82px - 40px);
+  width: 100%;
   display: block;
   margin: 10px auto;
   font-size: 0.6em;
@@ -140,4 +147,17 @@ const Progress = styled.progress`
   ::-moz-progress-bar {
     border-radius: 10px;
   }
+`;
+
+const Buttons = styled.div`
+  display: flex;
+`;
+
+const controlButton = styled.div`
+  background-color: red;
+  border-radius: 50%;
+`;
+
+const controlPlayButton = styled(controlButton)`
+  width: 30%;
 `;
