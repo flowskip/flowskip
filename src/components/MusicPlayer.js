@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Flowskip from "../assets/svg/logo.svg";
 import Play from "../assets/svg/Play.svg";
 import Skip from "../assets/svg/Skip.svg";
-import Repeat from "../assets/svg/Skip.svg";
+import Repeat from "../assets/svg/Repeat.svg";
 
 export default function renderMusicPlayer(props) {
   function copyRoomCode() {
@@ -20,6 +20,16 @@ export default function renderMusicPlayer(props) {
         console.log("%cCode not copied 😭", "color:red");
       });
   }
+
+  // utils
+  function extractArtists() {
+    //given a list of objects with names, return a list of names
+    let artist_names = item.artists.map(
+      (artist) => `<a href="${artist.external_urls.spotify}">${artist.name}</a>`
+    );
+    return artist_names;
+  }
+
   const { item, shuffle_state, progress_ms } = props.currentPlayback;
 
   return (
@@ -35,6 +45,19 @@ export default function renderMusicPlayer(props) {
             {localStorage.getItem("room_code")}
           </RoomCodeText>
         </Title>
+        <SongName
+          target="_blank"
+          rel="noreferer noopener"
+          href={item === undefined ? "#" : item.external_urls.spotify}
+        >
+          {item === undefined ? "Artistas" : item.name}
+        </SongName>
+        {item === undefined
+          ? "Artist"
+          : extractArtists([{ name: "artist1" }, { name: "artist2" }])}
+        <SongAlbum href="#">
+          {item === undefined ? "Artist" : item.album.name}
+        </SongAlbum>
         <Progress
           id="progress"
           value={
@@ -42,6 +65,11 @@ export default function renderMusicPlayer(props) {
           }
           max="100"
         />
+        <Buttons>
+          <ControlBucleButton src={Repeat} />
+          <ControlPlayButton src={Play} />
+          <ControlSkipButton src={Skip} />
+        </Buttons>
       </Controls>
 
       {/* <h1>
@@ -75,6 +103,7 @@ const MainContainer = styled.main`
 const Card = styled.img`
   height: 100%;
   max-width: 250px;
+  max-height: 250px;
   margin: 0 auto;
 `;
 
@@ -83,7 +112,6 @@ const Controls = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-items: space-evenly;
 `;
 
 const Title = styled.h1`
@@ -138,14 +166,58 @@ const Progress = styled.progress`
 `;
 
 const Buttons = styled.div`
+  align-items: center;
   display: flex;
+  height: 100px;
+  justify-content: center;
+  width: 100%;
 `;
 
-const controlButton = styled.div`
-  background-color: red;
+const ControlButton = styled.img`
+  background-color: blue;
   border-radius: 50%;
+  padding: 5px 5px 5px 10px;
+`;
+const ControlBucleButton = styled(ControlButton)`
+  width: 50px;
+  height: 50px;
+  padding: 8px;
 `;
 
-const controlPlayButton = styled(controlButton)`
-  width: 30%;
+const ControlPlayButton = styled(ControlButton)`
+  width: 70px;
+  height: 70px;
+  margin: 0 20px;
+`;
+
+const ControlSkipButton = styled(ControlButton)`
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+`;
+
+const Anchor = styled.a`
+  color: white;
+  font: 1.6rem var(--font-bungee-bold);
+  line-height: 100%;
+  text-align: center;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  overflow-wrap: normal;
+`;
+
+const SongName = styled(Anchor)`
+  color: red;
+`;
+
+const SongArtist = styled(Anchor)`
+  color: #cccccc;
+  font: 1.4rem var(--font-bungee-bold);
+  width: 100%;
+`;
+
+const SongAlbum = styled(Anchor)`
+  color: #cccccc;
+  font: 1.4rem var(--font-bungee-bold);
 `;
