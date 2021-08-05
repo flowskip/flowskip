@@ -31,7 +31,7 @@ export default function Room() {
   const interval = useRef(null);
 
   useEffect(() => {
-    interval.current = setInterval(updateState, 2000);
+    interval.current = setInterval(updateState, 1000);
     localStorage.setItem("track_id", trackId);
     return function cleanup() {
       clearInterval(interval.current);
