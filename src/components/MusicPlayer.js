@@ -5,6 +5,9 @@ import Flowskip from "../assets/svg/logo.svg";
 import Play from "../assets/svg/Play.svg";
 import Skip from "../assets/svg/Skip.svg";
 import Repeat from "../assets/svg/Repeat.svg";
+import Album from "../assets/svg/Album.svg";
+import Library from "../assets/svg/Library.svg";
+import Song from "../assets/svg/Song.svg";
 
 export default function renderMusicPlayer(props) {
   function copyRoomCode() {
@@ -22,29 +25,32 @@ export default function renderMusicPlayer(props) {
   }
 
   // utils
-  function extractArtists() {
-    //given a list of objects with names, return a list of names
-    let artist_names = item.artists.map(
-      (artist) => `<a href="${artist.external_urls.spotify}">${artist.name}</a>`
-    );
-    return artist_names;
+  function convertArtistsToAnchor(artists) {
+    let artists_len = artists.length;
+    return artists.map((artist, index) => (
+      <Anchor key={artist.name} href={artist.external_urls.spotify}>
+        {artist.name} {index >= artists_len - 1 ? "" : ",  "}
+      </Anchor>
+    ));
   }
 
   const { item, shuffle_state, progress_ms } = props.currentPlayback;
 
   return (
     <MainContainer>
-      <Card
-        alt="logo"
-        src={item === undefined ? Flowskip : item.album.images[1].url}
-      />
-      <Controls>
-        <Title>
+      <CardContainer>
+        <RoomCode>
           Room code:{" "}
           <RoomCodeText id="room-code" onClick={copyRoomCode}>
             {localStorage.getItem("room_code")}
           </RoomCodeText>
-        </Title>
+        </RoomCode>
+        <Card
+          alt="logo"
+          src={item === undefined ? Flowskip : item.album.images[1].url}
+        />
+      </CardContainer>
+      <Controls>
         <SongName
           target="_blank"
           rel="noreferer noopener"
@@ -52,12 +58,18 @@ export default function renderMusicPlayer(props) {
         >
           {item === undefined ? "Artistas" : item.name}
         </SongName>
-        {item === undefined
-          ? "Artist"
-          : extractArtists([{ name: "artist1" }, { name: "artist2" }])}
+        {item === undefined ? "Artist" : "Hola"}
+        {/* : extractArtists([{ name: "artist1" }, { name: "artist2" }])} */}
         <SongAlbum href="#">
           {item === undefined ? "Artist" : item.album.name}
         </SongAlbum>
+        <SongArtist>
+          {item === undefined ? (
+            <Anchor href="https://open.spotify.com">Open Spotify</Anchor>
+          ) : (
+            convertArtistsToAnchor(item.artists)
+          )}
+        </SongArtist>
         <Progress
           id="progress"
           value={
@@ -86,6 +98,11 @@ export default function renderMusicPlayer(props) {
           {participants.length !== 0 ? participants[0].display_name : "Anonimo"}
         </h1> */}
       {/* <Button onClick={() => leaveButtonRequest()}>Leave room</Button> */}
+      <Footer>
+        <AlbumIcon src={Album} />
+        <AlbumIcon src={Library} />
+        <AlbumIcon src={Song} />
+      </Footer>
     </MainContainer>
   );
 }
@@ -94,17 +111,31 @@ const MainContainer = styled.main`
   display: grid;
   grid-template-rows: 40% 50% 10%;
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
   height: 100vh;
   padding: 20px;
   margin: 0 auto;
+  gap: 20px;
+`;
+
+const CardContainer = styled.div`
+  margin: 0 auto;
+  position: relative;
 `;
 
 const Card = styled.img`
   height: 100%;
-  max-width: 250px;
-  max-height: 250px;
   margin: 0 auto;
+  padding-top: 20px;
+`;
+
+const RoomCode = styled.h1`
+  color: white;
+  text-align: center;
+  font: 1.6rem/100% var(--font-bungee-bold);
+  position: absolute;
+  width: 100%;
+  top: -25px;
 `;
 
 const Controls = styled.div`
@@ -112,13 +143,6 @@ const Controls = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-const Title = styled.h1`
-  color: white;
-  text-align: center;
-  padding-block-start: 10px;
-  font: 1.6rem var(--font-bungee-bold);
 `;
 
 const RoomCodeText = styled.span`
@@ -174,9 +198,14 @@ const Buttons = styled.div`
 `;
 
 const ControlButton = styled.img`
-  background-color: blue;
   border-radius: 50%;
   padding: 5px 5px 5px 10px;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 1));
+  &:hover {
+    filter: sepia(1) hue-rotate(50deg) saturate(10000%)
+      drop-shadow(0 2px 5px rgba(0, 0, 0, 1));
+  }
 `;
 const ControlBucleButton = styled(ControlButton)`
   width: 50px;
@@ -208,7 +237,7 @@ const Anchor = styled.a`
 `;
 
 const SongName = styled(Anchor)`
-  color: red;
+  color: white;
 `;
 
 const SongArtist = styled(Anchor)`
@@ -220,4 +249,35 @@ const SongArtist = styled(Anchor)`
 const SongAlbum = styled(Anchor)`
   color: #cccccc;
   font: 1.4rem var(--font-bungee-bold);
+`;
+
+const Footer = styled.footer`
+  width: 100%;
+  position: absolute;
+  height: 70px;
+  background-color: var(--blue);
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  padding: 20px 0;
+  align-items: center;
+  justify-content: space-evenly;
+`;
+
+const AlbumIcon = styled.img`
+  height: 40px;
+  filter: brightness(0.6) drop-shadow(0 2px 1px rgba(0, 0, 0, 1));
+
+  &:hover {
+    filter: brightness(1) drop-shadow(0 2px 1px rgba(0, 0, 0, 1));
+  }
+`;
+
+const Aside = styled.aside`
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background-color: black;
 `;
