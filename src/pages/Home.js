@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
-import { joinParticipant } from "../components/FlowskipApi";
+import { joinRoom } from "../components/FlowskipApi";
 
 import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
@@ -50,7 +50,7 @@ export default function Home() {
     </MainContainer>
   );
 
-  function joinParticipantResponse(data, responseCode) {
+  function joinRoomResponse(data, responseCode) {
     if (responseCode === 201) {
       setRoomCode(inputCode);
     } else if (responseCode === 208) {
@@ -64,7 +64,7 @@ export default function Home() {
   function joinRoomFromCode() {
     if (inputCode !== "") {
       console.log("Join From Room Code");
-      joinParticipant(joinParticipantResponse, { code: inputCode });
+      joinRoom(joinRoomResponse, { code: inputCode });
       // here. Set loading screen!
     }
   }
