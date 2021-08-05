@@ -24,16 +24,6 @@ export default function renderMusicPlayer(props) {
       });
   }
 
-  // utils
-  function convertArtistsToAnchor(artists) {
-    let artists_len = artists.length;
-    return artists.map((artist, index) => (
-      <Anchor key={artist.name} href={artist.external_urls.spotify}>
-        {artist.name} {index >= artists_len - 1 ? "" : ",  "}
-      </Anchor>
-    ));
-  }
-
   const { item, shuffle_state, progress_ms } = props.currentPlayback;
 
   return (
@@ -59,7 +49,6 @@ export default function renderMusicPlayer(props) {
           {item === undefined ? "Artistas" : item.name}
         </SongName>
         {item === undefined ? "Artist" : "Hola"}
-        {/* : extractArtists([{ name: "artist1" }, { name: "artist2" }])} */}
         <SongAlbum href="#">
           {item === undefined ? "Artist" : item.album.name}
         </SongAlbum>
@@ -105,6 +94,16 @@ export default function renderMusicPlayer(props) {
       </Footer>
     </MainContainer>
   );
+}
+
+// utils
+function convertArtistsToAnchor(artists) {
+  let artists_len = artists.length;
+  return artists.map((artist, index) => (
+    <Anchor key={artist.name} href={artist.external_urls.spotify}>
+      {artist.name} {index >= artists_len - 1 ? "" : ",  "}
+    </Anchor>
+  ));
 }
 
 const MainContainer = styled.main`
