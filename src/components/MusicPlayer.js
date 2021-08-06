@@ -89,7 +89,9 @@ export default function renderMusicPlayer(props) {
       {/* <Button onClick={() => leaveButtonRequest()}>Leave room</Button> */}
       <Footer>
         <AlbumIcon src={Album} />
-        <AlbumIcon src={Library} />
+        <CenterAlbumIconContainer>
+          <CenterAlbumIcon src={Library} />
+        </CenterAlbumIconContainer>
         <AlbumIcon src={Song} />
       </Footer>
     </MainContainer>
@@ -267,6 +269,29 @@ const Footer = styled.footer`
 const AlbumIcon = styled.img`
   height: 40px;
   filter: brightness(0.6) drop-shadow(0 2px 1px rgba(0, 0, 0, 1));
+
+  &:hover {
+    filter: brightness(1) drop-shadow(0 2px 1px rgba(0, 0, 0, 1));
+  }
+`;
+
+const CenterAlbumIconContainer = styled.div`
+  background-color: var(--blue);
+  width: 100px;
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  position: relative;
+  bottom: 20px;
+`;
+
+const CenterAlbumIcon = styled.img`
+  height: 50px;
+  filter: brightness(0.6) drop-shadow(0 2px 1px rgba(0, 0, 0, 1));
+  position: absolute;
+  top: 25px;
 
   &:hover {
     filter: brightness(1) drop-shadow(0 2px 1px rgba(0, 0, 0, 1));
