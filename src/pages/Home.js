@@ -45,10 +45,16 @@ export default function Home() {
             value="&#9654;"
           />
         </Form>
-        <Button onClick={() => history.push("config-room")}>Nueva Sala</Button>
+        <Button onClick={(e) => createRoomClick(e)}>Nueva Sala</Button>
       </CenterSection>
     </MainContainer>
   );
+
+  function createRoomClick(e) {
+    e.preventDefault();
+    localStorage.setItem("next", "config-room");
+    history.push("config-room");
+  }
 
   function joinRoomResponse(data, responseCode) {
     if (responseCode === 201) {
