@@ -6,10 +6,9 @@ import { getRoomDetails } from "./FlowskipApi";
 export default function RedirectFromApi() {
   const loadingScreen = true;
   const okResponseCodes = ["200", "208"];
-  // localStorage.getItem("next") === null ? false : true
-  const hasNextPathname = false;
+  const hasNextPathname = localStorage.getItem("next") === null ? false : true;
   const nextPathname = localStorage.getItem("next");
-  //localStorage.removeItem("next");
+  localStorage.removeItem("next");
 
   // Getting session_key and status from the windowsParams
   const windowParams = new URL(window.location.href);
