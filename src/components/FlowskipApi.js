@@ -281,25 +281,24 @@ export function createRoom(
 ) {
   const endpoint = [baseUrl, roomEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
-  let requestOptions = constructRequestOptionsWithAuth("POST");
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
   requestOptions.body = JSON.stringify(body);
 
   executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getRoomDetails(
-  roomCode,
   onResponse,
   options = {},
   onCatch = null,
   onFinally = null
 ) {
+  console.log("Executing GET ROOM");
   const endpoint = [baseUrl, roomEndpoint, "details"];
-  const params = {
-    code: roomCode,
-  };
   const url = new URL(endpoint.join("/"));
-  url.search = new URLSearchParams(params).toString();
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("GET"),
     options

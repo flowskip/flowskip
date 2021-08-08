@@ -4,7 +4,7 @@ import Button from "../components/Button";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { getUserDetails, createRoom } from "../components/FlowskipApi";
-import Loader from "../components/loader"
+import Loader from "../components/Loader";
 
 const defUserDetails = null;
 const defIsPremium = true;
@@ -107,7 +107,7 @@ export default function ConfigRoom() {
 
   return (
     <React.Fragment>
-      {isReadyToCreateRoom && Loader()}
+      {isReadyToCreateRoom && <Loader />}
       {isPremium &&
         !isReadyToCreateRoom &&
         isSpotifyAuthenticated &&
