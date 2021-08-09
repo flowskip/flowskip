@@ -55,6 +55,7 @@ export default function RedirectFromApi() {
 
   function getRoomDetailsResponse(data, responseCode) {
     if (responseCode === 404) {
+      console.log("No room, pushing to: " + nextPathname);
       history.push(nextPathname);
     } else if (responseCode === 200) {
       console.log();
