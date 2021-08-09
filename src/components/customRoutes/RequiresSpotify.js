@@ -36,7 +36,6 @@ const RequiresSpotify = ({ component: Component, ...rest }) => {
       localStorage.setItem("spotify_authenticated", "true");
       setIsLoggedIn(true);
     } else if (responseCode === 200) {
-      localStorage.setItem("next", "config-room");
       window.open(data.authorize_url, "_self");
     }
   }
