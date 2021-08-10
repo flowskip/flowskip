@@ -8,7 +8,7 @@ const Button = styled.button`
   line-height: 1.6rem;
   background-color: var(--purple);
   color: white;
-  font-family: var(--font-bungee-bold);
+  font-family: var(--font-bold);
   border: none;
   box-shadow: 5px 5px 10px 5px #00000033;
   padding: 5px 20px;

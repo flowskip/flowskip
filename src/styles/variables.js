@@ -2,9 +2,9 @@ import { css } from "styled-components";
 
 const variables = css`
   :root {
-    --font-bungee-bold: "Bungee", cursive;
-    --font-bungee-light: "Bungee Hairline", cursive;
-    --font-bungee-shade: "Bungee Shade", cursive;
+    --font-bold: "Bungee", cursive;
+    --font-light: "Bungee Hairline", cursive;
+    --font-shade: "Bungee Shade", cursive;
     --blue: #23049d;
     --purple: #aa2ee6;
     --pink: #ff79cd;

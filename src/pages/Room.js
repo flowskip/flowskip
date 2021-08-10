@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router";
 import { leaveRoom, calculateDeltas } from "../components/FlowskipApi";
 import MusicPlayer from "../components/MusicPlayer";
+import Loader from "../components/Loader";
 
 const defTrackId = "";
 const defCurrentPlayback = {};
@@ -39,7 +40,6 @@ export default function Room() {
   }, []);
 
   useEffect(() => {
-    console.log(deltas);
     if (deltas !== null) {
       if (deltas.current_playback.item === undefined) {
         setTrackId("");
@@ -88,7 +88,7 @@ export default function Room() {
   function leaveButtonRequest() {
     clearInterval(interval.current);
     leaveRoom(leaveRoomResponse);
-    // loading screen here
+    return <Loader />;
   }
 
   function leaveRoomResponse(data, responseCode) {

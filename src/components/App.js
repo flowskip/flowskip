@@ -1,13 +1,14 @@
 import React from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { startSession, createUser } from "./FlowskipApi";
+import RequiresSpotify from "./customRoutes/RequiresSpotify";
 
 import Home from "../pages/Home";
 import ConfigRoom from "../pages/ConfigRoom";
 import RedirectFromApi from "./RedirectFromApi.js";
 import Room from "../pages/Room";
-import { startSession, createUser } from "./FlowskipApi";
-import RequiresSpotify from "./customRoutes/RequiresSpotify";
+import Loader from "../components/Loader";
 
 import GlobalStyle from "../styles/GlobalStyle";
 
@@ -32,7 +33,12 @@ export default function App() {
   if (hasUser) {
     return loadRouter();
   } else {
-    return loadScreen();
+    return (
+      <React.Fragment>
+        <GlobalStyle />
+        {loadScreen()}
+      </React.Fragment>
+    );
   }
 
   function loadRouter() {
@@ -51,11 +57,7 @@ export default function App() {
 
   function loadScreen() {
     console.log("My load screen");
-    return (
-      <React.Fragment>
-        <h1>Loading</h1>
-      </React.Fragment>
-    );
+    return <Loader />;
   }
 
   function startSessionResponse(data, responseCode) {

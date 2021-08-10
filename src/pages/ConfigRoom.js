@@ -4,11 +4,13 @@ import Button from "../components/Button";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { getUserDetails, createRoom } from "../components/FlowskipApi";
+import Loader from "../components/Loader";
 
 const defUserDetails = null;
 const defIsPremium = true;
 const defGuestCanPause = false;
 const defVotesToSkip = 2;
+const defLoading = true;
 const defRoomCodeInDb =
   localStorage.getItem("room_code") === null
     ? ""
@@ -26,6 +28,7 @@ export default function ConfigRoom() {
   const [isReadyToCreateRoom, setIsReadyToCreateRoom] = useState(
     defIsReadyToCreateRoom
   );
+  const [isLoading, setIsLoading] = useState(defLoading);
 
   useEffect(() => {
     if (isSpotifyAuthenticated && roomCodeInDb === "") {
@@ -33,9 +36,11 @@ export default function ConfigRoom() {
         getUserDetails(getUserDetailsResponse);
       } else {
         if (userDetails.spotify_user.product === "premium") {
+          setIsLoading(false);
           console.log("user is premium");
         } else {
           console.log("user is not premium");
+          setIsLoading(false);
           setIsPremium(false);
         }
       }
@@ -106,7 +111,8 @@ export default function ConfigRoom() {
 
   return (
     <React.Fragment>
-      {isReadyToCreateRoom && loadingScreen()}
+      {isReadyToCreateRoom && Loader}
+      {isLoading && Loader}
       {isPremium &&
         !isReadyToCreateRoom &&
         isSpotifyAuthenticated &&
@@ -117,10 +123,6 @@ export default function ConfigRoom() {
         renderUpgradeToSpotifyPremium()}
     </React.Fragment>
   );
-
-  function loadingScreen() {
-    return <h1>Loading</h1>;
-  }
 
   function renderConfigRoom() {
     return (
@@ -215,7 +217,7 @@ const MainContainer = styled.main`
 const Title = styled.h1`
   font-size: clamp(2.5rem, 8vw, 3rem);
   line-height: clamp(2.8rem, 8vw, 3.3rem);
-  font-family: var(--font-bungee-bold);
+  font-family: var(--font-bold);
   color: white;
   text-align: center;
   grid-area: Title;
@@ -230,7 +232,7 @@ const Subtitle = styled.h2`
   color: white;
   font-size: 2rem;
   line-height: 2.3rem;
-  font-family: var(--font-bungee-bold);
+  font-family: var(--font-bold);
 `;
 
 const InputsContainer = styled.div`
