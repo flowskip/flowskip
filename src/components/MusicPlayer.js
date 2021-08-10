@@ -131,6 +131,7 @@ export default function renderMusicPlayer(props) {
 function convertArtistsToAnchor(artists) {
   let artists_len = artists.length;
   return artists.map((artist, index) => (
+<<<<<<< HEAD
     <Anchor
       key={artist.name}
       target="_blank"
@@ -139,6 +140,14 @@ function convertArtistsToAnchor(artists) {
     >
       {artist.name} {index >= artists_len - 1 ? "" : ",  "}
     </Anchor>
+=======
+    <React.Fragment>
+      <Anchor key={artist.name} href={artist.external_urls.spotify}>
+        {artist.name}
+      </Anchor>
+      <small> {index >= artists_len - 1 ? "" : ",  "}</small>
+    </React.Fragment>
+>>>>>>> 4b8f0707b05f515dd4843934c4a796dab96b3587
   ));
 }
 

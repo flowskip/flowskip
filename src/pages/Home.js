@@ -1,8 +1,8 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useRef } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
-import { joinParticipant } from "../components/FlowskipApi";
+import { joinRoom } from "../components/FlowskipApi";
 
 import Loader from "../components/Loader";
 import Button from "../components/Button";
@@ -14,17 +14,19 @@ const defRoomCodeInDb =
     : "";
 const defInputCode = "";
 export default function Home() {
-  const [roomCode, setRoomCode] = useState(defRoomCodeInDb);
-  const [inputCode, setInputCode] = useState(defInputCode);
+  // const [roomCode, setRoomCode] = useState(defRoomCodeInDb);
+  // const [inputCode, setInputCode] = useState(defInputCode);
+  const roomCodeInDb = useRef(defRoomCodeInDb);
+  const inputCode = useRef(defInputCode);
+
   const history = useHistory();
 
-  useEffect(() => {
-    if (roomCode !== "") {
-      // ? Comment to avoid auto redirect if there's a room code in local storage
-      console.log("Room code in LocalStorage!");
-      history.push("room/" + roomCode);
-    }
-  }, [history, roomCode]);
+  if (roomCodeInDb.current !== "") {
+    // ? Comment to avoid auto redirect if there's a room code in local storage
+    console.log("Room code in LocalStorage!");
+    history.push("room/" + roomCodeInDb.current);
+    return null;
+  }
 
   return (
     <MainContainer>
@@ -42,38 +44,55 @@ export default function Home() {
           />
           <InputSubmit
             type="submit"
-            onClick={() => joinRoomFromCode()}
+            onClick={(e) => joinRoomFromCode(e)}
             value="&#9654;"
           />
         </Form>
-        <Button onClick={() => history.push("config-room")}>Nueva Sala</Button>
+        <Button onClick={(e) => createRoomClick(e)}>Nueva Sala</Button>
       </CenterSection>
     </MainContainer>
   );
 
-  function joinParticipantResponse(data, responseCode) {
+  function createRoomClick(e) {
+    e.preventDefault();
+    localStorage.setItem("next", "config-room");
+    history.push("config-room");
+  }
+
+  function joinRoomResponse(data, responseCode) {
+    let roomCode = "";
     if (responseCode === 201) {
-      setRoomCode(inputCode);
+      roomCode = inputCode.current;
+      localStorage.setItem("room_code", roomCode);
+      history.push("room/" + roomCode);
     } else if (responseCode === 208) {
-      setRoomCode(data.code);
-    } else {
-      console.log("Wrong Code");
-      // ? Maybe, restart the text field?
+      roomCode = data.code;
+      localStorage.setItem("room_code", roomCode);
+      history.push("room/" + roomCode);
     }
   }
 
-  function joinRoomFromCode() {
-    if (inputCode !== "") {
+  function joinRoomFromCode(e) {
+    e.preventDefault();
+    if (inputCode.current !== "" && inputCode.current.length >= 3) {
       console.log("Join From Room Code");
+<<<<<<< HEAD
       joinParticipant(joinParticipantResponse, { code: inputCode });
       return <Loader />;
+=======
+      joinRoom({ code: inputCode.current }, joinRoomResponse);
+      // here. Set loading screen!
+    } else {
+      alert("Enter a code in the field");
+      document.getElementById("code").focus();
+>>>>>>> 4b8f0707b05f515dd4843934c4a796dab96b3587
     }
   }
 
   function readInput() {
     var input = document.getElementById("code");
-    console.log(input.value);
-    setInputCode(input.value);
+    inputCode.current = input.value;
+    console.log(inputCode.current);
   }
 }
 

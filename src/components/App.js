@@ -8,7 +8,11 @@ import Home from "../pages/Home";
 import ConfigRoom from "../pages/ConfigRoom";
 import RedirectFromApi from "./RedirectFromApi.js";
 import Room from "../pages/Room";
+<<<<<<< HEAD
 import Loader from "../components/Loader";
+=======
+import AppNotAuthorizedInSpotify from "./AppNotAuthorizedInSpotify";
+>>>>>>> 4b8f0707b05f515dd4843934c4a796dab96b3587
 
 import GlobalStyle from "../styles/GlobalStyle";
 
@@ -50,6 +54,11 @@ export default function App() {
           <RequiresSpotify exact path="/config-room" component={ConfigRoom} />
           <Route exact path="/redirect-from-api" component={RedirectFromApi} />
           <Route exact path="/room/:room_code" component={Room} />
+          <Route
+            exact
+            path="/spotify-not-authorized"
+            component={AppNotAuthorizedInSpotify}
+          />
         </Switch>
       </BrowserRouter>
     );

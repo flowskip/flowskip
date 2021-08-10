@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Button from "../components/Button";
-import { useEffect, useState } from "react";
+import { useState, useRef } from "react";
 import { useHistory } from "react-router";
 import { getUserDetails, createRoom } from "../components/FlowskipApi";
 import Loader from "../components/Loader";
@@ -17,14 +17,18 @@ const defRoomCodeInDb =
     : localStorage.getItem("room_code");
 const defIsReadyToCreateRoom = false;
 export default function ConfigRoom() {
-  const [guestsCanPause, setGuestCanPause] = useState(defGuestCanPause);
-  const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
   const [roomCodeInDb, setRoomCodeInDb] = useState(defRoomCodeInDb);
-  const [userDetails, setUserDetails] = useState(defUserDetails);
   const [isPremium, setIsPremium] = useState(defIsPremium);
+  const guestsCanPause = useRef(defGuestCanPause);
+  // const [guestsCanPause, setGuestCanPause] = useState(defGuestCanPause);
+  const votesToSkip = useRef(defVotesToSkip);
+  // const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
+  const [userDetails, setUserDetails] = useState(defUserDetails);
+
   const history = useHistory();
   const isSpotifyAuthenticated =
     localStorage.getItem("spotify_authenticated") === "true";
+<<<<<<< HEAD
   const [isReadyToCreateRoom, setIsReadyToCreateRoom] = useState(
     defIsReadyToCreateRoom
   );
@@ -67,18 +71,42 @@ export default function ConfigRoom() {
       abort.abort();
     };
   }, [isReadyToCreateRoom, votesToSkip, guestsCanPause, roomCodeInDb, history]);
+=======
+>>>>>>> 4b8f0707b05f515dd4843934c4a796dab96b3587
 
   if (!isSpotifyAuthenticated) {
     history.push("/");
+    return <React.Fragment />;
   }
+
+  if (roomCodeInDb === "") {
+    if (userDetails === null) {
+      getUserDetails(getUserDetailsResponse);
+    }
+  } else {
+    history.push("room/" + roomCodeInDb);
+    return <React.Fragment />;
+  }
+
+  return (
+    <React.Fragment>
+      {roomCodeInDb === "" && userDetails === null && <Loader />}
+      {isPremium ? renderConfigRoom() : renderUpgradeToSpotifyPremium()}
+    </React.Fragment>
+  );
 
   function getUserDetailsResponse(data, responseCode) {
     if (responseCode === 200) {
       setUserDetails(data);
+      setIsPremium(data.spotify_user.product === "premium");
+    } else {
+      console.log("error getting user details");
+      history.push("/");
     }
   }
 
   function createRoomResponse(data, responseCode) {
+    console.log(data, responseCode);
     if (responseCode === 201 || responseCode === 208) {
       if (responseCode === 208) {
         console.log("Here: alert the user that is already on a room");
@@ -102,9 +130,10 @@ export default function ConfigRoom() {
         this.value = "";
       }
     });
-    setVotesToSkip(
+    votesToSkip.current =
       !/^\d+$/.test(input.value) || input.value < 1
         ? input.value
+<<<<<<< HEAD
         : defVotesToSkip
     );
   }
@@ -124,6 +153,11 @@ export default function ConfigRoom() {
     </React.Fragment>
   );
 
+=======
+        : defVotesToSkip;
+  }
+
+>>>>>>> 4b8f0707b05f515dd4843934c4a796dab96b3587
   function renderConfigRoom() {
     return (
       <MainContainer>
@@ -135,7 +169,7 @@ export default function ConfigRoom() {
               type="radio"
               name="controls"
               id="control"
-              onChange={() => setGuestCanPause(true)}
+              onChange={() => (guestsCanPause.current = true)}
             ></RadioButton>
             <Label htmlFor="control">Reproducir / Pausar</Label>
             <RadioButton
@@ -143,7 +177,7 @@ export default function ConfigRoom() {
               name="controls"
               id="nocontrol"
               checked
-              onChange={() => setGuestCanPause(false)}
+              onChange={() => (guestsCanPause.current = false)}
             ></RadioButton>
             <Label htmlFor="nocontrol">Ninguno</Label>
           </InputsContainer>
@@ -157,12 +191,21 @@ export default function ConfigRoom() {
             placeholder={defVotesToSkip}
           ></Input>
         </Votes>
-        <RoomButton onClick={() => setIsReadyToCreateRoom(true)}>
+        <RoomButton onClick={(e) => createRoomClick(e)}>
           ¡Crear sala!
         </RoomButton>
         <BackButton onClick={() => history.push("/")}>Regresar</BackButton>
       </MainContainer>
     );
+  }
+
+  function createRoomClick(e) {
+    e.preventDefault();
+    const body = {
+      votes_to_skip: votesToSkip.current,
+      guests_can_pause: guestsCanPause.current,
+    };
+    createRoom(body, createRoomResponse);
   }
 
   function renderUpgradeToSpotifyPremium() {
