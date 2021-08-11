@@ -76,16 +76,11 @@ export default function Home() {
     e.preventDefault();
     if (inputCode.current !== "" && inputCode.current.length >= 3) {
       console.log("Join From Room Code");
-<<<<<<< HEAD
-      joinParticipant(joinParticipantResponse, { code: inputCode });
-      return <Loader />;
-=======
       joinRoom({ code: inputCode.current }, joinRoomResponse);
       // here. Set loading screen!
     } else {
       alert("Enter a code in the field");
       document.getElementById("code").focus();
->>>>>>> 4b8f0707b05f515dd4843934c4a796dab96b3587
     }
   }
 

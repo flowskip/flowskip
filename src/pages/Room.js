@@ -42,7 +42,6 @@ export default function Room() {
         trackId.current = "";
       } else {
         trackId.current = deltas.current_playback.item.id;
-        console.log(deltas.current_playback.item.id);
       }
       setCurrentPlayback(deltas.current_playback);
       setParticipants(deltas.participants);

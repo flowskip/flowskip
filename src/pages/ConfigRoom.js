@@ -28,51 +28,6 @@ export default function ConfigRoom() {
   const history = useHistory();
   const isSpotifyAuthenticated =
     localStorage.getItem("spotify_authenticated") === "true";
-<<<<<<< HEAD
-  const [isReadyToCreateRoom, setIsReadyToCreateRoom] = useState(
-    defIsReadyToCreateRoom
-  );
-  const [isLoading, setIsLoading] = useState(defLoading);
-
-  useEffect(() => {
-    if (isSpotifyAuthenticated && roomCodeInDb === "") {
-      if (userDetails === null) {
-        getUserDetails(getUserDetailsResponse);
-      } else {
-        if (userDetails.spotify_user.product === "premium") {
-          setIsLoading(false);
-          console.log("user is premium");
-        } else {
-          console.log("user is not premium");
-          setIsLoading(false);
-          setIsPremium(false);
-        }
-      }
-    }
-  }, [userDetails, isSpotifyAuthenticated, roomCodeInDb]);
-
-  useEffect(() => {
-    let abort = new AbortController();
-    if (isReadyToCreateRoom) {
-      let body = {
-        votes_to_skip: votesToSkip,
-        guests_can_pause: guestsCanPause,
-      };
-      let options = {
-        signal: abort,
-      };
-      createRoom(body, createRoomResponse, options);
-      setIsReadyToCreateRoom(false);
-    }
-    if (roomCodeInDb !== "") {
-      history.push("room/" + localStorage.getItem("room_code"));
-    }
-    return function cleanup() {
-      abort.abort();
-    };
-  }, [isReadyToCreateRoom, votesToSkip, guestsCanPause, roomCodeInDb, history]);
-=======
->>>>>>> 4b8f0707b05f515dd4843934c4a796dab96b3587
 
   if (!isSpotifyAuthenticated) {
     history.push("/");
@@ -133,31 +88,9 @@ export default function ConfigRoom() {
     votesToSkip.current =
       !/^\d+$/.test(input.value) || input.value < 1
         ? input.value
-<<<<<<< HEAD
-        : defVotesToSkip
-    );
-  }
-
-  return (
-    <React.Fragment>
-      {isReadyToCreateRoom && Loader}
-      {isLoading && Loader}
-      {isPremium &&
-        !isReadyToCreateRoom &&
-        isSpotifyAuthenticated &&
-        renderConfigRoom()}
-      {!isPremium &&
-        !isReadyToCreateRoom &&
-        isSpotifyAuthenticated &&
-        renderUpgradeToSpotifyPremium()}
-    </React.Fragment>
-  );
-
-=======
         : defVotesToSkip;
   }
 
->>>>>>> 4b8f0707b05f515dd4843934c4a796dab96b3587
   function renderConfigRoom() {
     return (
       <MainContainer>

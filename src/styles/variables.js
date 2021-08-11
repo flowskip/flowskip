@@ -8,6 +8,7 @@ const variables = css`
     --blue: #23049d;
     --purple: #aa2ee6;
     --pink: #ff79cd;
+    --active: #00ff00;
     --gradient: linear-gradient(
       90deg,
       rgba(35, 4, 157, 1) 0%,
