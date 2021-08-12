@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { voteToSkip } from "./FlowskipApi";
 
 import Flowskip from "../assets/svg/logo.svg";
 import AlbumIcon from "../assets/svg/Album.svg";
@@ -25,8 +26,11 @@ export default function renderMusicPlayer(props) {
       });
   }
 
-  const { item, shuffle_state, progress_ms, votes_to_skip, is_playing } =
+  const { item, shuffle_state, progress_ms, is_playing } =
     props.currentPlayback;
+
+  const votesToSkip = props.votesToSkip;
+  const roomDetails = props.roomDetails;
 
   function toggleAside() {}
 
@@ -98,9 +102,9 @@ export default function renderMusicPlayer(props) {
               {item === undefined ? "Artist" : item.album.name}
             </a>
             <p className="votes-to-skip">
-              {votes_to_skip === undefined
-                ? `Votos: 0`
-                : `Votos: ${votes_to_skip.new}/${votes_to_skip.all}`}
+              {votesToSkip === undefined || roomDetails === null
+                ? `Votos: Loading`
+                : `Votos: ${votesToSkip.all.length}/${roomDetails.votes_to_skip}`}
             </p>
             <progress
               id="progress"
@@ -173,6 +177,7 @@ export default function renderMusicPlayer(props) {
               viewBox="0 0 50 50"
               id="skip"
               xmlns="http://www.w3.org/2000/svg"
+              onClick={() => sendVoteToSkip()}
             >
               <path d="M32.0075 25.8437C32.625 25.4507 32.625 24.5493 32.0075 24.1563L11.9535 11.3947C11.2878 10.971 10.4166 11.4492 10.4166 12.2383V37.7617C10.4166 38.5507 11.2878 39.029 11.9535 38.6053L32.0075 25.8437Z" />
               <rect
@@ -229,6 +234,25 @@ function convertArtistsToAnchor(artists) {
       {artist.name} {index >= artists_len - 1 ? "" : ",  "}
     </a>
   ));
+}
+
+function sendVoteToSkip() {
+  function voteToSkipResponse(data, responseCode) {
+    if (responseCode === 201) {
+      alert("Voto enviado");
+    } else if (responseCode === 410) {
+      alert(
+        "Ya no puedes votar por esta cancion, vota cuando vaya mas al inicio"
+      );
+    } else if (responseCode === 208) {
+      alert("Ya has votado por esta cancion");
+    }
+  }
+  let body = {
+    code: localStorage.getItem("room_code"),
+    track_id: localStorage.getItem("track_id"),
+  };
+  voteToSkip(body, voteToSkipResponse);
 }
 
 const Album = styled.img`
