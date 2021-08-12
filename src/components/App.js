@@ -8,7 +8,7 @@ import Home from "../pages/Home";
 import ConfigRoom from "../pages/ConfigRoom";
 import RedirectFromApi from "./RedirectFromApi.js";
 import Room from "../pages/Room";
-import Loader from "../components/Loader";
+import Loader from "./Loader";
 import AppNotAuthorizedInSpotify from "./AppNotAuthorizedInSpotify";
 
 import GlobalStyle from "../styles/GlobalStyle";
