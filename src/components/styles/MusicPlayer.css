@@ -182,6 +182,32 @@ svg#bucle:hover path.arrow {
     transform: scale(1.3);
 }
 
+#skip {
+    width: 50px;
+    height: 50px;
+    fill: white;
+    transition: all .3s;
+}
+
+#skip:hover {
+    fill: var(--active);
+    transform: scale(1.2) rotateZ(180deg) rotateY(180deg);
+}
+
 .opacity {
     opacity: 0;
+}
+
+.footer__music-player {
+    width: 100%;
+    position: absolute;
+    height: 70px;
+    background-color: var(--blue);
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    padding: 20px 0;
+    align-items: center;
+    justify-content: space-evenly;
 }

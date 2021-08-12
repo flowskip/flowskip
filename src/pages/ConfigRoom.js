@@ -10,7 +10,6 @@ const defUserDetails = null;
 const defIsPremium = true;
 const defGuestCanPause = false;
 const defVotesToSkip = 2;
-const defLoading = true;
 const defRoomCodeInDb =
   localStorage.getItem("room_code") === null
     ? ""

@@ -2,8 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import Flowskip from "../assets/svg/logo.svg";
-import PlayIcon from "../assets/svg/Play.svg";
-import SkipIcon from "../assets/svg/Skip.svg";
 import AlbumIcon from "../assets/svg/Album.svg";
 import LibraryIcon from "../assets/svg/Library.svg";
 import SongIcon from "../assets/svg/Song.svg";
@@ -27,10 +25,29 @@ export default function renderMusicPlayer(props) {
       });
   }
 
-  const { item, shuffle_state, progress_ms, votes_to_skip } =
+  const { item, shuffle_state, progress_ms, votes_to_skip, is_playing } =
     props.currentPlayback;
 
   function toggleAside() {}
+
+  // Arrow function in react
+  const togglePause = () => {
+    const playButton = document.getElementById("play");
+    const pauseButton = document.getElementById("pause");
+
+    playButton.classList.toggle("opacity");
+    pauseButton.classList.toggle("opacity");
+
+    // if (is_playing) {
+    //   props.pause();
+    //   playButton.classList.remove("opacity");
+    //   pauseButton.classList.add("opacity");
+    // } else {
+    //   props.play();
+    //   playButton.classList.add("opacity");
+    //   pauseButton.classList.add("opacity");
+    // }
+  };
 
   return (
     <React.Fragment>
@@ -113,23 +130,22 @@ export default function renderMusicPlayer(props) {
               />
               <path
                 d="M8.33337 22.9167V22.9167C8.33337 16.0131 13.9298 10.4167 20.8334 10.4167V10.4167H31.25"
-                stroke-width="5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M39.5834 25V25C39.5834 31.9036 33.9869 37.5 27.0834 37.5V37.5H16.6667"
-                stroke-width="5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
-            <div id="playpause">
+            <div id="playpause" onClick={togglePause}>
               <svg
                 width="50"
                 height="50"
                 viewBox="0 0 50 50"
-                fill="none"
                 id="play"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -151,7 +167,24 @@ export default function renderMusicPlayer(props) {
                 <rect x="29.1666" y="6.25" width="12.5" height="37.5" rx="2" />
               </svg>
             </div>
-            <ControlSkipButton src={SkipIcon} />
+            <svg
+              width="50"
+              height="50"
+              viewBox="0 0 50 50"
+              id="skip"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M32.0075 25.8437C32.625 25.4507 32.625 24.5493 32.0075 24.1563L11.9535 11.3947C11.2878 10.971 10.4166 11.4492 10.4166 12.2383V37.7617C10.4166 38.5507 11.2878 39.029 11.9535 38.6053L32.0075 25.8437Z" />
+              <rect
+                x="35.4166"
+                y="10.4167"
+                width="4.16667"
+                height="29.1667"
+                rx="1"
+              />
+            </svg>
+
+            {/* <ControlSkipButton src={SkipIcon} /> */}
           </div>
         </div>
 
@@ -169,13 +202,14 @@ export default function renderMusicPlayer(props) {
           {participants.length !== 0 ? participants[0].display_name : "Anonimo"}
         </h1> */}
         {/* <Button onClick={() => leaveButtonRequest()}>Leave room</Button> */}
-        <Footer>
+
+        <footer className="footer__music-player">
           <Album src={AlbumIcon} />
           <CenterAlbumIconContainer>
             <CenterAlbumIcon src={LibraryIcon} />
           </CenterAlbumIconContainer>
           <Album src={SongIcon} />
-        </Footer>
+        </footer>
       </main>
     </React.Fragment>
   );
@@ -196,48 +230,6 @@ function convertArtistsToAnchor(artists) {
     </a>
   ));
 }
-
-const ControlButton = styled.img`
-  border-radius: 50%;
-  padding: 5px 5px 5px 10px;
-  cursor: pointer;
-  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 1));
-  &:hover {
-    filter: sepia(1) hue-rotate(50deg) saturate(10000%)
-      drop-shadow(0 2px 5px rgba(0, 0, 0, 1));
-  }
-`;
-const ControlBucleButton = styled(ControlButton)`
-  width: 50px;
-  height: 50px;
-  padding: 8px;
-`;
-
-const ControlPlayButton = styled(ControlButton)`
-  width: 70px;
-  height: 70px;
-  margin: 0 20px;
-`;
-
-const ControlSkipButton = styled(ControlButton)`
-  width: 50px;
-  height: 50px;
-  padding: 5px;
-`;
-
-const Footer = styled.footer`
-  width: 100%;
-  position: absolute;
-  height: 70px;
-  background-color: var(--blue);
-  bottom: 0;
-  left: 0;
-  z-index: 1;
-  display: flex;
-  padding: 20px 0;
-  align-items: center;
-  justify-content: space-evenly;
-`;
 
 const Album = styled.img`
   height: 40px;
