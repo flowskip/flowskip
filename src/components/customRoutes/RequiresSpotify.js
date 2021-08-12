@@ -2,6 +2,7 @@ import React from "react";
 import { Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getSpotifyAuthenticationUrl } from "../FlowskipApi";
+import Loader from "../Loader";
 
 const defIsLoggedIn =
   localStorage.getItem("spotify_authenticated") === "true" ? true : false;
@@ -24,11 +25,7 @@ const RequiresSpotify = ({ component: Component, ...rest }) => {
   );
 
   function loadingPage() {
-    return (
-      <React.Fragment>
-        <h1>Logging with spotify</h1>
-      </React.Fragment>
-    );
+    return <Loader />;
   }
 
   function getSpotifyAuthenticationUrlResponse(data, responseCode) {

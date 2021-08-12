@@ -192,7 +192,7 @@ const MainContainer = styled.main`
 const Title = styled.h1`
   font-size: clamp(2.5rem, 8vw, 3rem);
   line-height: clamp(2.8rem, 8vw, 3.3rem);
-  font-family: var(--font-bungee-bold);
+  font-family: var(--font-bold);
   color: white;
   text-align: center;
   grid-area: Title;
@@ -207,7 +207,7 @@ const Subtitle = styled.h2`
   color: white;
   font-size: 2rem;
   line-height: 2.3rem;
-  font-family: var(--font-bungee-bold);
+  font-family: var(--font-bold);
 `;
 
 const InputsContainer = styled.div`

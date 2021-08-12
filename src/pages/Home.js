@@ -4,6 +4,7 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { joinRoom } from "../components/FlowskipApi";
 
+import Loader from "../components/Loader";
 import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
 
@@ -166,7 +167,7 @@ const Title = styled.h1`
   color: white;
   font-size: clamp(2.5rem, 8vw, 4rem);
   text-align: center;
-  font-family: var(--font-bungee-bold);
+  font-family: var(--font-bold);
 
   @media screen and (orientation: landscape) and (max-width: 900px) {
     font-size: clamp(2.5rem, 8vh, 4rem);

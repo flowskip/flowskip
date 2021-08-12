@@ -37,13 +37,11 @@ export default function Room() {
   }, []);
 
   useEffect(() => {
-    console.log(deltas);
     if (deltas !== null) {
       if (deltas.current_playback.item === undefined) {
         trackId.current = "";
       } else {
         trackId.current = deltas.current_playback.item.id;
-        console.log(deltas.current_playback.item.id);
       }
       setCurrentPlayback(deltas.current_playback);
       setParticipants(deltas.participants);
@@ -94,7 +92,7 @@ export default function Room() {
   function leaveButtonRequest() {
     clearInterval(interval.current);
     leaveRoom(leaveRoomResponse);
-    // loading screen here
+    return <Loader />;
   }
 
   function leaveRoomResponse(data, responseCode) {

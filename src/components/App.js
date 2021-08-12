@@ -8,6 +8,7 @@ import Home from "../pages/Home";
 import ConfigRoom from "../pages/ConfigRoom";
 import RedirectFromApi from "./RedirectFromApi.js";
 import Room from "../pages/Room";
+import Loader from "../components/Loader";
 import AppNotAuthorizedInSpotify from "./AppNotAuthorizedInSpotify";
 
 import GlobalStyle from "../styles/GlobalStyle";
@@ -33,7 +34,12 @@ export default function App() {
   if (hasUser) {
     return loadRouter();
   } else {
-    return loadScreen();
+    return (
+      <React.Fragment>
+        <GlobalStyle />
+        {loadScreen()}
+      </React.Fragment>
+    );
   }
 
   function loadRouter() {
@@ -57,11 +63,7 @@ export default function App() {
 
   function loadScreen() {
     console.log("My load screen");
-    return (
-      <React.Fragment>
-        <h1>Loading</h1>
-      </React.Fragment>
-    );
+    return <Loader />;
   }
 
   function startSessionResponse(data, responseCode) {
