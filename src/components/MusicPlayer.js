@@ -41,8 +41,29 @@ export default function renderMusicPlayer(props) {
     aside.classList.toggle("displayed");
   }
 
-  // Arrow function in react
+  const setPlayPaused = () => {
+    // Arrow function in react
+    const playButton = document.getElementById("play");
+    const pauseButton = document.getElementById("pause");
+
+    /*
+    playButton.classList.toggle("opacity");
+    pauseButton.classList.toggle("opacity");
+    */
+    console.log(is_playing);
+    if (is_playing === true) {
+      props.pause();
+      playButton.classList.remove("opacity");
+      pauseButton.classList.add("opacity");
+    } else {
+      props.play();
+      playButton.classList.add("opacity");
+      pauseButton.classList.add("opacity");
+    }
+  };
+
   const togglePause = () => {
+    // Arrow function in react
     const playButton = document.getElementById("play");
     const pauseButton = document.getElementById("pause");
 
@@ -208,23 +229,37 @@ export default function renderMusicPlayer(props) {
             </svg>
             {/* Play and pause Icons */}
             <div id="playpause" onClick={togglePause}>
-              <svg width="50" height="50" viewBox="0 0 50 50" id="play">
-                <path
+              {is_playing === false ? (
+                <svg width="50" height="50" viewBox="0 0 50 50" id="play">
+                  <path
+                    fill="white"
+                    d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  width="50"
+                  height="50"
+                  viewBox="0 0 50 50"
                   fill="white"
-                  d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z"
-                />
-              </svg>
-              <svg
-                width="50"
-                height="50"
-                viewBox="0 0 50 50"
-                fill="white"
-                id="pause"
-                className="opacity"
-              >
-                <rect x="8.33337" y="6.25" width="12.5" height="37.5" rx="2" />
-                <rect x="29.1666" y="6.25" width="12.5" height="37.5" rx="2" />
-              </svg>
+                  id="pause"
+                >
+                  <rect
+                    x="8.33337"
+                    y="6.25"
+                    width="12.5"
+                    height="37.5"
+                    rx="2"
+                  />
+                  <rect
+                    x="29.1666"
+                    y="6.25"
+                    width="12.5"
+                    height="37.5"
+                    rx="2"
+                  />
+                </svg>
+              )}
             </div>
             {/* Skip button */}
             <svg
