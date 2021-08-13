@@ -57,6 +57,12 @@ export default function Room() {
     }
   }, [deltas]);
 
+  useEffect(() => {
+    if (roomDetails.current === null) {
+      updateRoomDetails();
+    }
+  }, []);
+
   if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
     localStorage.setItem("room_code", roomCodeFromPath.current);
   }
@@ -85,6 +91,8 @@ export default function Room() {
       } else if (responseCode === 404) {
         localStorage.removeItem("room_code");
         alert("This room doesn't exists");
+        localStorage.removeItem("room_code");
+        localStorage.removeItem("spotify_authenticated");
         history.push("/");
       } else if (responseCode === 500) {
         console.log(data);

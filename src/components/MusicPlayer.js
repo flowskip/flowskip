@@ -1,5 +1,5 @@
 import React from "react";
-import { voteToSkip } from "./FlowskipApi";
+import { voteToSkip, toggleIsPlaying } from "./FlowskipApi";
 
 import Flowskip from "../assets/svg/logo.svg";
 
@@ -26,8 +26,8 @@ export default function renderMusicPlayer(props) {
   const { item, shuffle_state, progress_ms, is_playing } =
     props.currentPlayback;
 
-  const votesToSkip = props.votesToSkip;
-  const roomDetails = props.roomDetails;
+  const votes_to_skip = props.votesToSkip;
+  const room_details = props.roomDetails;
 
   function toggleAside() {
     const gearContainer = document.getElementById("gear-container");
@@ -41,44 +41,50 @@ export default function renderMusicPlayer(props) {
     aside.classList.toggle("displayed");
   }
 
-  const setPlayPaused = () => {
+  const playPauseClick = () => {
     // Arrow function in react
-    const playButton = document.getElementById("play");
-    const pauseButton = document.getElementById("pause");
-
-    /*
-    playButton.classList.toggle("opacity");
-    pauseButton.classList.toggle("opacity");
-    */
-    console.log(is_playing);
-    if (is_playing === true) {
-      props.pause();
-      playButton.classList.remove("opacity");
-      pauseButton.classList.add("opacity");
+    const toggleIsPlayingResponse = (data, responseCode) => {
+      console.log(data, responseCode);
+      if (responseCode === 200) {
+        console.log("Well sent, but is asynchronous");
+      } else if (responseCode === 403) {
+        if (room_details.user_is_host) {
+          alert(
+            "you need to open spotify and start a song, let me guide you to spotify"
+          );
+          window.open(
+            "https://open.spotify.com/",
+            "_blank",
+            "noreferrer",
+            "noopener'"
+          );
+        } else {
+          console.log("No permission, maybe host is not premium");
+        }
+      } else {
+        console.log("Play/pause don't work this time");
+        // do something here
+      }
+    };
+    let body = {
+      code: localStorage.getItem("room_code"),
+      track_id:
+        localStorage.getItem("track_id") === null ||
+        localStorage.getItem("track_id") === undefined
+          ? ""
+          : localStorage.getItem("track_id"),
+    };
+    if (body.track_id === "") {
+      if (room_details.user_is_host) {
+        body.track_id = "i_am_host";
+        toggleIsPlaying(body, toggleIsPlayingResponse);
+      } else {
+        console.log("please wait until host starts a song on spotify");
+        alert("you create your own room!");
+      }
     } else {
-      props.play();
-      playButton.classList.add("opacity");
-      pauseButton.classList.add("opacity");
+      toggleIsPlaying(body, toggleIsPlayingResponse);
     }
-  };
-
-  const togglePause = () => {
-    // Arrow function in react
-    const playButton = document.getElementById("play");
-    const pauseButton = document.getElementById("pause");
-
-    playButton.classList.toggle("opacity");
-    pauseButton.classList.toggle("opacity");
-
-    // if (is_playing) {
-    //   props.pause();
-    //   playButton.classList.remove("opacity");
-    //   pauseButton.classList.add("opacity");
-    // } else {
-    //   props.play();
-    //   playButton.classList.add("opacity");
-    //   pauseButton.classList.add("opacity");
-    // }
   };
 
   return (
@@ -184,9 +190,9 @@ export default function renderMusicPlayer(props) {
               </a>
             </p>
             <p className="votes-to-skip">
-              {votesToSkip === undefined || roomDetails === null
+              {votes_to_skip === undefined || room_details === null
                 ? `Votos: Loading`
-                : `Votos: ${votesToSkip.all.length}/${roomDetails.votes_to_skip}`}
+                : `Votos: ${votes_to_skip.all.length}/${room_details.votes_to_skip}`}
             </p>
             <progress
               id="progress"
@@ -228,8 +234,8 @@ export default function renderMusicPlayer(props) {
               />
             </svg>
             {/* Play and pause Icons */}
-            <div id="playpause" onClick={togglePause}>
-              {is_playing === false ? (
+            <div id="playpause" onClick={playPauseClick}>
+              {is_playing === false || is_playing === undefined ? (
                 <svg width="50" height="50" viewBox="0 0 50 50" id="play">
                   <path
                     fill="white"
