@@ -167,7 +167,7 @@ export default function renderMusicPlayer(props) {
               {item === undefined ? "Artistas" : item.name}
             </a>
             <p className="song__artist">
-              {"by "}
+              {"by: "}
               {item === undefined ? (
                 <a className="song__details" href="https://open.spotify.com">
                   Open Spotify
@@ -237,19 +237,10 @@ export default function renderMusicPlayer(props) {
             <div id="playpause" onClick={playPauseClick}>
               {is_playing === false || is_playing === undefined ? (
                 <svg width="50" height="50" viewBox="0 0 50 50" id="play">
-                  <path
-                    fill="white"
-                    d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z"
-                  />
+                  <path d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z" />
                 </svg>
               ) : (
-                <svg
-                  width="50"
-                  height="50"
-                  viewBox="0 0 50 50"
-                  fill="white"
-                  id="pause"
-                >
+                <svg width="50" height="50" viewBox="0 0 50 50" id="pause">
                   <rect
                     x="8.33337"
                     y="6.25"
@@ -287,48 +278,80 @@ export default function renderMusicPlayer(props) {
           </div>
         </div>
         <footer className="footer__music-player">
-          {/* Album Button */}
-          <div className="footer__dialog--container">
-            <svg width="50" height="50" viewBox="0 0 50 50" id="album">
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M25 0C35.3553 0 43.75 8.39466 43.75 18.75H33.3333C33.3333 14.1476 29.6024 10.4167 25 10.4167C20.3976 10.4167 16.6667 14.1476 16.6667 18.75H6.25C6.25 8.39466 14.6447 0 25 0ZM29.1667 18.75C29.1667 16.4488 27.3012 14.5833 25 14.5833C22.6988 14.5833 20.8333 16.4488 20.8333 18.75H29.1667Z"
-              />
-              <path d="M2.08337 22.9167H47.9167V48C47.9167 49.1046 47.0213 50 45.9167 50H4.08337C2.9788 50 2.08337 49.1046 2.08337 48V22.9167Z" />
-            </svg>
-          </div>
-          {/* Library Button */}
-          <div className="footer__dialog--container">
-            <svg width="50" height="50" viewBox="0 0 50 50" id="library">
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M2 16.6667C0.895431 16.6667 0 17.5621 0 18.6667V48C0 49.1046 0.895432 50 2 50H48C49.1046 50 50 49.1046 50 48V18.6667C50 17.5621 49.1046 16.6667 48 16.6667H2ZM19.7917 26.2586C19.7917 25.4908 20.6211 25.0094 21.2878 25.3903L32.8556 32.0005C33.5274 32.3844 33.5274 33.3531 32.8556 33.737L21.2878 40.3471C20.6212 40.7281 19.7917 40.2467 19.7917 39.4789V26.2586Z"
-              />
-              <rect
-                x="2.08337"
-                y="8.33333"
-                width="45.8333"
-                height="4.16667"
-                rx="1"
-              />
-              <rect x="4.16663" width="41.6667" height="4.16667" rx="1" />
-            </svg>
-          </div>
-          {/* Song Button */}
-          <div className="footer__dialog--container">
-            <svg width="50" height="50" viewBox="0 0 50 50" id="song">
-              <path d="M17.7083 47.9167C24.0366 47.9167 29.1667 42.7866 29.1667 36.4583C29.1667 30.1301 24.0366 25 17.7083 25C11.3801 25 6.25 30.1301 6.25 36.4583C6.25 42.7866 11.3801 47.9167 17.7083 47.9167Z" />
-              <rect x="22.9166" y="8.33334" width="6.25" height="27.0833" />
-              <rect
-                x="22.9166"
-                y="2.08334"
-                width="22.9167"
-                height="12.5"
-                rx="2"
-              />
-            </svg>
+          <div className="footer__container">
+            {/* Album Button */}
+            <div className="footer__dialog--container-1">
+              <div className="dialog--box-1">
+                <div className="box">
+                  <p>A LA MADRE</p>
+                </div>
+                <div className="dialog--triangle-1">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              <svg width="50" height="50" viewBox="0 0 50 50" id="album">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M25 0C35.3553 0 43.75 8.39466 43.75 18.75H33.3333C33.3333 14.1476 29.6024 10.4167 25 10.4167C20.3976 10.4167 16.6667 14.1476 16.6667 18.75H6.25C6.25 8.39466 14.6447 0 25 0ZM29.1667 18.75C29.1667 16.4488 27.3012 14.5833 25 14.5833C22.6988 14.5833 20.8333 16.4488 20.8333 18.75H29.1667Z"
+                />
+                <path d="M2.08337 22.9167H47.9167V48C47.9167 49.1046 47.0213 50 45.9167 50H4.08337C2.9788 50 2.08337 49.1046 2.08337 48V22.9167Z" />
+              </svg>
+            </div>
+            {/* Library Button */}
+            <div className="footer__dialog--container-2">
+              <div className="dialog--box-2">
+                <div className="box">
+                  <p>FUE MÁS DIFÍCIL DE</p>
+                </div>
+                <div className="dialog--triangle-2">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              <svg width="50" height="50" viewBox="0 0 50 50" id="library">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M2 16.6667C0.895431 16.6667 0 17.5621 0 18.6667V48C0 49.1046 0.895432 50 2 50H48C49.1046 50 50 49.1046 50 48V18.6667C50 17.5621 49.1046 16.6667 48 16.6667H2ZM19.7917 26.2586C19.7917 25.4908 20.6211 25.0094 21.2878 25.3903L32.8556 32.0005C33.5274 32.3844 33.5274 33.3531 32.8556 33.737L21.2878 40.3471C20.6212 40.7281 19.7917 40.2467 19.7917 39.4789V26.2586Z"
+                />
+                <rect
+                  x="2.08337"
+                  y="8.33333"
+                  width="45.8333"
+                  height="4.16667"
+                  rx="1"
+                />
+                <rect x="4.16663" width="41.6667" height="4.16667" rx="1" />
+              </svg>
+            </div>
+            {/* Song Button */}
+            <div className="footer__dialog--container-3">
+              <div className="dialog--box-3">
+                <div className="box">
+                  <p>LO QUE PARECÍA 😖</p>
+                </div>
+                <div className="dialog--triangle-3">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              <svg width="50" height="50" viewBox="0 0 50 50" id="song">
+                <path d="M17.7083 47.9167C24.0366 47.9167 29.1667 42.7866 29.1667 36.4583C29.1667 30.1301 24.0366 25 17.7083 25C11.3801 25 6.25 30.1301 6.25 36.4583C6.25 42.7866 11.3801 47.9167 17.7083 47.9167Z" />
+                <rect x="22.9166" y="8.33334" width="6.25" height="27.0833" />
+                <rect
+                  x="22.9166"
+                  y="2.08334"
+                  width="22.9167"
+                  height="12.5"
+                  rx="2"
+                />
+              </svg>
+            </div>
           </div>
         </footer>
       </main>

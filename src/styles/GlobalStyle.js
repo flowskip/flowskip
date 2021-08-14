@@ -19,6 +19,10 @@ const GlobalStyle = createGlobalStyle`
         background: var(--gradient);
     }
 
+    svg {
+        cursor: pointer;
+    }
+
     ::placeholder {
         color: #000000;
         font-family: sans-serif;
