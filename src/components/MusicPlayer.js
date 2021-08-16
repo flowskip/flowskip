@@ -29,11 +29,10 @@ export default function renderMusicPlayer(props) {
 
   const { item, shuffle_state, progress_ms, is_playing } =
     props.currentPlayback;
-
+  const participants = props.participants;
   const votes_to_skip = props.votesToSkip;
   const room_details = props.roomDetails;
   const tracks = props.tracks;
-
   function toggleAside() {
     const gearContainer = document.getElementById("gear-container");
     const gearButton = document.getElementById("gear");
@@ -49,7 +48,6 @@ export default function renderMusicPlayer(props) {
   const playPauseClick = () => {
     // Arrow function in react
     const toggleIsPlayingResponse = (data, responseCode) => {
-      console.log(data, responseCode);
       if (responseCode === 200) {
         console.log("Well sent, but is asynchronous");
       } else if (responseCode === 403) {
@@ -99,33 +97,7 @@ export default function renderMusicPlayer(props) {
           <p
             style={{ textAlign: "justify", color: "white", fontSize: "1.6rem" }}
           >
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam
-            ipsa assumenda iusto ratione. Qui beatae rem dicta nisi nobis
-            placeat deleniti, nulla vitae expedita consequuntur aliquid delectus
-            fuga reiciendis eaque! Cupiditate optio quae illo odit architecto
-            ipsam soluta labore vero! Rem asperiores eum ipsum quo nemo esse,
-            amet praesentium, est sed consequatur atque necessitatibus quidem
-            architecto harum aliquam, accusantium neque. Ipsam nemo, suscipit
-            aliquid necessitatibus optio beatae sint fugit ea esse voluptatum
-            nam quae nesciunt officia mollitia reiciendis impedit nobis aut
-            corrupti, recusandae voluptas harum veritatis cum. Porro, doloremque
-            recusandae. Necessitatibus tempora ut vitae ipsum, recusandae
-            officiis tenetur molestias commodi veniam odit blanditiis voluptas
-            ex, voluptates inventore vel doloremque animi, quam odio unde nihil
-            neque sint. Explicabo fugiat ullam sit. Dignissimos necessitatibus
-            accusamus ea accusantium ratione quis porro commodi provident eaque
-            ad recusandae, enim facere a cum, nobis impedit labore. Dolore
-            expedita provident odio laudantium voluptas consequatur pariatur,
-            sapiente adipisci! Sint, debitis omnis. Ipsam, autem? Quaerat porro
-            nisi perspiciatis? Dolor laudantium fugiat aliquam officia ab rerum
-            sequi exercitationem dolorem dignissimos non fugit, consequatur,
-            totam dolorum obcaecati praesentium, aut vel maxime. Quisquam
-            ratione a ad iusto aliquid quaerat iure quidem beatae veniam, rerum,
-            nihil placeat quibusdam magnam vero libero dolorem voluptatum unde.
-            Culpa vel esse et minus ad libero ducimus nobis? Id dolore, culpa
-            officiis in alias, minima illo corrupti ut laborum repellat amet
-            magnam recusandae porro mollitia expedita minus quo, impedit quod
-            corporis voluptas! Dolor laborum voluptas illo voluptates vero.
+            {mapUsers(participants.all)}
           </p>
         </aside>
         <div className="header__icon" id="gear-container" onClick={toggleAside}>
@@ -413,7 +385,56 @@ function mapTracks(tracksList) {
       <p>Follow up</p> <br />
       <p>track_id: {track.track_id}</p> <br />
       <p>uri: {track.uri}</p> <br />
-      <p> ======== </p>
+      <p> ======== END OF TRACK INFO ========== </p>
+      <br />
+    </React.Fragment>
+  ));
+}
+
+function mapUsers(userList) {
+  return userList.map((user) => (
+    <React.Fragment>
+      <p>
+        id: <u>{user.id}</u>
+      </p>
+      <br />
+      <img
+        src={
+          user.image_url === null
+            ? "https://external-preview.redd.it/5kh5OreeLd85QsqYO1Xz_4XSLYwZntfjqou-8fyBFoE.png?auto=webp&s=dbdabd04c399ce9c761ff899f5d38656d1de87c2"
+            : user.image_url
+        }
+        alt="avatar"
+      />
+      <p>
+        uri:{" "}
+        <u>{user.uri ? user.uri : "user is not authenticated in spotify"}</u>
+      </p>
+      <br />
+      <p>
+        is authenticated in spotify:{" "}
+        <u>{user.is_authenticated ? "yes" : "no"}</u>
+      </p>
+      <br />
+      <p>
+        display name:{" "}
+        <u>{user.display_name === null ? user.id : user.display_name}</u>
+      </p>
+      <br />
+      <p>
+        spotify public link:
+        {user.external_url === null ? (
+          <>
+            {" "}
+            <u> No url for anonymous users</u>
+          </>
+        ) : (
+          <a href={user.external_url}> {user.external_url}</a>
+        )}
+      </p>
+      <br />
+      <p> ======== END OF USER INFO ========== </p>
+      <br />
     </React.Fragment>
   ));
 }
