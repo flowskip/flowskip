@@ -6,6 +6,7 @@ import {
   joinRoom,
   calculateDeltas,
   getRoomDetails,
+  getTracks,
 } from "../components/FlowskipApi";
 import MusicPlayer from "../components/MusicPlayer";
 import Loader from "../components/Loader";
@@ -25,15 +26,21 @@ const defQueue = {
   all: [],
   new: [],
 };
+const defTracks = {
+  recommended_tracks: [],
+  success_tracks: [],
+  queue_tracks: [],
+};
 const defRoomDetails = null;
 
 const defShowPlayer = false;
 export default function Room() {
   const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
+  const [, setDeltas] = useState(null);
   const trackId = useRef(defTrackId);
   const oldTrackId = useRef(defTrackId);
   const roomDetails = useRef(defRoomDetails);
-  const [, setDeltas] = useState(null);
+  const [tracks, setTracks] = useState(defTracks);
   const currentPlayback = useRef(defCurrentPlayback);
   const participants = useRef(defParticipants);
   const votesToSkip = useRef(defVotesToSkip);
@@ -97,7 +104,6 @@ export default function Room() {
       } else if (responseCode === 400) {
         console.log(data);
       } else if (responseCode === 404) {
-        localStorage.removeItem("room_code");
         alert("This room doesn't exists");
         localStorage.removeItem("room_code");
         localStorage.removeItem("spotify_authenticated");
@@ -142,7 +148,16 @@ export default function Room() {
       }
       // logic to update the room details if apply
     }
+
+    function getTracksResponse(data, responseCode) {
+      if (responseCode === 200) {
+        tracks.current = data;
+      } else {
+        console.warn("No tracks obtained, data: ", data);
+      }
+    }
     getRoomDetails(getRoomDetailsResponse);
+    getTracks(localStorage.getItem("room_code"), getTracksResponse);
   }
 
   function renderMusicPlayer() {
@@ -153,6 +168,7 @@ export default function Room() {
         votesToSkip={votesToSkip.current}
         queue={queue.current}
         roomDetails={roomDetails.current}
+        tracks={tracks.current}
       />
     );
   }

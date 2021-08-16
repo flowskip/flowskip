@@ -32,6 +32,7 @@ export default function renderMusicPlayer(props) {
 
   const votes_to_skip = props.votesToSkip;
   const room_details = props.roomDetails;
+  const tracks = props.tracks;
 
   function toggleAside() {
     const gearContainer = document.getElementById("gear-container");
@@ -288,6 +289,7 @@ export default function renderMusicPlayer(props) {
               <div className="dialog--box-1">
                 <div className="box">
                   <p>A LA MADRE</p>
+                  {mapTracks(tracks.success_tracks)}
                 </div>
                 <div className="dialog--triangle-1">
                   <div></div>
@@ -309,6 +311,9 @@ export default function renderMusicPlayer(props) {
               <div className="dialog--box-2">
                 <div className="box">
                   <p>FUE MÁS DIFÍCIL DE</p>
+                  {tracks.recommended_tracks.length === 0
+                    ? null
+                    : mapTracks(tracks.recommended_tracks)}
                 </div>
                 <div className="dialog--triangle-2">
                   <div></div>
@@ -337,6 +342,7 @@ export default function renderMusicPlayer(props) {
               <div className="dialog--box-3">
                 <div className="box">
                   <p>LO QUE PARECÍA 😖</p>
+                  {mapTracks(tracks.queue_tracks)}
                 </div>
                 <div className="dialog--triangle-3">
                   <div></div>
@@ -391,6 +397,24 @@ function convertArtistsToAnchor(artists) {
     >
       {artist.name} {index >= artists_len - 1 ? "" : ", "}
     </a>
+  ));
+}
+
+function mapTracks(tracksList) {
+  return tracksList.map((track) => (
+    <React.Fragment>
+      <img src={track.album_image_url} alt="album cover" />
+      <p>track_id: {track.track_id}</p> <br />
+      <p>name: {track.name}</p> <br />
+      <p>artists: {track.artists_str}</p> <br />
+      <p>album: {track.album_name}</p> <br />
+      <p>external_url: {track.external_url}</p> <br />
+      <br />
+      <p>Follow up</p> <br />
+      <p>track_id: {track.track_id}</p> <br />
+      <p>uri: {track.uri}</p> <br />
+      <p> ======== </p>
+    </React.Fragment>
   ));
 }
 
