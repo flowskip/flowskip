@@ -6,6 +6,7 @@ import Flowskip from "../assets/svg/logo.svg";
 import "./styles/MusicPlayer.css";
 let counter = 0;
 let start = Date.now();
+var QRCode = require("qrcode.react");
 export default function renderMusicPlayer(props) {
   function copyRoomCode() {
     navigator.clipboard
@@ -97,6 +98,7 @@ export default function renderMusicPlayer(props) {
           <p
             style={{ textAlign: "justify", color: "white", fontSize: "1.6rem" }}
           >
+            {showQrCode()}
             {mapUsers(participants.all)}
           </p>
         </aside>
@@ -437,6 +439,27 @@ function mapUsers(userList) {
       <br />
     </React.Fragment>
   ));
+}
+
+function showQrCode() {
+  return (
+    // QR reference: qrcode.react
+    <React.Fragment>
+      <h1>
+        Let your friends scan this QR
+        <br /> to join your room
+      </h1>
+      <QRCode
+        value={window.location.href}
+        level="M"
+        size={256}
+        bgColor="yellow"
+      />
+      <br />
+      <p> ======== END OF QR INFO ========== </p>
+      <br />
+    </React.Fragment>
+  );
 }
 
 function sendVoteToSkip() {
