@@ -12,9 +12,19 @@ import Loader from "../components/Loader";
 
 const defTrackId = "";
 const defCurrentPlayback = {};
-const defParticipants = [];
-const defVotesToSkip = [];
-const defQueue = [];
+const defParticipants = {
+  all: [],
+  gone: [],
+  new: [],
+};
+const defVotesToSkip = {
+  all: [],
+  gone: [],
+};
+const defQueue = {
+  all: [],
+  new: [],
+};
 const defRoomDetails = null;
 
 const defShowPlayer = false;
@@ -23,11 +33,12 @@ export default function Room() {
   const trackId = useRef(defTrackId);
   const oldTrackId = useRef(defTrackId);
   const roomDetails = useRef(defRoomDetails);
-  const [currentPlayback, setCurrentPlayback] = useState(defCurrentPlayback);
-  const [participants, setParticipants] = useState(defParticipants);
-  const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
-  const [queue, setQueue] = useState(defQueue);
-  const [deltas, setDeltas] = useState(null);
+  const [, setDeltas] = useState(null);
+  const currentPlayback = useRef(defCurrentPlayback);
+  const participants = useRef(defParticipants);
+  const votesToSkip = useRef(defVotesToSkip);
+  const queue = useRef(defQueue);
+  //const [queue, setQueue] = useState(defQueue);
 
   const windowPath = window.location.pathname.split("/");
   const roomCodeFromPath = useRef(
@@ -38,29 +49,12 @@ export default function Room() {
 
   useEffect(() => {
     interval.current = setInterval(updateState, 1000);
-    return function cleanup() {
-      clearInterval(interval.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (deltas !== null) {
-      if (deltas.current_playback.item === undefined) {
-        trackId.current = "";
-      } else {
-        trackId.current = deltas.current_playback.item.id;
-      }
-      setCurrentPlayback(deltas.current_playback);
-      setParticipants(deltas.participants);
-      setVotesToSkip(deltas.votes_to_skip);
-      setQueue(deltas.queue);
-    }
-  }, [deltas]);
-
-  useEffect(() => {
     if (roomDetails.current === null) {
       updateRoomDetails();
     }
+    return function cleanup() {
+      clearInterval(interval.current);
+    };
   }, []);
 
   if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
@@ -74,18 +68,32 @@ export default function Room() {
     </React.Fragment>
   );
 
+  function updateProps(data) {
+    if (data.current_playback.item === undefined) {
+      trackId.current = "";
+    } else {
+      trackId.current = data.current_playback.item.id;
+    }
+    currentPlayback.current = data.current_playback;
+    participants.current = data.participants;
+    votesToSkip.current = data.votes_to_skip;
+  }
+
   function updateState() {
     let actualState = {
       track_id: trackId.current,
       code: roomCodeFromPath.current,
-      participants: participants,
-      votes: votesToSkip,
-      queue: queue,
+      participants: participants.current.all,
+      votes: votesToSkip.current.all,
+      queue: queue.current.all,
     };
     function calculateDeltasResponse(data, responseCode) {
       if (responseCode === 200) {
+        updateProps(data);
         setDeltas(data);
-        setShowMusicPlayer(true);
+        if (!showMusicPlayer) {
+          setShowMusicPlayer(true);
+        }
       } else if (responseCode === 400) {
         console.log(data);
       } else if (responseCode === 404) {
@@ -140,10 +148,10 @@ export default function Room() {
   function renderMusicPlayer() {
     return (
       <MusicPlayer
-        currentPlayback={currentPlayback}
-        participants={participants}
-        votesToSkip={votesToSkip}
-        queue={queue}
+        currentPlayback={currentPlayback.current}
+        participants={participants.current}
+        votesToSkip={votesToSkip.current}
+        queue={queue.current}
         roomDetails={roomDetails.current}
       />
     );

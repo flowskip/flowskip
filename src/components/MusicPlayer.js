@@ -4,7 +4,8 @@ import { voteToSkip, toggleIsPlaying } from "./FlowskipApi";
 import Flowskip from "../assets/svg/logo.svg";
 
 import "./styles/MusicPlayer.css";
-
+let counter = 0;
+let start = Date.now();
 export default function renderMusicPlayer(props) {
   function copyRoomCode() {
     navigator.clipboard
@@ -22,6 +23,9 @@ export default function renderMusicPlayer(props) {
         console.log("%cCode not copied 😭", "color:red");
       });
   }
+
+  console.log(counter + " " + (Date.now() - start) / 1000);
+  counter++;
 
   const { item, shuffle_state, progress_ms, is_playing } =
     props.currentPlayback;
