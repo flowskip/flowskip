@@ -40,7 +40,7 @@ export default function Room() {
   const trackId = useRef(defTrackId);
   const oldTrackId = useRef(defTrackId);
   const roomDetails = useRef(defRoomDetails);
-  const [tracks, setTracks] = useState(defTracks);
+  const tracks = useRef(defTracks);
   const currentPlayback = useRef(defCurrentPlayback);
   const participants = useRef(defParticipants);
   const votesToSkip = useRef(defVotesToSkip);
