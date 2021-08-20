@@ -270,6 +270,23 @@ export function addSongToQueue(
   executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
+export function toggleIsPlaying(
+  body,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+) {
+  const endpoint = [baseUrl, roomEndpoint, "state", "toggle-is-playing"];
+  const url = new URL(endpoint.join("/"));
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("PUT"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
+  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
 // room endpoints
 
 export function createRoom(

@@ -19,11 +19,20 @@ const GlobalStyle = createGlobalStyle`
         background: var(--gradient);
     }
 
+    svg {
+        cursor: pointer;
+    }
+
     ::placeholder {
         color: #000000;
         font-family: sans-serif;
         font-size: 1.8rem;
         text-align: center;
+    }
+
+    summary::-webkit-details-marker, summary::marker {
+        display: none;
+        content: "";
     }
 `;
 
