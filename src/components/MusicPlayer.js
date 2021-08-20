@@ -1,13 +1,12 @@
 import React, { Fragment } from "react";
-import { voteToSkip, toggleIsPlaying } from "./FlowskipApi";
+import { voteToSkip, toggleIsPlaying, leaveRoom } from "./FlowskipApi";
+import { useHistory } from "react-router";
 import JustLoader from "./JustLoader";
 import Flowskip from "../assets/svg/logo.svg";
 import "./styles/MusicPlayer.css";
 
-let counter = 0;
-let start = Date.now();
 var QRCode = require("qrcode.react");
-export default function renderMusicPlayer(props) {
+export default function RenderMusicPlayer(props) {
 	function copyRoomCode() {
 		navigator.clipboard
 			.writeText(localStorage.getItem("room_code"))
@@ -21,19 +20,32 @@ export default function renderMusicPlayer(props) {
 				console.log("%cCode not copied 😭", "color:red");
 			});
 	}
-
+	let history = useHistory();
 	// console.log(counter + " " + (Date.now() - start) / 1000);
-	counter++;
 
 	const { item, shuffle_state, progress_ms, is_playing } = props.currentPlayback;
 	const participants = props.participants;
 	const votes_to_skip = props.votesToSkip;
 	const room_details = props.roomDetails;
-	const tracks = props.tracks;
+	const successTracks = props.successTracks;
+	const queueTracks = props.queueTracks;
+	const recommendedTracks = props.recommendedTracks;
 
-	const leaveRoom = () => {
-		// Dejar sala y borrar localStorage
-		console.log("Dejar sala");
+	const leaveRoomButton = () => {
+		function leaveRoomResponse(data, responseCode) {
+			console.log(responseCode);
+			if (responseCode === 200) {
+				console.log("Everything ok");
+			} else if (responseCode === 404) {
+				console.log("Room doesn't exist");
+			} else {
+				console.log("Leave room with problem");
+			}
+		}
+		leaveRoom(leaveRoomResponse);
+		localStorage.removeItem("room_code");
+		localStorage.removeItem("track_id");
+		history.push("/");
 	};
 
 	const toggleAside = () => {
@@ -107,7 +119,7 @@ export default function renderMusicPlayer(props) {
 					</div>
 					<div className="aside__footer">
 						<svg
-							onClick={leaveRoom}
+							onClick={leaveRoomButton}
 							width="50"
 							height="50"
 							viewBox="0 0 50 50"
@@ -233,12 +245,12 @@ export default function renderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recientes</h1>
 									<div className="footer__box--content">
-										{tracks.success_tracks.lenght === 0 ? (
+										{successTracks === null ? (
 											<Fragment>
 												<JustLoader />
 											</Fragment>
 										) : (
-											mapTracks(tracks.success_tracks)
+											successTracks
 										)}
 									</div>
 								</div>
@@ -263,12 +275,12 @@ export default function renderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recomendadas</h1>
 									<div className="footer__box--content">
-										{tracks.recommended_tracks.length === 0 ? (
+										{recommendedTracks === null ? (
 											<Fragment>
 												<JustLoader />
 											</Fragment>
 										) : (
-											mapTracks(tracks.recommended_tracks)
+											recommendedTracks
 										)}
 									</div>
 								</div>
@@ -294,13 +306,13 @@ export default function renderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones en cola</h1>
 									<div className="footer__box--content">
-										{tracks.queue_tracks.length === 0 ? (
+										{queueTracks === null ? (
 											<Fragment>
 												<p className="footer__box--advice">Ninguna canción en cola</p>
 												<p className="footer__box--advice">Pero puedes agregar así...</p>
 											</Fragment>
 										) : (
-											mapTracks(tracks.queue_tracks)
+											queueTracks
 										)}
 									</div>
 								</div>
@@ -351,35 +363,6 @@ function convertArtistsToAnchor(artists) {
 		>
 			{artist.name} {index >= artists_len - 1 ? "" : ", "}
 		</a>
-	));
-}
-
-function mapTracks(tracksList) {
-	return tracksList.map((track) => (
-		/*
-		 <div key={track.track_id} className="footer__box--content-grid">
-		 // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
-		 */
-		<div className="footer__box--content-grid">
-			<a target="_blank" rel="noreferrer noopener" href={track.uri}>
-				<img src={track.album_image_url} title={track.name} alt={track.name} />
-			</a>
-			<div>
-				{/* <p>track_id: {track.track_id}</p> <br /> */}
-				<p>
-					song: <span>{track.name}</span>
-				</p>
-				<p>
-					by <span>{track.artists_str}</span>
-				</p>
-				<p>
-					album: <span>{track.album_name}</span>
-				</p>
-				{/* <p>external_url: {track.external_url}</p> This open just the track in the web */}
-				{/* <p>track_id: {track.track_id}</p> */}
-				{/* <p>uri: {track.uri}</p> This open the track in his own albun on spotify's app */}
-			</div>
-		</div>
 	));
 }
 

@@ -7,6 +7,7 @@ import {
   calculateDeltas,
   getRoomDetails,
   getTracks,
+  addTrackToQueue,
 } from "../components/FlowskipApi";
 import MusicPlayer from "../components/MusicPlayer";
 import Loader from "../components/Loader";
@@ -37,10 +38,13 @@ const defShowPlayer = false;
 export default function Room() {
   const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
   const [, setDeltas] = useState(null);
+  const [tracks, setTracks] = useState(defTracks);
+  const [recommendedTracks, setRecommendedTracks] = useState(null);
+  const [successTracks, setSuccessTracks] = useState(null);
+  const [queueTracks, setQueueTracks] = useState(null);
   const trackId = useRef(defTrackId);
   const oldTrackId = useRef(defTrackId);
   const roomDetails = useRef(defRoomDetails);
-  const tracks = useRef(defTracks);
   const currentPlayback = useRef(defCurrentPlayback);
   const participants = useRef(defParticipants);
   const votesToSkip = useRef(defVotesToSkip);
@@ -63,6 +67,12 @@ export default function Room() {
       clearInterval(interval.current);
     };
   }, []);
+
+  useEffect(() => {
+    setRecommendedTracks(mapTracks(tracks.recommended_tracks, "addSongToQueue"));
+    setSuccessTracks(mapTracks(tracks.success_tracks));
+    setQueueTracks(mapTracks(tracks.queue_tracks));
+  }, [tracks]);
 
   if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
     localStorage.setItem("room_code", roomCodeFromPath.current);
@@ -104,10 +114,9 @@ export default function Room() {
       } else if (responseCode === 400) {
         console.log(data);
       } else if (responseCode === 404) {
-        alert("This room doesn't exists");
         localStorage.removeItem("room_code");
         localStorage.removeItem("spotify_authenticated");
-        history.push("/");
+        window.location.href = "/";
       } else if (responseCode === 500) {
         console.log(data);
       }
@@ -148,15 +157,18 @@ export default function Room() {
       }
       // logic to update the room details if apply
     }
+    getRoomDetails(getRoomDetailsResponse);
+    updateTracksLists();
+  }
 
+  function updateTracksLists(){
     function getTracksResponse(data, responseCode) {
       if (responseCode === 200) {
-        tracks.current = data;
+        setTracks(data);
       } else {
         console.warn("No tracks obtained, data: ", data);
       }
     }
-    getRoomDetails(getRoomDetailsResponse);
     getTracks(localStorage.getItem("room_code"), getTracksResponse);
   }
 
@@ -168,27 +180,71 @@ export default function Room() {
         votesToSkip={votesToSkip.current}
         queue={queue.current}
         roomDetails={roomDetails.current}
-        tracks={tracks.current}
+        successTracks={successTracks}
+        recommendedTracks={recommendedTracks}
+        queueTracks={queueTracks}
       />
     );
   }
 
-  function leaveButtonRequest() {
-    clearInterval(interval.current);
-    leaveRoom(leaveRoomResponse);
-    return <Loader />;
-  }
-
-  function leaveRoomResponse(data, responseCode) {
-    console.log(responseCode);
-    localStorage.removeItem("room_code");
-    history.push("/");
-    if (responseCode === 200) {
-      console.log("Everything ok");
-    } else if (responseCode === 404) {
-      console.log("Room doesn't exist");
-    } else {
-      console.log("Leave room with problem");
+  function sendTrackToQueue(trackId){
+    function addTrackToQueueResponse(data, statusCode){
+      if(statusCode === 201){
+        console.log("Track added to queue");
+        updateTracksLists();
+      } else {
+        console.log(statusCode);
+      }
     }
+  
+    let body = {
+      track_id: trackId,
+      code: localStorage.getItem("room_code")
+    }
+    console.log(body);
+    addTrackToQueue(body, addTrackToQueueResponse);
+  }
+  
+  function defineTrackActionOnClick(action, track){
+    if(action === "openSongInSpotify"){
+      window.open(track.external_url, "_blank", "noreferrer", "noopener'");
+    }else if(action === "addSongToQueue"){
+      sendTrackToQueue(track.track_id);
+    }else{
+      console.log("No action defined");
+    }
+  }
+  
+  function mapTracks(tracksList, action="openSongInSpotify") {
+    return tracksList.map((track) => (
+      /*
+       <div key={track.track_id} className="footer__box--content-grid">
+       // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
+       */
+      <React.Fragment>
+        <div onClick={() => defineTrackActionOnClick(action, track)}>
+          <div className="footer__box--content-grid">
+            <a target="_blank" rel="noreferrer noopener" href={track.uri}>
+              <img src={track.album_image_url} title={track.name} alt={track.name} />
+            </a>
+            <div>
+              {/* <p>track_id: {track.track_id}</p> <br /> */}
+              <p>
+                song: <span>{track.name}</span>
+              </p>
+              <p>
+                by <span>{track.artists_str}</span>
+              </p>
+              <p>
+                album: <span>{track.album_name}</span>
+              </p>
+              {/* <p>external_url: {track.external_url}</p> This open just the track in the web */}
+              {/* <p>track_id: {track.track_id}</p> */}
+              {/* <p>uri: {track.uri}</p> This open the track in his own albun on spotify's app */}
+            </div>
+          </div>
+        </div>
+      </React.Fragment>
+    ));
   }
 }
