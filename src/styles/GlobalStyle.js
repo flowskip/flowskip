@@ -29,6 +29,11 @@ const GlobalStyle = createGlobalStyle`
         font-size: 1.8rem;
         text-align: center;
     }
+
+    summary::-webkit-details-marker, summary::marker {
+        display: none;
+        content: "";
+    }
 `;
 
 export default GlobalStyle;

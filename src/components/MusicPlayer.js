@@ -1,10 +1,9 @@
 import React, { Fragment } from "react";
 import { voteToSkip, toggleIsPlaying } from "./FlowskipApi";
 import JustLoader from "./JustLoader";
-
 import Flowskip from "../assets/svg/logo.svg";
-
 import "./styles/MusicPlayer.css";
+
 let counter = 0;
 let start = Date.now();
 var QRCode = require("qrcode.react");
@@ -31,7 +30,13 @@ export default function renderMusicPlayer(props) {
 	const votes_to_skip = props.votesToSkip;
 	const room_details = props.roomDetails;
 	const tracks = props.tracks;
-	function toggleAside() {
+
+	const leaveRoom = () => {
+		// Dejar sala y borrar localStorage
+		console.log("Dejar sala");
+	};
+
+	const toggleAside = () => {
 		const gearContainer = document.getElementById("gear-container");
 		const gearButton = document.getElementById("gear");
 		const closeButton = document.getElementById("close");
@@ -41,7 +46,7 @@ export default function renderMusicPlayer(props) {
 		gearButton.classList.toggle("opacity");
 		closeButton.classList.toggle("opacity");
 		aside.classList.toggle("displayed");
-	}
+	};
 
 	const playPauseClick = () => {
 		// Arrow function in react
@@ -60,6 +65,7 @@ export default function renderMusicPlayer(props) {
 				// do something here
 			}
 		};
+
 		let body = {
 			code: localStorage.getItem("room_code"),
 			track_id:
@@ -67,6 +73,7 @@ export default function renderMusicPlayer(props) {
 					? ""
 					: localStorage.getItem("track_id"),
 		};
+
 		if (body.track_id === "") {
 			if (room_details.user_is_host) {
 				body.track_id = "i_am_host";
@@ -84,10 +91,32 @@ export default function renderMusicPlayer(props) {
 		<Fragment>
 			<div className="header">
 				<aside className="aside" id="aside">
-					<p style={{ textAlign: "center", color: "white", fontSize: "1.6rem" }}>
-						{showQrCode()}
-						{mapUsers(participants.all)}
-					</p>
+					<div className="aside__container">
+						<details className="details__container--qr">
+							<summary>
+								Código QR <span>^</span>
+							</summary>
+							{showQrCode()}
+						</details>
+						<details className="details__container--participants">
+							<summary>
+								Miembros en la sala <span>^</span>
+							</summary>
+							<div className="participants__container">{mapUsers(participants.all)}</div>
+						</details>
+					</div>
+					<div className="aside__footer">
+						<svg
+							onClick={leaveRoom}
+							width="50"
+							height="50"
+							viewBox="0 0 50 50"
+							fill="white"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path d="M39.5833 43.75H20.8333C18.5321 43.75 16.6667 41.8845 16.6667 39.5833V31.25H20.8333V39.5833H39.5833V10.4167H20.8333V18.75H16.6667V10.4167C16.6667 8.11548 18.5321 6.25 20.8333 6.25H39.5833C41.8845 6.25 43.75 8.11548 43.75 10.4167V39.5833C43.75 41.8845 41.8845 43.75 39.5833 43.75ZM25 33.3333V27.0833H6.25V22.9167H25V16.6667L35.4167 25L25 33.3333Z" />
+						</svg>
+					</div>
 				</aside>
 				<div className="header__icon" id="gear-container" onClick={toggleAside}>
 					<svg width="42" height="42" viewBox="0 0 42 42" id="gear">
@@ -196,7 +225,7 @@ export default function renderMusicPlayer(props) {
 						</svg>
 					</div>
 				</div>
-				<footer className="footer__music-player">
+				<footer id="footer" className="footer__music-player">
 					<div className="footer__container">
 						{/* Tracks List Button */}
 						<div className="footer__tracks-list">
@@ -327,15 +356,25 @@ function convertArtistsToAnchor(artists) {
 
 function mapTracks(tracksList) {
 	return tracksList.map((track) => (
+		/*
+		 <div key={track.track_id} className="footer__box--content-grid">
+		 // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
+		 */
 		<div className="footer__box--content-grid">
 			<a target="_blank" rel="noreferrer noopener" href={track.uri}>
 				<img src={track.album_image_url} title={track.name} alt={track.name} />
 			</a>
 			<div>
 				{/* <p>track_id: {track.track_id}</p> <br /> */}
-				<p>{track.name}</p>
-				<p>by {track.artists_str}</p>
-				<p>album: {track.album_name}</p>
+				<p>
+					song: <span>{track.name}</span>
+				</p>
+				<p>
+					by <span>{track.artists_str}</span>
+				</p>
+				<p>
+					album: <span>{track.album_name}</span>
+				</p>
 				{/* <p>external_url: {track.external_url}</p> This open just the track in the web */}
 				{/* <p>track_id: {track.track_id}</p> */}
 				{/* <p>uri: {track.uri}</p> This open the track in his own albun on spotify's app */}
@@ -346,62 +385,65 @@ function mapTracks(tracksList) {
 
 function mapUsers(userList) {
 	return userList.map((user) => (
-		<Fragment>
-			<p>
-				id: <u>{user.id}</u>
-			</p>
-			<br />
-			<img
-				src={
-					user.image_url === null
-						? "https://external-preview.redd.it/5kh5OreeLd85QsqYO1Xz_4XSLYwZntfjqou-8fyBFoE.png?auto=webp&s=dbdabd04c399ce9c761ff899f5d38656d1de87c2"
-						: user.image_url
-				}
-				alt="avatar"
-			/>
-			<p>
-				uri: <u>{user.uri ? user.uri : "user is not authenticated in spotify"}</u>
-			</p>
-			<br />
-			<p>
-				is authenticated in spotify: <u>{user.is_authenticated ? "yes" : "no"}</u>
-			</p>
-			<br />
-			<p>
-				display name: <u>{user.display_name === null ? user.id : user.display_name}</u>
-			</p>
-			<br />
-			<p>
-				spotify public link:
-				{user.external_url === null ? (
-					<>
-						{" "}
-						<u> No url for anonymous users</u>
-					</>
-				) : (
-					<a href={user.external_url}> {user.external_url}</a>
-				)}
-			</p>
-			<br />
-			<p> ======== END OF USER INFO ========== </p>
-			<br />
-		</Fragment>
+		/* 
+		<div key={user.id} className="aside__container--user">
+		// Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
+		*/
+		<div className="aside__container--user">
+			<a
+				target="_blank"
+				rel="noreferrer noopener"
+				href={user.uri ? user.uri : "user is not authenticated in spotify"}
+			>
+				<img
+					src={
+						user.image_url === null
+							? "https://cdn3.iconfinder.com/data/icons/login-6/512/LOGIN-10-512.png"
+							: user.image_url
+					}
+					alt="avatar"
+				/>
+			</a>
+			<div>
+				<p>
+					Id: <span>{user.id}</span>
+				</p>
+				<p>
+					Usuario: <span>{user.display_name === null ? user.id : user.display_name}</span>
+				</p>
+				{/* 
+				<br /> 
+				<p>
+					uri: <u>{user.uri ? user.uri : "user is not authenticated in spotify"}</u>
+				</p>
+				<br />
+				*/}
+				<p>
+					Autenticado: <span>{user.is_authenticated ? "Si" : "no"}</span>
+				</p>
+				{/* <p>
+					spotify public link:
+					{user.external_url === null ? (
+						<>
+							{" "}
+							<u> No url for anonymous users</u>
+						</>
+					) : (
+						<a href={user.external_url}> {user.external_url}</a>
+					)}
+				</p> */}
+			</div>
+		</div>
 	));
 }
 
 function showQrCode() {
 	return (
 		// QR reference: qrcode.react
-		<Fragment>
-			<h1>
-				Let your friends scan this QR
-				<br /> to join your room
-			</h1>
-			<QRCode value={window.location.href} level="M" size={256} bgColor="yellow" />
-			<br />
-			<p> ======== END OF QR INFO ========== </p>
-			<br />
-		</Fragment>
+		<div className="aside__container--qr">
+			<h1 className="aside__title--qr">Let your friends scan this QR code to join your room!</h1>
+			<QRCode value={window.location.href} level="M" size={250} bgColor="white" />
+		</div>
 	);
 }
 
