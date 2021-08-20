@@ -46,9 +46,9 @@ export default function RedirectFromApi() {
       history.push("/");
     } else {
       if (nextPathname === "config-room") {
-        getRoomDetails(getRoomDetailsResponse);
-      } else {
         history.push(nextPathname);
+      } else {
+        getRoomDetails(getRoomDetailsResponse);
       }
     }
   }

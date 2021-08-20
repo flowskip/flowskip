@@ -13,10 +13,10 @@ import AppNotAuthorizedInSpotify from "./AppNotAuthorizedInSpotify";
 
 import GlobalStyle from "../styles/GlobalStyle";
 
-const defHasSession =
-  localStorage.getItem("session_key") !== null ? true : false;
-const defHasUser = localStorage.getItem("user_created") === "true";
 export default function App() {
+  const defHasSession =
+  localStorage.getItem("session_key") !== null ? true : false;
+  const defHasUser = localStorage.getItem("user_created") === "true";
   const [hasSession, setHasSession] = useState(defHasSession);
   const [hasUser, setHasUser] = useState(defHasUser);
 
