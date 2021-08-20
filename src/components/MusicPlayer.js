@@ -361,9 +361,7 @@ function mapTracks(tracksList) {
 		 // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
 		 */
 		<div className="footer__box--content-grid">
-			<a target="_blank" rel="noreferrer noopener" href={track.uri}>
-				<img src={track.album_image_url} title={track.name} alt={track.name} />
-			</a>
+			<img src={track.album_image_url} title={track.name} alt={track.name} />
 			<div>
 				{/* <p>track_id: {track.track_id}</p> <br /> */}
 				<p>
