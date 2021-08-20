@@ -17,13 +17,11 @@
     font: 1.6rem/100% var(--font-bold);
     position: absolute;
     width: 100%;
-    top: -20px;
 }
 
 .room__code--text {
     cursor: pointer;
     text-decoration: underline;
-    font: 2rem var(--font-bold);
 }
 
 /* Contenedor del cover del album */
@@ -229,16 +227,8 @@ svg#bucle:hover path.arrow {
     padding: 5px;
 }
 
-#album:hover {
-    fill: var(--active);
-}
-
 #library {
     fill: white;
-}
-
-#library:hover {
-    fill: var(--active);
 }
 
 #song {
@@ -246,8 +236,8 @@ svg#bucle:hover path.arrow {
     padding: 5px;
 }
 
-#song:hover {
-    fill: var(--active);
+.active {
+    fill: var(--active) !important;
 }
 
 .header {
@@ -434,16 +424,9 @@ details[open] summary~* {
 }
 
 /* First dialog box */
-.footer__tracks-list:hover .footer__box--tracks-list,
-.footer__tracks-list:active .footer__box--tracks-list,
-.footer__tracks-list:focus .footer__box--tracks-list,
-.footer__tracks-list:focus-within .footer__box--tracks-list {
-    display: block;
-}
-
 .footer__box--tracks-list {
     position: absolute;
-    bottom: 75px;
+    bottom: 80px;
     left: 0;
     right: 0;
     height: calc(100vh - 150px);
@@ -530,18 +513,10 @@ details[open] summary~* {
     opacity: 0;
 }
 
-
 /* Second dialog box */
-.footer__recommended-list:hover .footer__box--recommended-list,
-.footer__recommended-list:active .footer__box--recommended-list,
-.footer__recommended-list:focus .footer__box--recommended-list,
-.footer__recommended-list:focus-within .footer__box--recommended-list {
-    display: block;
-}
-
 .footer__box--recommended-list {
     position: absolute;
-    bottom: 75px;
+    bottom: 80px;
     left: 0;
     right: 0;
     height: calc(100vh - 150px);
@@ -571,19 +546,12 @@ details[open] summary~* {
 }
 
 /* Third dialog box */
-.footer__queue-list:hover .footer__box--queue-list,
-.footer__queue-list:active .footer__box--queue-list,
-.footer__queue-list:focus .footer__box--queue-list,
-.footer__queue-list:focus-within .footer__box--queue-list {
-    display: block;
-}
-
 .footer__box--queue-list {
     position: absolute;
-    bottom: 75px;
+    bottom: 80px;
     left: 0;
     right: 0;
-    height: 40vh;
+    height: calc(100vh - 150px);
     display: none;
 }
 
@@ -613,6 +581,10 @@ details[open] summary~* {
     color: white;
     font: normal 1.2rem/2rem var(--font-bold);
     text-align: center;
+}
+
+.show__list {
+    display: block;
 }
 
 /* Active Toggle svg button styles and toogle display for each footer button  */

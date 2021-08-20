@@ -1,13 +1,12 @@
 import React, { Fragment } from "react";
-import { voteToSkip, toggleIsPlaying } from "./FlowskipApi";
+import { voteToSkip, toggleIsPlaying, leaveRoom } from "./FlowskipApi";
+import { useHistory } from "react-router";
 import JustLoader from "./JustLoader";
 import Flowskip from "../assets/svg/logo.svg";
 import "./styles/MusicPlayer.css";
 
-let counter = 0;
-let start = Date.now();
 var QRCode = require("qrcode.react");
-export default function renderMusicPlayer(props) {
+export default function RenderMusicPlayer(props) {
 	function copyRoomCode() {
 		navigator.clipboard
 			.writeText(localStorage.getItem("room_code"))
@@ -21,19 +20,32 @@ export default function renderMusicPlayer(props) {
 				console.log("%cCode not copied 😭", "color:red");
 			});
 	}
-
+	let history = useHistory();
 	// console.log(counter + " " + (Date.now() - start) / 1000);
-	counter++;
 
-	const { item, shuffle_state, progress_ms, is_playing } = props.currentPlayback;
+	const { item, progress_ms, is_playing } = props.currentPlayback;
 	const participants = props.participants;
 	const votes_to_skip = props.votesToSkip;
 	const room_details = props.roomDetails;
-	const tracks = props.tracks;
+	const successTracks = props.successTracks;
+	const queueTracks = props.queueTracks;
+	const recommendedTracks = props.recommendedTracks;
 
-	const leaveRoom = () => {
-		// Dejar sala y borrar localStorage
-		console.log("Dejar sala");
+	const leaveRoomButton = () => {
+		function leaveRoomResponse(data, responseCode) {
+			console.log(responseCode);
+			if (responseCode === 200) {
+				console.log("Everything ok");
+			} else if (responseCode === 404) {
+				console.log("Room doesn't exist");
+			} else {
+				console.log("Leave room with problem");
+			}
+		}
+		leaveRoom(leaveRoomResponse);
+		localStorage.removeItem("room_code");
+		localStorage.removeItem("track_id");
+		history.push("/");
 	};
 
 	const toggleAside = () => {
@@ -106,14 +118,7 @@ export default function renderMusicPlayer(props) {
 						</details>
 					</div>
 					<div className="aside__footer">
-						<svg
-							onClick={leaveRoom}
-							width="50"
-							height="50"
-							viewBox="0 0 50 50"
-							fill="white"
-							xmlns="http://www.w3.org/2000/svg"
-						>
+						<svg onClick={leaveRoomButton} width="50" height="50" viewBox="0 0 50 50" fill="white">
 							<path d="M39.5833 43.75H20.8333C18.5321 43.75 16.6667 41.8845 16.6667 39.5833V31.25H20.8333V39.5833H39.5833V10.4167H20.8333V18.75H16.6667V10.4167C16.6667 8.11548 18.5321 6.25 20.8333 6.25H39.5833C41.8845 6.25 43.75 8.11548 43.75 10.4167V39.5833C43.75 41.8845 41.8845 43.75 39.5833 43.75ZM25 33.3333V27.0833H6.25V22.9167H25V16.6667L35.4167 25L25 33.3333Z" />
 						</svg>
 					</div>
@@ -225,7 +230,7 @@ export default function renderMusicPlayer(props) {
 						</svg>
 					</div>
 				</div>
-				<footer id="footer" className="footer__music-player">
+				<footer className="footer__music-player">
 					<div className="footer__container">
 						{/* Tracks List Button */}
 						<div className="footer__tracks-list">
@@ -233,12 +238,12 @@ export default function renderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recientes</h1>
 									<div className="footer__box--content">
-										{tracks.success_tracks.lenght === 0 ? (
+										{successTracks === null ? (
 											<Fragment>
 												<JustLoader />
 											</Fragment>
 										) : (
-											mapTracks(tracks.success_tracks)
+											successTracks
 										)}
 									</div>
 								</div>
@@ -248,7 +253,15 @@ export default function renderMusicPlayer(props) {
 									<div></div>
 								</div>
 							</div>
-							<svg width="50" height="50" viewBox="0 0 50 50" id="album">
+							<svg
+								onClick={() => {
+									showLists(0);
+								}}
+								width="50"
+								height="50"
+								viewBox="0 0 50 50"
+								id="album"
+							>
 								<path
 									fillRule="evenodd"
 									clipRule="evenodd"
@@ -257,19 +270,13 @@ export default function renderMusicPlayer(props) {
 								<path d="M2.08337 22.9167H47.9167V48C47.9167 49.1046 47.0213 50 45.9167 50H4.08337C2.9788 50 2.08337 49.1046 2.08337 48V22.9167Z" />
 							</svg>
 						</div>
-						{/* Library Button */}
+						{/* Recomendations Button */}
 						<div className="footer__recommended-list">
 							<div className="footer__box--recommended-list">
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recomendadas</h1>
 									<div className="footer__box--content">
-										{tracks.recommended_tracks.length === 0 ? (
-											<Fragment>
-												<JustLoader />
-											</Fragment>
-										) : (
-											mapTracks(tracks.recommended_tracks)
-										)}
+										{recommendedTracks === null ? <JustLoader /> : recommendedTracks}
 									</div>
 								</div>
 								<div className="footer__triangle-2">
@@ -278,7 +285,15 @@ export default function renderMusicPlayer(props) {
 									<div></div>
 								</div>
 							</div>
-							<svg width="50" height="50" viewBox="0 0 50 50" id="library">
+							<svg
+								onClick={() => {
+									showLists(1);
+								}}
+								width="50"
+								height="50"
+								viewBox="0 0 50 50"
+								id="library"
+							>
 								<path
 									fillRule="evenodd"
 									clipRule="evenodd"
@@ -288,19 +303,19 @@ export default function renderMusicPlayer(props) {
 								<rect x="4.16663" width="41.6667" height="4.16667" rx="1" />
 							</svg>
 						</div>
-						{/* Song Button */}
+						{/* Queue Button */}
 						<div className="footer__queue-list">
 							<div className="footer__box--queue-list">
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones en cola</h1>
 									<div className="footer__box--content">
-										{tracks.queue_tracks.length === 0 ? (
+										{queueTracks === null ? (
 											<Fragment>
 												<p className="footer__box--advice">Ninguna canción en cola</p>
 												<p className="footer__box--advice">Pero puedes agregar así...</p>
 											</Fragment>
 										) : (
-											mapTracks(tracks.queue_tracks)
+											queueTracks
 										)}
 									</div>
 								</div>
@@ -310,7 +325,15 @@ export default function renderMusicPlayer(props) {
 									<div></div>
 								</div>
 							</div>
-							<svg width="50" height="50" viewBox="0 0 50 50" id="song">
+							<svg
+								onClick={() => {
+									showLists(2);
+								}}
+								width="50"
+								height="50"
+								viewBox="0 0 50 50"
+								id="song"
+							>
 								<path d="M17.7083 47.9167C24.0366 47.9167 29.1667 42.7866 29.1667 36.4583C29.1667 30.1301 24.0366 25 17.7083 25C11.3801 25 6.25 30.1301 6.25 36.4583C6.25 42.7866 11.3801 47.9167 17.7083 47.9167Z" />
 								<rect x="22.9166" y="8.33334" width="6.25" height="27.0833" />
 								<rect x="22.9166" y="2.08334" width="22.9167" height="12.5" rx="2" />
@@ -351,33 +374,6 @@ function convertArtistsToAnchor(artists) {
 		>
 			{artist.name} {index >= artists_len - 1 ? "" : ", "}
 		</a>
-	));
-}
-
-function mapTracks(tracksList) {
-	return tracksList.map((track) => (
-		/*
-		 <div key={track.track_id} className="footer__box--content-grid">
-		 // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
-		 */
-		<div className="footer__box--content-grid">
-			<img src={track.album_image_url} title={track.name} alt={track.name} />
-			<div>
-				{/* <p>track_id: {track.track_id}</p> <br /> */}
-				<p>
-					song: <span>{track.name}</span>
-				</p>
-				<p>
-					by <span>{track.artists_str}</span>
-				</p>
-				<p>
-					album: <span>{track.album_name}</span>
-				</p>
-				{/* <p>external_url: {track.external_url}</p> This open just the track in the web */}
-				{/* <p>track_id: {track.track_id}</p> */}
-				{/* <p>uri: {track.uri}</p> This open the track in his own albun on spotify's app */}
-			</div>
-		</div>
 	));
 }
 
@@ -461,3 +457,18 @@ function sendVoteToSkip() {
 	};
 	voteToSkip(body, voteToSkipResponse);
 }
+
+const showLists = (list) => {
+	const lists = document.querySelectorAll(
+		".footer__tracks-list, .footer__recommended-list, .footer__queue-list"
+	);
+	// console.log(lists[list]);
+	lists.forEach((listChild) => {
+		if (listChild !== lists[list]) {
+			listChild.children[0].classList.remove("show__list");
+			listChild.children[1].classList.remove("active");
+		}
+	});
+	lists[list].children[0].classList.toggle("show__list");
+	lists[list].children[1].classList.toggle("active");
+};

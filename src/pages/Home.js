@@ -55,7 +55,9 @@ export default function Home() {
 
   function createRoomClick(e) {
     e.preventDefault();
-    localStorage.setItem("next", "config-room");
+    if(localStorage.getItem("spotify_authenticated") !== "true"){
+      localStorage.setItem("next", "config-room");
+    }
     history.push("config-room");
   }
 

@@ -253,17 +253,17 @@ export function getTracks(
   executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
-export function addSongToQueue(
+export function addTrackToQueue(
   body,
   onResponse,
   options = {},
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "state", "add_to_queue"];
+  const endpoint = [baseUrl, roomEndpoint, "state", "add-to-queue"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
-    constructRequestOptionsWithAuth("POST"),
+    constructRequestOptionsWithAuth("PUT"),
     options
   );
   requestOptions.body = JSON.stringify(body);
