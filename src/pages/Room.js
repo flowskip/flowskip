@@ -37,9 +37,9 @@ export default function Room() {
 	const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
 	const [, setDeltas] = useState(null);
 	const [tracks, setTracks] = useState(defTracks);
-	const [recommendedTracks, setRecommendedTracks] = useState([]);
-	const [successTracks, setSuccessTracks] = useState([]);
-	const [queueTracks, setQueueTracks] = useState([]);
+	const recommendedTracks = useRef([]);
+	const successTracks = useRef([]);
+	const queueTracks = useRef([]);
 	const trackId = useRef(defTrackId);
 	const oldTrackId = useRef(defTrackId);
 	const roomDetails = useRef(defRoomDetails);
@@ -68,15 +68,13 @@ export default function Room() {
 		let mapSuccessTracks = mapTracks(tracks.success_tracks)
 		let mapQueueTracks = mapTracks(tracks.queue_tracks);
 		
-		setRecommendedTracks(mapRecommendedTracks);
+		recommendedTracks.current = mapRecommendedTracks;
 
 		if (mapSuccessTracks.length !== successTracks.length){
-			setSuccessTracks(mapSuccessTracks);
+			successTracks.current = mapSuccessTracks;
 		}
-		console.log(queueTracks.length);
-		console.log(mapQueueTracks.length);
 		if (mapQueueTracks.length !== queueTracks.length){
-			setQueueTracks(mapQueueTracks);
+			queueTracks.current = mapQueueTracks;
 		}
 	}, [tracks]);
 
@@ -189,9 +187,9 @@ export default function Room() {
 				votesToSkip={votesToSkip.current}
 				queue={queue.current}
 				roomDetails={roomDetails.current}
-				successTracks={successTracks}
-				recommendedTracks={recommendedTracks}
-				queueTracks={queueTracks}
+				successTracks={successTracks.current}
+				recommendedTracks={recommendedTracks.current}
+				queueTracks={queueTracks.current}
 			/>
 		);
 	}
