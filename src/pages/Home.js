@@ -150,7 +150,7 @@ const CenterSection = styled.section`
 `;
 
 const Title = styled.h1`
-	color: white;
+	color: var(--white);
 	font-size: clamp(2.5rem, 8vw, 4rem);
 	text-align: center;
 	font-family: var(--font-bold);
@@ -191,7 +191,7 @@ const InputSubmit = styled.input`
 	height: 40px;
 	padding: 0 10px;
 	border-radius: 10px;
-	color: white;
+	color: var(--white);
 	font-size: 2rem;
 	background-color: var(--purple);
 	border: none;

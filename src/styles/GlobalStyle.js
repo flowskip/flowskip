@@ -60,18 +60,18 @@ const GlobalStyle = createGlobalStyle`
 
     .swal-title {
         font: bold 2rem/100% var(--font-bold);
-        color: white;
+        color: var(--white);
         }
 
     .swal-button-text {
         font: 1.6rem/100% var(--font-bold);
-        color: white;
+        color: var(--white);
         padding: 10px 20px;
     }
 
     .swal-text {
         font: 1.6rem/100% var(--font-bold);
-        color: white;
+        color: var(--white);
     }
 `;
 
