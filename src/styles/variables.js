@@ -16,6 +16,8 @@ const variables = css`
 			rgba(255, 121, 205, 1) 100%
 		);
 		--progressbar: linear-gradient(90deg, rgba(255, 0, 0, 1) 0%, rgba(170, 0, 0, 1) 100%);
+		--scrollbar-color: #ffffff44;
+		--scrollbar-color-hover: #ffffff;
 	}
 `;
 

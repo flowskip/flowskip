@@ -133,101 +133,108 @@ export default function RenderMusicPlayer(props) {
 				</div>
 			</div>
 			<main className="main__container--music-player">
-				<div className="card__container">
-					<h1 className="room__code">
-						Room code:{" "}
-						<span className="room__code--text" id="room-code" onClick={copyRoomCode}>
-							{localStorage.getItem("room_code")}
-						</span>
-					</h1>
-					<img alt="logo" src={item === undefined ? Flowskip : item.album.images[1].url} className="card" />
-				</div>
-				<div className="controls__container">
-					<div className="song__details--container">
-						<a
-							target="_blank"
-							className="song__name song__details"
-							rel="noreferrer noopener"
-							href={item === undefined ? "#" : item.external_urls.spotify}
-						>
-							{item === undefined ? "Artistas" : item.name}
-						</a>
-						<p className="song__artist">
-							{"by: "}
-							{item === undefined ? (
-								<a className="song__details" href="https://open.spotify.com">
-									Open Spotify
-								</a>
-							) : (
-								convertArtistsToAnchor(item.artists)
-							)}
-						</p>
-						<p className="song__album">
-							Album:
+				<div id="wrapper" className="main__wrapper">
+					<div className="card__container">
+						<h1 className="room__code">
+							Room code:{" "}
+							<span className="room__code--text" id="room-code" onClick={copyRoomCode}>
+								{localStorage.getItem("room_code")}
+							</span>
+						</h1>
+						<img alt="logo" src={item === undefined ? Flowskip : item.album.images[1].url} className="card" />
+					</div>
+					<div className="controls__container">
+						<div className="song__details--container">
 							<a
 								target="_blank"
-								className="song__details"
+								className="song__name song__details"
 								rel="noreferrer noopener"
-								href={item === undefined ? "#" : item.album.external_urls.spotify}
+								href={item === undefined ? "#" : item.external_urls.spotify}
 							>
-								{" "}
-								{item === undefined ? "Artist" : item.album.name}
+								{item === undefined ? "Artistas" : item.name}
 							</a>
-						</p>
-						<p className="votes-to-skip">
-							{votes_to_skip === undefined || room_details === null
-								? `Votos: Loading`
-								: `Votos: ${votes_to_skip.all.length}/${room_details.votes_to_skip}`}
-						</p>
-						<progress
-							id="progress"
-							className="progress"
-							value={item === undefined ? 0 : (progress_ms / item.duration_ms) * 100}
-							max="100"
-						/>
-					</div>
-					<div className="buttons__container">
-						{/* Repeat */}
-						<svg width="50" height="50" viewBox="0 0 50 50" fill="none" id="bucle">
-							<path
-								className="arrow"
-								d="M46.5599 11.6728C47.1865 11.2811 47.1865 10.3684 46.5599 9.97677L32.78 1.36436C32.114 0.948076 31.25 1.42692 31.25 2.21235V19.4372C31.25 20.2226 32.114 20.7015 32.78 20.2852L46.5599 11.6728Z"
+							<p className="song__artist">
+								{"de: "}
+								{item === undefined ? (
+									<a className="song__details" href="https://open.spotify.com">
+										Open Spotify
+									</a>
+								) : (
+									convertArtistsToAnchor(item.artists)
+								)}
+							</p>
+							<p className="song__album">
+								del album:
+								<a
+									target="_blank"
+									className="song__details"
+									rel="noreferrer noopener"
+									href={item === undefined ? "#" : item.album.external_urls.spotify}
+								>
+									{" "}
+									{item === undefined ? "Artist" : item.album.name}
+								</a>
+							</p>
+							<p className="votes-to-skip">
+								Skip:{" "}
+								{votes_to_skip === undefined || room_details === null ? (
+									`Loading`
+								) : (
+									<span className="song__details">
+										{votes_to_skip.all.length} / {room_details.votes_to_skip}
+									</span>
+								)}
+							</p>
+							<progress
+								id="progress"
+								className="progress"
+								value={item === undefined ? 0 : (progress_ms / item.duration_ms) * 100}
+								max="100"
 							/>
-							<path
-								className="arrow"
-								d="M3.67621 38.7561C3.04954 38.3644 3.04954 37.4518 3.67621 37.0601L17.4561 28.4477C18.1221 28.0314 18.9861 28.5102 18.9861 29.2957V46.5205C18.9861 47.3059 18.1221 47.7848 17.4561 47.3685L3.67621 38.7561Z"
-							/>
-							<path
-								d="M8.33337 22.9167V22.9167C8.33337 16.0131 13.9298 10.4167 20.8334 10.4167V10.4167H31.25"
-								strokeWidth="5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-							<path
-								d="M39.5834 25V25C39.5834 31.9036 33.9869 37.5 27.0834 37.5V37.5H16.6667"
-								strokeWidth="5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-						</svg>
-						{/* Play and pause Icons */}
-						<div id="playpause" onClick={playPauseClick}>
-							{is_playing === false || is_playing === undefined ? (
-								<svg width="50" height="50" viewBox="0 0 50 50" id="play">
-									<path d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z" />
-								</svg>
-							) : (
-								<svg width="50" height="50" viewBox="0 0 50 50" id="pause">
-									<rect x="8.33337" y="6.25" width="12.5" height="37.5" rx="2" />
-									<rect x="29.1666" y="6.25" width="12.5" height="37.5" rx="2" />
-								</svg>
-							)}
 						</div>
-						{/* Skip button */}
-						<svg width="50" height="50" viewBox="0 0 50 50" id="skip" onClick={() => sendVoteToSkip()}>
-							<path d="M32.0075 25.8437C32.625 25.4507 32.625 24.5493 32.0075 24.1563L11.9535 11.3947C11.2878 10.971 10.4166 11.4492 10.4166 12.2383V37.7617C10.4166 38.5507 11.2878 39.029 11.9535 38.6053L32.0075 25.8437Z" />
-							<rect x="35.4166" y="10.4167" width="4.16667" height="29.1667" rx="1" />
-						</svg>
+						<div className="buttons__container">
+							{/* Repeat */}
+							<svg width="50" height="50" viewBox="0 0 50 50" fill="none" id="bucle">
+								<path
+									className="arrow"
+									d="M46.5599 11.6728C47.1865 11.2811 47.1865 10.3684 46.5599 9.97677L32.78 1.36436C32.114 0.948076 31.25 1.42692 31.25 2.21235V19.4372C31.25 20.2226 32.114 20.7015 32.78 20.2852L46.5599 11.6728Z"
+								/>
+								<path
+									className="arrow"
+									d="M3.67621 38.7561C3.04954 38.3644 3.04954 37.4518 3.67621 37.0601L17.4561 28.4477C18.1221 28.0314 18.9861 28.5102 18.9861 29.2957V46.5205C18.9861 47.3059 18.1221 47.7848 17.4561 47.3685L3.67621 38.7561Z"
+								/>
+								<path
+									d="M8.33337 22.9167V22.9167C8.33337 16.0131 13.9298 10.4167 20.8334 10.4167V10.4167H31.25"
+									strokeWidth="5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+								<path
+									d="M39.5834 25V25C39.5834 31.9036 33.9869 37.5 27.0834 37.5V37.5H16.6667"
+									strokeWidth="5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+							</svg>
+							{/* Play and pause Icons */}
+							<div id="playpause" onClick={playPauseClick}>
+								{is_playing === false || is_playing === undefined ? (
+									<svg width="50" height="50" viewBox="0 0 50 50" id="play">
+										<path d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z" />
+									</svg>
+								) : (
+									<svg width="50" height="50" viewBox="0 0 50 50" id="pause">
+										<rect x="8.33337" y="6.25" width="12.5" height="37.5" rx="2" />
+										<rect x="29.1666" y="6.25" width="12.5" height="37.5" rx="2" />
+									</svg>
+								)}
+							</div>
+							{/* Skip button */}
+							<svg width="50" height="50" viewBox="0 0 50 50" id="skip" onClick={() => sendVoteToSkip()}>
+								<path d="M32.0075 25.8437C32.625 25.4507 32.625 24.5493 32.0075 24.1563L11.9535 11.3947C11.2878 10.971 10.4166 11.4492 10.4166 12.2383V37.7617C10.4166 38.5507 11.2878 39.029 11.9535 38.6053L32.0075 25.8437Z" />
+								<rect x="35.4166" y="10.4167" width="4.16667" height="29.1667" rx="1" />
+							</svg>
+						</div>
 					</div>
 				</div>
 				<footer className="footer__music-player">
@@ -238,13 +245,7 @@ export default function RenderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recientes</h1>
 									<div className="footer__box--content">
-										{successTracks === null ? (
-											<Fragment>
-												<JustLoader />
-											</Fragment>
-										) : (
-											successTracks
-										)}
+										{successTracks === null ? <JustLoader /> : successTracks}
 									</div>
 								</div>
 								<div className="footer__triangle-1">
@@ -309,13 +310,13 @@ export default function RenderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones en cola</h1>
 									<div className="footer__box--content">
-										{queueTracks === null ? (
+										{queueTracks ? (
+											queueTracks
+										) : (
 											<Fragment>
 												<p className="footer__box--advice">Ninguna canción en cola</p>
 												<p className="footer__box--advice">Pero puedes agregar así...</p>
 											</Fragment>
-										) : (
-											queueTracks
 										)}
 									</div>
 								</div>
@@ -459,6 +460,7 @@ function sendVoteToSkip() {
 }
 
 const showLists = (list) => {
+	const wrapper = document.getElementById("wrapper");
 	const lists = document.querySelectorAll(
 		".footer__tracks-list, .footer__recommended-list, .footer__queue-list"
 	);
@@ -471,4 +473,13 @@ const showLists = (list) => {
 	});
 	lists[list].children[0].classList.toggle("show__list");
 	lists[list].children[1].classList.toggle("active");
+
+	wrapper.addEventListener("click", () => {
+		lists.forEach((listChild) => {
+			listChild.children[0].classList.remove("show__list");
+			listChild.children[1].classList.remove("active");
+		});
+	});
 };
+
+window.onload = () => {};
