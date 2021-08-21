@@ -311,12 +311,12 @@ export default function RenderMusicPlayer(props) {
 									<h1 className="footer__content--box-title">Canciones en cola</h1>
 									<div className="footer__box--content">
 										{queueTracks.length === 0 ? (
-											queueTracks
-										) : (
 											<Fragment>
-												<p className="footer__box--advice">Ninguna canción en cola</p>
-												<p className="footer__box--advice">Pero puedes agregar así...</p>
-											</Fragment>
+											<p className="footer__box--advice">Ninguna canción en cola</p>
+											<p className="footer__box--advice">Pero puedes agregar así...</p>
+										</Fragment>
+										) : (
+											queueTracks
 										)}
 									</div>
 								</div>

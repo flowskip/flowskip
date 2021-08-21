@@ -73,15 +73,12 @@ export default function Room() {
 		if (mapSuccessTracks.length !== successTracks.length){
 			setSuccessTracks(mapSuccessTracks);
 		}
-
+		console.log(queueTracks.length);
+		console.log(mapQueueTracks.length);
 		if (mapQueueTracks.length !== queueTracks.length){
 			setQueueTracks(mapQueueTracks);
 		}
 	}, [tracks]);
-
-	useEffect(() => {
-		updateTracksLists();
-	}, [queueTracks]);
 
 	if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
 		localStorage.setItem("room_code", roomCodeFromPath.current);
@@ -103,6 +100,10 @@ export default function Room() {
 		currentPlayback.current = data.current_playback;
 		participants.current = data.participants;
 		votesToSkip.current = data.votes_to_skip;
+		queue.current = data.queue;
+		if(queue.current.new.length > 0){
+			updateTracksLists();
+		}
 	}
 
 	function updateState() {
@@ -208,7 +209,6 @@ export default function Room() {
 			track_id: trackId,
 			code: localStorage.getItem("room_code"),
 		};
-		console.log(body);
 		addTrackToQueue(body, addTrackToQueueResponse);
 	}
 
