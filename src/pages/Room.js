@@ -37,9 +37,9 @@ export default function Room() {
 	const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
 	const [, setDeltas] = useState(null);
 	const [tracks, setTracks] = useState(defTracks);
-	const [recommendedTracks, setRecommendedTracks] = useState(null);
-	const [successTracks, setSuccessTracks] = useState(null);
-	const [queueTracks, setQueueTracks] = useState(null);
+	const [recommendedTracks, setRecommendedTracks] = useState([]);
+	const [successTracks, setSuccessTracks] = useState([]);
+	const [queueTracks, setQueueTracks] = useState([]);
 	const trackId = useRef(defTrackId);
 	const oldTrackId = useRef(defTrackId);
 	const roomDetails = useRef(defRoomDetails);
@@ -64,9 +64,19 @@ export default function Room() {
 	}, []);
 
 	useEffect(() => {
-		setRecommendedTracks(mapTracks(tracks.recommended_tracks, "addSongToQueue"));
-		setSuccessTracks(mapTracks(tracks.success_tracks));
-		setQueueTracks(mapTracks(tracks.queue_tracks));
+		let mapRecommendedTracks = mapTracks(tracks.recommended_tracks, "addSongToQueue");
+		let mapSuccessTracks = mapTracks(tracks.success_tracks)
+		let mapQueueTracks = mapTracks(tracks.queue_tracks);
+		
+		setRecommendedTracks(mapRecommendedTracks);
+
+		if (mapSuccessTracks.length !== successTracks.length){
+			setSuccessTracks(mapSuccessTracks);
+		}
+
+		if (mapQueueTracks.length !== queueTracks.length){
+			setQueueTracks(mapQueueTracks);
+		}
 	}, [tracks]);
 
 	useEffect(() => {
@@ -136,7 +146,6 @@ export default function Room() {
 				updateRoomDetails();
 			} else {
 				localStorage.clear();
-				// history.push("/");
 			}
 		}
 		let data = {
