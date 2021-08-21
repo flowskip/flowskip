@@ -3,6 +3,7 @@ import { voteToSkip, toggleIsPlaying, leaveRoom } from "./FlowskipApi";
 import { useHistory } from "react-router";
 import JustLoader from "./JustLoader";
 import Flowskip from "../assets/svg/logo.svg";
+import Swal from 'sweetalert2'
 import "./styles/MusicPlayer.css";
 
 var QRCode = require("qrcode.react");
@@ -42,12 +43,46 @@ export default function RenderMusicPlayer(props) {
 				console.log("Leave room with problem");
 			}
 		}
-		leaveRoom(leaveRoomResponse);
-		localStorage.removeItem("room_code");
-		localStorage.removeItem("track_id");
-		history.push("/");
+		//modal 
+		let msg = props.roomDetails.user_is_host ? "Si sales tu sala será destruida. ¿Estás segur@?" : "¿Estás segur@ de que quieres salir de la sala?";
+		// modal
+		Swal.fire({
+			customClass: {
+					title: "swal-title",
+					confirmButton: "swal-button-text",
+					cancelButton: "swal-button-text",
+					htmlContainer: "swal-text",
+			},
+			title: msg,
+			text: "Esta acción es irreversible.",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#d33333",
+			cancelButtonColor: "#1c2b4c",
+			confirmButtonText: "Eliminar",
+		}).then((result) => {
+			if (result.isConfirmed) {
+				// leaveRoom(leaveRoomResponse);
+				// localStorage.removeItem("room_code");
+				// localStorage.removeItem("track_id");
+				
+				Swal.fire({
+						customClass: {
+								title: "swal-title",
+								confirmButton: "swal-button-text",
+								cancelButton: "swal-button-text",
+								htmlContainer: "swal-text",
+						},
+						title: "Bye",
+						text: "Vuelve pronto",
+						icon: "success",
+						timer: 1500,
+			})
+			// window.location.href = "/";
+		}});
+		
 	};
-
+	const userIsHost = props.roomDetails.user_is_host;
 	const toggleAside = () => {
 		const gearContainer = document.getElementById("gear-container");
 		const gearButton = document.getElementById("gear");
