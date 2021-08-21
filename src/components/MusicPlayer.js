@@ -23,7 +23,7 @@ export default function RenderMusicPlayer(props) {
 	let history = useHistory();
 	// console.log(counter + " " + (Date.now() - start) / 1000);
 
-	const { item, shuffle_state, progress_ms, is_playing } = props.currentPlayback;
+	const { item, progress_ms, is_playing } = props.currentPlayback;
 	const participants = props.participants;
 	const votes_to_skip = props.votesToSkip;
 	const room_details = props.roomDetails;
@@ -118,14 +118,7 @@ export default function RenderMusicPlayer(props) {
 						</details>
 					</div>
 					<div className="aside__footer">
-						<svg
-							onClick={leaveRoomButton}
-							width="50"
-							height="50"
-							viewBox="0 0 50 50"
-							fill="white"
-							xmlns="http://www.w3.org/2000/svg"
-						>
+						<svg onClick={leaveRoomButton} width="50" height="50" viewBox="0 0 50 50" fill="white">
 							<path d="M39.5833 43.75H20.8333C18.5321 43.75 16.6667 41.8845 16.6667 39.5833V31.25H20.8333V39.5833H39.5833V10.4167H20.8333V18.75H16.6667V10.4167C16.6667 8.11548 18.5321 6.25 20.8333 6.25H39.5833C41.8845 6.25 43.75 8.11548 43.75 10.4167V39.5833C43.75 41.8845 41.8845 43.75 39.5833 43.75ZM25 33.3333V27.0833H6.25V22.9167H25V16.6667L35.4167 25L25 33.3333Z" />
 						</svg>
 					</div>
@@ -237,7 +230,7 @@ export default function RenderMusicPlayer(props) {
 						</svg>
 					</div>
 				</div>
-				<footer id="footer" className="footer__music-player">
+				<footer className="footer__music-player">
 					<div className="footer__container">
 						{/* Tracks List Button */}
 						<div className="footer__tracks-list">
@@ -260,7 +253,15 @@ export default function RenderMusicPlayer(props) {
 									<div></div>
 								</div>
 							</div>
-							<svg width="50" height="50" viewBox="0 0 50 50" id="album">
+							<svg
+								onClick={() => {
+									showLists(0);
+								}}
+								width="50"
+								height="50"
+								viewBox="0 0 50 50"
+								id="album"
+							>
 								<path
 									fillRule="evenodd"
 									clipRule="evenodd"
@@ -269,19 +270,13 @@ export default function RenderMusicPlayer(props) {
 								<path d="M2.08337 22.9167H47.9167V48C47.9167 49.1046 47.0213 50 45.9167 50H4.08337C2.9788 50 2.08337 49.1046 2.08337 48V22.9167Z" />
 							</svg>
 						</div>
-						{/* Library Button */}
+						{/* Recomendations Button */}
 						<div className="footer__recommended-list">
 							<div className="footer__box--recommended-list">
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recomendadas</h1>
 									<div className="footer__box--content">
-										{recommendedTracks === null ? (
-											<Fragment>
-												<JustLoader />
-											</Fragment>
-										) : (
-											recommendedTracks
-										)}
+										{recommendedTracks === null ? <JustLoader /> : recommendedTracks}
 									</div>
 								</div>
 								<div className="footer__triangle-2">
@@ -290,7 +285,15 @@ export default function RenderMusicPlayer(props) {
 									<div></div>
 								</div>
 							</div>
-							<svg width="50" height="50" viewBox="0 0 50 50" id="library">
+							<svg
+								onClick={() => {
+									showLists(1);
+								}}
+								width="50"
+								height="50"
+								viewBox="0 0 50 50"
+								id="library"
+							>
 								<path
 									fillRule="evenodd"
 									clipRule="evenodd"
@@ -300,7 +303,7 @@ export default function RenderMusicPlayer(props) {
 								<rect x="4.16663" width="41.6667" height="4.16667" rx="1" />
 							</svg>
 						</div>
-						{/* Song Button */}
+						{/* Queue Button */}
 						<div className="footer__queue-list">
 							<div className="footer__box--queue-list">
 								<div className="footer__box">
@@ -322,7 +325,15 @@ export default function RenderMusicPlayer(props) {
 									<div></div>
 								</div>
 							</div>
-							<svg width="50" height="50" viewBox="0 0 50 50" id="song">
+							<svg
+								onClick={() => {
+									showLists(2);
+								}}
+								width="50"
+								height="50"
+								viewBox="0 0 50 50"
+								id="song"
+							>
 								<path d="M17.7083 47.9167C24.0366 47.9167 29.1667 42.7866 29.1667 36.4583C29.1667 30.1301 24.0366 25 17.7083 25C11.3801 25 6.25 30.1301 6.25 36.4583C6.25 42.7866 11.3801 47.9167 17.7083 47.9167Z" />
 								<rect x="22.9166" y="8.33334" width="6.25" height="27.0833" />
 								<rect x="22.9166" y="2.08334" width="22.9167" height="12.5" rx="2" />
@@ -446,3 +457,18 @@ function sendVoteToSkip() {
 	};
 	voteToSkip(body, voteToSkipResponse);
 }
+
+const showLists = (list) => {
+	const lists = document.querySelectorAll(
+		".footer__tracks-list, .footer__recommended-list, .footer__queue-list"
+	);
+	// console.log(lists[list]);
+	lists.forEach((listChild) => {
+		if (listChild !== lists[list]) {
+			listChild.children[0].classList.remove("show__list");
+			listChild.children[1].classList.remove("active");
+		}
+	});
+	lists[list].children[0].classList.toggle("show__list");
+	lists[list].children[1].classList.toggle("active");
+};
