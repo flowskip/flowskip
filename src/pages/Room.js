@@ -1,8 +1,6 @@
 import React, { Fragment } from "react";
 import { useState, useEffect, useRef } from "react";
-import { useHistory } from "react-router";
 import {
-	leaveRoom,
 	joinRoom,
 	calculateDeltas,
 	getRoomDetails,
@@ -53,7 +51,6 @@ export default function Room() {
 
 	const windowPath = window.location.pathname.split("/");
 	const roomCodeFromPath = useRef(windowPath[2] ? windowPath[2].toString() : null);
-	const history = useHistory();
 	const interval = useRef(null);
 
 	useEffect(() => {
