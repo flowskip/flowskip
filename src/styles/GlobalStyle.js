@@ -53,6 +53,25 @@ const GlobalStyle = createGlobalStyle`
 
     ::-webkit-scrollbar-thumb:hover {
         background: var(--scrollbar-color-hover);
+        border-radius: 20px;
+        border: 2px solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+    }
+
+    .swal-title {
+        font: bold 2rem/100% var(--font-bold);
+        color: white;
+        }
+
+    .swal-button-text {
+        font: 1.6rem/100% var(--font-bold);
+        color: white;
+        padding: 10px 20px;
+    }
+
+    .swal-text {
+        font: 1.6rem/100% var(--font-bold);
+        color: white;
     }
 `;
 
