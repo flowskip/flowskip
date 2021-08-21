@@ -280,7 +280,7 @@ export default function RenderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recientes</h1>
 									<div className="footer__box--content">
-										{successTracks === null ? <JustLoader /> : successTracks}
+										{successTracks.length === 0 ? <JustLoader /> : successTracks}
 									</div>
 								</div>
 								<div className="footer__triangle-1">
@@ -312,7 +312,7 @@ export default function RenderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recomendadas</h1>
 									<div className="footer__box--content">
-										{recommendedTracks === null ? <JustLoader /> : recommendedTracks}
+										{recommendedTracks.length === 0 ? <JustLoader /> : recommendedTracks}
 									</div>
 								</div>
 								<div className="footer__triangle-2">
@@ -345,13 +345,13 @@ export default function RenderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones en cola</h1>
 									<div className="footer__box--content">
-										{queueTracks ? (
-											queueTracks
-										) : (
+										{queueTracks.length === 0 ? (
 											<Fragment>
-												<p className="footer__box--advice">Ninguna canción en cola</p>
-												<p className="footer__box--advice">Pero puedes agregar así...</p>
-											</Fragment>
+											<p className="footer__box--advice">Ninguna canción en cola</p>
+											<p className="footer__box--advice">Pero puedes agregar así...</p>
+										</Fragment>
+										) : (
+											queueTracks
 										)}
 									</div>
 								</div>

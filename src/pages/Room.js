@@ -1,8 +1,6 @@
 import React, { Fragment } from "react";
 import { useState, useEffect, useRef } from "react";
-import { useHistory } from "react-router";
 import {
-	leaveRoom,
 	joinRoom,
 	calculateDeltas,
 	getRoomDetails,
@@ -39,9 +37,9 @@ export default function Room() {
 	const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
 	const [, setDeltas] = useState(null);
 	const [tracks, setTracks] = useState(defTracks);
-	const [recommendedTracks, setRecommendedTracks] = useState(null);
-	const [successTracks, setSuccessTracks] = useState(null);
-	const [queueTracks, setQueueTracks] = useState(null);
+	const [recommendedTracks, setRecommendedTracks] = useState([]);
+	const [successTracks, setSuccessTracks] = useState([]);
+	const [queueTracks, setQueueTracks] = useState([]);
 	const trackId = useRef(defTrackId);
 	const oldTrackId = useRef(defTrackId);
 	const roomDetails = useRef(defRoomDetails);
@@ -53,7 +51,6 @@ export default function Room() {
 
 	const windowPath = window.location.pathname.split("/");
 	const roomCodeFromPath = useRef(windowPath[2] ? windowPath[2].toString() : null);
-	const history = useHistory();
 	const interval = useRef(null);
 
 	useEffect(() => {
@@ -67,9 +64,20 @@ export default function Room() {
 	}, []);
 
 	useEffect(() => {
-		setRecommendedTracks(mapTracks(tracks.recommended_tracks, "addSongToQueue"));
-		setSuccessTracks(mapTracks(tracks.success_tracks));
-		setQueueTracks(mapTracks(tracks.queue_tracks));
+		let mapRecommendedTracks = mapTracks(tracks.recommended_tracks, "addSongToQueue");
+		let mapSuccessTracks = mapTracks(tracks.success_tracks)
+		let mapQueueTracks = mapTracks(tracks.queue_tracks);
+		
+		setRecommendedTracks(mapRecommendedTracks);
+
+		if (mapSuccessTracks.length !== successTracks.length){
+			setSuccessTracks(mapSuccessTracks);
+		}
+		console.log(queueTracks.length);
+		console.log(mapQueueTracks.length);
+		if (mapQueueTracks.length !== queueTracks.length){
+			setQueueTracks(mapQueueTracks);
+		}
 	}, [tracks]);
 
 	if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
@@ -92,6 +100,10 @@ export default function Room() {
 		currentPlayback.current = data.current_playback;
 		participants.current = data.participants;
 		votesToSkip.current = data.votes_to_skip;
+		queue.current = data.queue;
+		if(queue.current.new.length > 0){
+			updateTracksLists();
+		}
 	}
 
 	function updateState() {
@@ -135,7 +147,6 @@ export default function Room() {
 				updateRoomDetails();
 			} else {
 				localStorage.clear();
-				// history.push("/");
 			}
 		}
 		let data = {
@@ -189,7 +200,6 @@ export default function Room() {
 		function addTrackToQueueResponse(data, statusCode) {
 			if (statusCode === 201) {
 				console.log("Track added to queue");
-				updateTracksLists();
 			} else {
 				console.log(statusCode);
 			}
@@ -199,7 +209,6 @@ export default function Room() {
 			track_id: trackId,
 			code: localStorage.getItem("room_code"),
 		};
-		console.log(body);
 		addTrackToQueue(body, addTrackToQueueResponse);
 	}
 
