@@ -72,6 +72,10 @@ export default function Room() {
 		setQueueTracks(mapTracks(tracks.queue_tracks));
 	}, [tracks]);
 
+	useEffect(() => {
+		updateTracksLists();
+	}, [queueTracks]);
+
 	if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
 		localStorage.setItem("room_code", roomCodeFromPath.current);
 	}
@@ -189,7 +193,6 @@ export default function Room() {
 		function addTrackToQueueResponse(data, statusCode) {
 			if (statusCode === 201) {
 				console.log("Track added to queue");
-				updateTracksLists();
 			} else {
 				console.log(statusCode);
 			}
