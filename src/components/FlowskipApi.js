@@ -30,7 +30,7 @@ async function executeRequest(
   onCatch = null,
   onFinally = null
 ) {
-  fetch(url, requestOptions)
+  return fetch(url, requestOptions)
     .then((res) => {
       responseCode = res.status;
       if (responseCode !== 204) {
@@ -41,9 +41,9 @@ async function executeRequest(
     })
     .then((data) => {
       if (data === null) {
-        onResponse(null, responseCode);
+        return onResponse(null, responseCode);
       } else {
-        onResponse(data, responseCode);
+        return onResponse(data, responseCode);
       }
     })
     .catch((err) => {
@@ -75,7 +75,7 @@ export function startSession(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getSessionDetails(
@@ -91,7 +91,7 @@ export function getSessionDetails(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function deleteSession(
@@ -107,7 +107,7 @@ export function deleteSession(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // user endpoints
@@ -125,7 +125,7 @@ export function createUser(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getUserDetails(
@@ -141,7 +141,7 @@ export function getUserDetails(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function deleteUser(
@@ -156,7 +156,7 @@ export function deleteUser(
     constructRequestOptionsWithAuth("DELETE"),
     options
   );
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // participants endpoints
@@ -176,7 +176,7 @@ export function joinRoom(
   );
   requestOptions.body = JSON.stringify(body);
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function leaveRoom(
@@ -191,7 +191,7 @@ export function leaveRoom(
     constructRequestOptionsWithAuth("DELETE"),
     options
   );
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // state endpoints
@@ -211,7 +211,7 @@ export function voteToSkip(
   );
   requestOptions.body = JSON.stringify(body);
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function calculateDeltas(
@@ -229,7 +229,7 @@ export function calculateDeltas(
   );
   requestOptions.body = JSON.stringify(body);
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getTracks(
@@ -250,7 +250,7 @@ export function getTracks(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function addTrackToQueue(
@@ -267,7 +267,7 @@ export function addTrackToQueue(
     options
   );
   requestOptions.body = JSON.stringify(body);
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function toggleIsPlaying(
@@ -284,7 +284,7 @@ export function toggleIsPlaying(
     options
   );
   requestOptions.body = JSON.stringify(body);
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // room endpoints
@@ -304,7 +304,7 @@ export function createRoom(
   );
   requestOptions.body = JSON.stringify(body);
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getRoomDetails(
@@ -313,7 +313,6 @@ export function getRoomDetails(
   onCatch = null,
   onFinally = null
 ) {
-  console.log("Executing GET ROOM");
   const endpoint = [baseUrl, roomEndpoint, "details"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
@@ -321,7 +320,7 @@ export function getRoomDetails(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // spotify endpoints
@@ -343,5 +342,59 @@ export function getSpotifyAuthenticationUrl(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
+export function createPlaylist(
+  body,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [baseUrl, spotifyEndpoint, "api", "playlist-create"];
+  const url = new URL(endpoint.join("/"));
+
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
+export function addItemsToPlaylist(
+  body,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [baseUrl, spotifyEndpoint, "api", "playlist-add-items"];
+  const url = new URL(endpoint.join("/"));
+
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
+export function uploadPlaylistCover(
+  body,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [baseUrl, spotifyEndpoint, "api", "playlist-upload-cover-image"];
+  const url = new URL(endpoint.join("/"));
+
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
