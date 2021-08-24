@@ -3,6 +3,7 @@ import { voteToSkip, toggleIsPlaying, leaveRoom, addItemsToPlaylist, uploadPlayl
 import { useHistory } from "react-router";
 import JustLoader from "./JustLoader";
 import Flowskip from "../assets/svg/logo.svg";
+import Swal from "sweetalert2";
 import "./styles/MusicPlayer.css";
 import Button from "./Button";
 
@@ -52,17 +53,39 @@ function FlowskipPlaylistDefaultName(language) {
 }
 var QRCode = require("qrcode.react");
 export default function RenderMusicPlayer(props) {
+	const [loading, setLoading] = useState(false);
+
 	function copyRoomCode() {
 		navigator.clipboard
 			.writeText(localStorage.getItem("room_code"))
 			.then(() => {
 				console.log("%cCode copied successfully!", "color:#00ff00; font: bold 16px/20px monospace;");
-			})
-			.then(() => {
-				// Pseudo element: copied
+				const Toast = Swal.mixin({
+					toast: true,
+					position: "top",
+					showConfirmButton: false,
+					timer: 1500,
+					timerProgressBar: true,
+				});
+
+				Toast.fire({
+					icon: "success",
+					title: "Código copiado exitosamente",
+				});
 			})
 			.catch(() => {
-				console.log("%cCode not copied 😭", "color:red");
+				const Toast = Swal.mixin({
+					toast: true,
+					position: "top",
+					showConfirmButton: false,
+					timer: 1500,
+					timerProgressBar: true,
+				});
+
+				Toast.fire({
+					icon: "error",
+					title: "Ocurrió un error al copiar el código",
+				});
 			});
 	}
 	let history = useHistory();
@@ -218,7 +241,49 @@ export default function RenderMusicPlayer(props) {
 		localStorage.removeItem("tracksInSubscriptionPlaylist");
 		window.location.href = "/";
 	};
-
+  //modal
+		const msgTitle = props.roomDetails.user_is_host ? "¿Estás segur@?" : "¿Estás segur@?";
+		const msg = props.roomDetails.user_is_host ? "Si sales la sala será destruida." : "Abandonarás la sala.";
+		// modal
+		Swal.fire({
+			customClass: {
+				title: "swal-title",
+				confirmButton: "swal-button-text",
+				cancelButton: "swal-button-text",
+				htmlContainer: "swal-text",
+			},
+			title: msgTitle,
+			text: msg,
+			icon: "warning",
+			iconColor: "#fff",
+			background: "var(--gradient)",
+			confirmButtonColor: "#dd0000",
+			cancelButtonColor: "#00dd00",
+			confirmButtonText: "Sí, salir",
+			showCancelButton: true,
+		}).then((result) => {
+			if (result.isConfirmed) {
+				// leaveRoom(leaveRoomResponse);
+				// localStorage.removeItem("room_code");
+				// localStorage.removeItem("track_id");
+				Swal.fire({
+					customClass: {
+						title: "swal-title",
+						confirmButton: "swal-button-text",
+						cancelButton: "swal-button-text",
+						htmlContainer: "swal-text",
+					},
+					background: "var(--gradient)",
+					icon: "success",
+					text: "Vuelve pronto 😥",
+					timer: 2000,
+					title: "Saliste de la sala",
+				});
+				// window.location.href = "/";
+			}
+		});
+	};
+	const userIsHost = props.roomDetails.user_is_host;
 	const toggleAside = () => {
 		const gearContainer = document.getElementById("gear-container");
 		const gearButton = document.getElementById("gear");
@@ -234,8 +299,10 @@ export default function RenderMusicPlayer(props) {
 	const playPauseClick = () => {
 		// Arrow function in react
 		const toggleIsPlayingResponse = (data, responseCode) => {
+			setLoading(true);
 			if (responseCode === 200) {
 				console.log("Well sent, but is asynchronous");
+				setLoading(false);
 			} else if (responseCode === 403) {
 				if (room_details.user_is_host) {
 					alert("you need to open spotify and start a song, let me guide you to spotify");
@@ -290,7 +357,7 @@ export default function RenderMusicPlayer(props) {
 			<div className="header">
 				<aside className="aside" id="aside">
 					<div className="aside__container">
-						<details className="details__container--qr">
+						<details open className="details__container--qr">
 							<summary>
 								Código QR <span>^</span>
 							</summary>
@@ -403,13 +470,25 @@ export default function RenderMusicPlayer(props) {
 								/>
 							</svg>
 							{/* Play and pause Icons */}
+							{console.log(loading)}
 							<div id="playpause" onClick={playPauseClick}>
-								{is_playing === false || is_playing === undefined ? (
-									<svg width="50" height="50" viewBox="0 0 50 50" id="play">
-										<path d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z" />
+								{is_playing === false ? (
+									loading === false ? (
+										<svg width="50" height="50" viewBox="0 0 50 50" id="play">
+											<path d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z" />
+										</svg>
+									) : (
+										<svg width="50" height="50" viewBox="0 0 50 50" id="playLoading">
+											<path d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z" />
+										</svg>
+									)
+								) : loading === false ? (
+									<svg width="50" height="50" viewBox="0 0 50 50" id="pause">
+										<rect x="8.33337" y="6.25" width="12.5" height="37.5" rx="2" />
+										<rect x="29.1666" y="6.25" width="12.5" height="37.5" rx="2" />
 									</svg>
 								) : (
-									<svg width="50" height="50" viewBox="0 0 50 50" id="pause">
+									<svg width="50" height="50" viewBox="0 0 50 50" id="pauseLoading">
 										<rect x="8.33337" y="6.25" width="12.5" height="37.5" rx="2" />
 										<rect x="29.1666" y="6.25" width="12.5" height="37.5" rx="2" />
 									</svg>
@@ -499,9 +578,9 @@ export default function RenderMusicPlayer(props) {
 									<div className="footer__box--content">
 										{queueTracks.length === 0 ? (
 											<Fragment>
-											<p className="footer__box--advice">Ninguna canción en cola</p>
-											<p className="footer__box--advice">Pero puedes agregar así...</p>
-										</Fragment>
+												<p className="footer__box--advice">Ninguna canción en cola</p>
+												<p className="footer__box--advice">Pero puedes agregar así...</p>
+											</Fragment>
 										) : (
 											queueTracks
 										)}
