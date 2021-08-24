@@ -175,7 +175,7 @@ const Title = styled.h1`
 	font-size: clamp(2.5rem, 8vw, 3rem);
 	line-height: clamp(2.8rem, 8vw, 3.3rem);
 	font-family: var(--font-bold);
-	color: white;
+	color: var(--white);
 	text-align: center;
 	grid-area: Title;
 `;
@@ -186,7 +186,7 @@ const Controls = styled.div`
 `;
 
 const Subtitle = styled.h2`
-	color: white;
+	color: var(--white);
 	font-size: 2rem;
 	line-height: 2.3rem;
 	font-family: var(--font-bold);
@@ -214,7 +214,7 @@ const RadioButton = styled.input`
 `;
 
 const Label = styled.label`
-	color: white;
+	color: var(--white);
 	font-size: 1.6rem;
 	position: relative;
 	padding: 5px 5px 5px 30px;
@@ -224,7 +224,7 @@ const Label = styled.label`
 
 	&::before {
 		content: "";
-		background: white;
+		background: var(--white);
 		height: 20px;
 		width: 20px;
 		position: absolute;
@@ -247,16 +247,16 @@ const Input = styled.input`
 	border: none;
 	width: 40px;
 	padding: 5px;
-	color: white;
+	color: var(--white);
 	font-size: 1.8rem;
-	border-bottom: 1px solid white;
+	border-bottom: 1px solid var(--white);
 
 	&:focus {
 		outline: none;
 	}
 
 	&::placeholder {
-		color: white;
+		color: var(--white);
 		opacity: 0.6;
 	}
 `;

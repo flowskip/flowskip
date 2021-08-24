@@ -9,7 +9,7 @@
 .loader span {
     width: 1rem;
     height: 6rem;
-    background-color: white;
+    background-color: var(--white);
     margin: 0rem 0.1rem;
     animation: loading 1100ms ease-in-out infinite;
 }
