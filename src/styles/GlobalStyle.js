@@ -73,6 +73,21 @@ const GlobalStyle = createGlobalStyle`
         font: 1.6rem/100% var(--font-bold);
         color: var(--white);
     }
+
+    @keyframes shake {
+        0% {
+            transform: translate(0, 0);
+        }
+        25% {
+            transform: translate(-10px, 0);
+        }
+        75% {
+            transform: translate(10px, 0);
+        }
+        100% {
+            transform: translate(0, 0);
+        }
+    }
 `;
 
 export default GlobalStyle;

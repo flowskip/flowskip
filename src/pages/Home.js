@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
 import { joinRoom } from "../components/FlowskipApi";
+import Swal from "sweetalert2";
 
 import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
@@ -58,6 +59,19 @@ export default function Home() {
 			roomCode = data.code;
 			localStorage.setItem("room_code", roomCode);
 			history.push("room/" + roomCode);
+		} else if (responseCode === 404) {
+			Swal.fire({
+				customClass: {
+					title: "swal-title",
+					confirmButton: "swal-button-text",
+					htmlContainer: "swal-text",
+				},
+				title: "No se encontró el código de la sala",
+				text: "El código de la sala no existe.",
+				icon: "warning",
+				background: "var(--gradient)",
+				confirmButtonColor: "rgba(0, 205, 0, 1)",
+			});
 		}
 	}
 
@@ -68,8 +82,11 @@ export default function Home() {
 			joinRoom({ code: inputCode.current }, joinRoomResponse);
 			// here. Set loading screen!
 		} else {
-			alert("Enter a code in the field");
-			document.getElementById("code").focus();
+			const inputCode = document.getElementById("code");
+			inputCode.focus();
+			// Shake input field
+			// inputCode.classList.add("shake");
+			// setTimeout(() => inputCode.classList.remove("shake"), 1000);
 		}
 	}
 
