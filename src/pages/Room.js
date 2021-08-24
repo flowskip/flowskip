@@ -6,6 +6,7 @@ import {
 	getRoomDetails,
 	getTracks,
 	addTrackToQueue,
+	getUserDetails,
 } from "../components/FlowskipApi";
 import MusicPlayer from "../components/MusicPlayer";
 import Loader from "../components/Loader";
@@ -37,12 +38,13 @@ export default function Room() {
 	const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
 	const [, setDeltas] = useState(null);
 	const [tracks, setTracks] = useState(defTracks);
-	const [recommendedTracks, setRecommendedTracks] = useState([]);
-	const [successTracks, setSuccessTracks] = useState([]);
-	const [queueTracks, setQueueTracks] = useState([]);
+	const recommendedTracks = useRef([]);
+	const successTracks = useRef([]);
+	const queueTracks = useRef([]);
 	const trackId = useRef(defTrackId);
 	const oldTrackId = useRef(defTrackId);
 	const roomDetails = useRef(defRoomDetails);
+	const user = useRef(null);
 	const currentPlayback = useRef(defCurrentPlayback);
 	const participants = useRef(defParticipants);
 	const votesToSkip = useRef(defVotesToSkip);
@@ -58,6 +60,9 @@ export default function Room() {
 		if (roomDetails.current === null) {
 			updateRoomDetails();
 		}
+		if (user.current === null) {
+			updateUserDetails();
+		}
 		return function cleanup() {
 			clearInterval(interval.current);
 		};
@@ -68,15 +73,13 @@ export default function Room() {
 		let mapSuccessTracks = mapTracks(tracks.success_tracks)
 		let mapQueueTracks = mapTracks(tracks.queue_tracks);
 		
-		setRecommendedTracks(mapRecommendedTracks);
+		recommendedTracks.current = mapRecommendedTracks;
 
 		if (mapSuccessTracks.length !== successTracks.length){
-			setSuccessTracks(mapSuccessTracks);
+			successTracks.current = mapSuccessTracks;
 		}
-		console.log(queueTracks.length);
-		console.log(mapQueueTracks.length);
 		if (mapQueueTracks.length !== queueTracks.length){
-			setQueueTracks(mapQueueTracks);
+			queueTracks.current = mapQueueTracks;
 		}
 	}, [tracks]);
 
@@ -132,7 +135,6 @@ export default function Room() {
 			}
 		}
 		if (trackId.current !== oldTrackId.current) {
-			console.log("track id changed");
 			localStorage.setItem("track_id", trackId.current);
 			oldTrackId.current = trackId.current;
 			updateRoomDetails();
@@ -170,6 +172,18 @@ export default function Room() {
 		updateTracksLists();
 	}
 
+	function updateUserDetails() {
+		function getUserDetailsResponse(data, responseCode) {
+			if (responseCode === 200) {
+				user.current = data;
+			} else {
+				console.log("user details not get");
+			}
+		}
+		getUserDetails(getUserDetailsResponse);
+	}
+				
+
 	function updateTracksLists() {
 		function getTracksResponse(data, responseCode) {
 			if (responseCode === 200) {
@@ -189,9 +203,10 @@ export default function Room() {
 				votesToSkip={votesToSkip.current}
 				queue={queue.current}
 				roomDetails={roomDetails.current}
-				successTracks={successTracks}
-				recommendedTracks={recommendedTracks}
-				queueTracks={queueTracks}
+				successTracks={successTracks.current}
+				recommendedTracks={recommendedTracks.current}
+				queueTracks={queueTracks.current}
+				user={user.current}
 			/>
 		);
 	}
@@ -229,7 +244,7 @@ export default function Room() {
        // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
        */
 			<Fragment>
-				<div onClick={() => defineTrackActionOnClick(action, track)}>
+				<div id={track.track_id} onClick={() => defineTrackActionOnClick(action, track)}>
 					<div className="footer__box--content-grid">
 						<a target="_blank" rel="noreferrer noopener" href={track.uri}>
 							<img src={track.album_image_url} title={track.name} alt={track.name} />
