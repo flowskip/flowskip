@@ -4,7 +4,6 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { joinRoom } from "../components/FlowskipApi";
 
-import Loader from "../components/Loader";
 import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
 
