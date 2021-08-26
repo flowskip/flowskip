@@ -74,6 +74,11 @@ const GlobalStyle = createGlobalStyle`
         color: var(--white);
     }
 
+    .swal-text-dark {
+        font: 1.6rem/100% var(--font-bold);
+        color: var(--black);
+    }
+
     @keyframes shake {
         0% {
             transform: translate(0, 0);

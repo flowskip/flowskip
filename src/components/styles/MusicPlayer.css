@@ -453,7 +453,7 @@ details[open] summary~* {
     bottom: 80px;
     left: 0;
     right: 0;
-    height: calc(100vh - 150px);
+    height: calc(100vh - 125px);
     display: none;
 }
 
@@ -467,6 +467,10 @@ details[open] summary~* {
     flex-direction: column;
     padding: 20px 0;
     box-shadow: 0 0 10px #000;
+}
+
+.footer__box--tracks {
+    padding: 0 0 20px;
 }
 
 .footer__box .footer__box--content {
@@ -728,4 +732,49 @@ details[open] summary~* {
         max-width: none;
         margin: 0 auto;
     }
+}
+
+.add-playlist {
+    border-radius: 10px;
+    font: 1.6rem/2rem var(--font-bold);
+    background-color: var(--purple);
+    color: var(--white);
+    border: none;
+    box-shadow: 5px 5px 10px 5px #00000033;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    width: fit-content;
+    text-decoration: none;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    opacity: 0.9;
+    margin: 10px auto;
+}
+
+.add-playlist a {
+    color: var(--white);
+}
+
+.add-playlist img {
+    width: 30px;
+    margin: 0 0 0 10px;
+}
+
+.add-playlist:active {
+    transform: scale(0.9);
+    opacity: 1;
+}
+
+.add-playlist:hover {
+    filter: brightness(120%);
+    opacity: 1;
+}
+
+.texto-ayuda {
+    color: var(--white);
+    font: normal 1.2rem/2rem var(--font-bold);
+    text-align: center;
 }
