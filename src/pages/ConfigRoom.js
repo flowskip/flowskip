@@ -4,6 +4,8 @@ import Button from "../components/Button";
 import { useState, useRef } from "react";
 import { useHistory } from "react-router";
 import { getUserDetails, createRoom } from "../components/FlowskipApi";
+import Swal from "sweetalert2";
+
 import Loader from "../components/Loader";
 
 const defUserDetails = null;
@@ -59,12 +61,24 @@ export default function ConfigRoom() {
 		console.log(data, responseCode);
 		if (responseCode === 201 || responseCode === 208) {
 			if (responseCode === 208) {
-				console.log("Here: alert the user that is already on a room");
-				// leave the room first please or something like that
-			}
-			if (responseCode === 201) {
+				Swal.fire({
+					customClass: {
+						title: "swal-title",
+						confirmButton: "swal-button-text",
+						htmlContainer: "swal-text",
+					},
+					type: "info",
+					title: "Room code already exists",
+					text: "Please enter a different room code",
+					confirmButtonText: "Ok",
+					closeOnConfirm: true,
+					closeOnCancel: true,
+					timer: 2000,
+				});
+			} else if (responseCode === 201) {
 				console.log("New room created");
 			}
+
 			localStorage.setItem("room_code", data.code);
 			setRoomCodeInDb(data.code);
 		}

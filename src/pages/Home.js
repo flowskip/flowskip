@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 
 import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
+import Loader from "../components/Loader";
 
 const defRoomCodeInDb = localStorage.getItem("room_code") !== null ? localStorage.getItem("room_code") : "";
 const defInputCode = "";
@@ -32,7 +33,8 @@ export default function Home() {
 			</LogoContainer>
 			<CenterSection>
 				<Title>¡Bienvenido!</Title>
-				<Form action="">
+				<Form>
+					<InvalidCode id="invalid-code">Código inválido.</InvalidCode>
 					<InputText onChange={() => readInput()} id="code" type="text" placeholder="Código" />
 					<InputSubmit type="submit" onClick={(e) => joinRoomFromCode(e)} value="&#9654;" />
 				</Form>
@@ -80,13 +82,22 @@ export default function Home() {
 		if (inputCode.current !== "" && inputCode.current.length >= 3) {
 			console.log("Join From Room Code");
 			joinRoom({ code: inputCode.current }, joinRoomResponse);
-			// here. Set loading screen!
+			return <Loader />;
 		} else {
 			const inputCode = document.getElementById("code");
+			const invalidCode = document.getElementById("invalid-code");
 			inputCode.focus();
-			// Shake input field
-			// inputCode.classList.add("shake");
-			// setTimeout(() => inputCode.classList.remove("shake"), 1000);
+			inputCode.style.animationPlayState = "running";
+			inputCode.style.border = "2px solid red";
+			invalidCode.style.display = "inline-block";
+			setTimeout(() => {
+				inputCode.style.animationPlayState = "paused";
+			}, 500);
+
+			setTimeout(() => {
+				inputCode.style.border = "initial";
+				invalidCode.style.display = "none";
+			}, 2000);
 		}
 	}
 
@@ -179,6 +190,16 @@ const Title = styled.h1`
 const Form = styled.form`
 	display: grid;
 	grid-template-columns: 70% 30%;
+	position: relative;
+`;
+
+const InvalidCode = styled.p`
+	color: var(--white);
+	filter: contrast(150%);
+	font: 1.5rem/1.5rem var(--font-bold);
+	position: absolute;
+	top: -20px;
+	display: none;
 `;
 
 const InputText = styled.input`
@@ -188,6 +209,43 @@ const InputText = styled.input`
 	border-radius: 10px;
 	font-size: 1.8rem;
 	text-align: center;
+	animation: shake 0.5s ease-in-out infinite paused;
+
+	@keyframes shake {
+		0% {
+			transform: translateX(-10px);
+		}
+		16% {
+			transform: translateX(-10px);
+		}
+		32% {
+			transform: translateX(10px);
+		}
+		48% {
+			transform: translateX(-10px);
+		}
+		64% {
+			transform: translateX(10px);
+		}
+		80% {
+			transform: translateX(-10px);
+		}
+		100% {
+			transform: translateX(-10px);
+		}
+	}
+
+	&:focus {
+		outline: none;
+		border: 1px solid var(--primary);
+		box-shadow: 0 0 0 3px var(--primary);
+	}
+
+	&:hover {
+		outline: none;
+		border: 1px solid var(--primary);
+		box-shadow: 0 0 0 3px var(--primary);
+	}
 
 	&:focus {
 		outline: none;
