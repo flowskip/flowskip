@@ -1,143 +1,272 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { useState, useEffect, useRef } from "react";
-import { useHistory } from "react-router";
-import Button from "../components/Button";
-import { leaveRoom, calculateDeltas } from "../components/FlowskipApi";
+import {
+	joinRoom,
+	calculateDeltas,
+	getRoomDetails,
+	getTracks,
+	addTrackToQueue,
+	getUserDetails,
+} from "../components/FlowskipApi";
+import MusicPlayer from "../components/MusicPlayer";
+import Loader from "../components/Loader";
 
 const defTrackId = "";
 const defCurrentPlayback = {};
-const defParticipants = [];
-const defNewParticipants = [];
-const defGoneParticipants = [];
-const defVotesToSkip = [];
-const defNewVotesToSkip = [];
-const defQueue = [];
-const defNewQueue = [];
-const defGoneQueue = [];
+const defParticipants = {
+	all: [],
+	gone: [],
+	new: [],
+};
+const defVotesToSkip = {
+	all: [],
+	gone: [],
+};
+const defQueue = {
+	all: [],
+	new: [],
+};
+const defTracks = {
+	recommended_tracks: [],
+	success_tracks: [],
+	queue_tracks: [],
+};
+const defRoomDetails = null;
 
-const defShowPlayer = true;
+const defShowPlayer = false;
 export default function Room() {
-  const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
-  const [trackId, setTrackId] = useState(defTrackId);
-  const [currentPlayback, setCurrentPlayback] = useState(defCurrentPlayback);
-  const [roomCode, setRoomCode] = useState(
-    localStorage.getItem("room_code") === null
-      ? ""
-      : localStorage.getItem("room_code")
-  );
-  const [participants, setParticipants] = useState(defParticipants);
-  const [newParticipants, setNewParticipants] = useState(defNewParticipants);
-  const [goneParticipants, setGoneParticipants] = useState(defGoneParticipants);
-  const [votesToSkip, setVotesToSkip] = useState(defVotesToSkip);
-  const [newVotesToSkip, setNewVotesToSkip] = useState(defNewVotesToSkip);
-  const [queue, setQueue] = useState(defQueue);
-  const [newQueue, setNewQueue] = useState(defNewQueue);
-  const [goneQueue, setGoneQueue] = useState(defGoneQueue);
-  const [deltas, setDeltas] = useState(null);
+	const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
+	const [, setDeltas] = useState(null);
+	const [tracks, setTracks] = useState(defTracks);
+	const recommendedTracks = useRef([]);
+	const successTracks = useRef([]);
+	const queueTracks = useRef([]);
+	const trackId = useRef(defTrackId);
+	const oldTrackId = useRef(defTrackId);
+	const roomDetails = useRef(defRoomDetails);
+	const user = useRef(null);
+	const currentPlayback = useRef(defCurrentPlayback);
+	const participants = useRef(defParticipants);
+	const votesToSkip = useRef(defVotesToSkip);
+	const queue = useRef(defQueue);
+	//const [queue, setQueue] = useState(defQueue);
 
-  const windowPath = window.location.pathname.split("/");
-  const roomCodeFromPath = windowPath[2] ? windowPath[2].toString() : undefined;
-  const history = useHistory();
-  const interval = useRef(null);
+	const windowPath = window.location.pathname.split("/");
+	const roomCodeFromPath = useRef(windowPath[2] ? windowPath[2].toString() : null);
+	const interval = useRef(null);
 
-  useEffect(() => {
-    interval.current = setInterval(updateState, 2000);
-  }, []);
+	useEffect(() => {
+		interval.current = setInterval(updateState, 1000);
+		if (roomDetails.current === null) {
+			updateRoomDetails();
+		}
+		if (user.current === null) {
+			updateUserDetails();
+		}
+		return function cleanup() {
+			clearInterval(interval.current);
+		};
+	}, []);
 
-  useEffect(() => {
-    console.log(deltas);
-    if (deltas !== null) {
-      if (deltas.current_playback.item === undefined) {
-        setTrackId("");
-      } else {
-        setTrackId(deltas.current_playback.item.id);
-      }
-      setCurrentPlayback(deltas.current_playback);
-      setParticipants(deltas.participants.all);
-      setNewParticipants(deltas.participants.new);
-      setGoneParticipants(deltas.participants.gone);
-      setVotesToSkip(deltas.votes.all);
-      setNewVotesToSkip(deltas.votes.new);
-      setQueue(deltas.queue.all);
-      setNewQueue(deltas.queue.new);
-      setGoneQueue(deltas.queue.gone);
-    }
-  }, [deltas]);
+	useEffect(() => {
+		let mapRecommendedTracks = mapTracks(tracks.recommended_tracks, "addSongToQueue");
+		let mapSuccessTracks = mapTracks(tracks.success_tracks)
+		let mapQueueTracks = mapTracks(tracks.queue_tracks);
+		
+		recommendedTracks.current = mapRecommendedTracks;
 
-  function updateState() {
-    let actualState = {
-      track_id: trackId,
-      code: roomCode,
-      participants: participants,
-      votes: votesToSkip,
-      queue: queue,
-    };
-    calculateDeltas(actualState, calculateDeltasResponse);
-  }
+		if (mapSuccessTracks.length !== successTracks.length){
+			successTracks.current = mapSuccessTracks;
+		}
+		if (mapQueueTracks.length !== queueTracks.length){
+			queueTracks.current = mapQueueTracks;
+		}
+	}, [tracks]);
 
-  if (roomCodeFromPath !== localStorage.getItem("room_code")) {
-    if (localStorage.getItem("room_code") !== null) {
-      history.push(localStorage.getItem("room_code"));
-    }
-  }
+	if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
+		localStorage.setItem("room_code", roomCodeFromPath.current);
+	}
 
-  return (
-    <React.Fragment>{showMusicPlayer && renderMusicPlayer()}</React.Fragment>
-  );
+	return (
+		<Fragment>
+			{showMusicPlayer && renderMusicPlayer()}
+			{!showMusicPlayer && <Loader />}
+		</Fragment>
+	);
 
-  function renderMusicPlayer() {
-    return (
-      <React.Fragment>
-        <h1>Your code: {localStorage.getItem("room_code")}</h1>
-        <br></br>
-        <Button onClick={() => leaveButtonRequest()}>Leave room</Button>
-        <h1>
-          {currentPlayback.item === undefined
-            ? "Start a song"
-            : currentPlayback.item.name}
-        </h1>
-        <h1>
-          {currentPlayback.item === undefined
-            ? "In Spotify"
-            : currentPlayback.item.album.name}
-        </h1>
-        <img
-          alt="logo"
-          src={
-            currentPlayback.item === undefined
-              ? "https://kgo.googleusercontent.com/profile_vrt_raw_bytes_1587515358_10512.png"
-              : currentPlayback.item.album.images[1].url
-          }
-        />
-        <h1>
-          {participants.length !== 0 ? participants[0].display_name : "Anonimo"}
-        </h1>
-      </React.Fragment>
-    );
-  }
+	function updateProps(data) {
+		if (data.current_playback.item === undefined) {
+			trackId.current = "";
+		} else {
+			trackId.current = data.current_playback.item.id;
+		}
+		currentPlayback.current = data.current_playback;
+		participants.current = data.participants;
+		votesToSkip.current = data.votes_to_skip;
+		queue.current = data.queue;
+		if(queue.current.new.length > 0){
+			updateTracksLists();
+		}
+	}
 
-  function leaveButtonRequest() {
-    clearInterval(interval.current);
-    leaveRoom(leaveRoomResponse);
-    // loading screen here
-  }
+	function updateState() {
+		let actualState = {
+			track_id: trackId.current,
+			code: roomCodeFromPath.current,
+			participants: participants.current.all,
+			votes: votesToSkip.current.all,
+			queue: queue.current.all,
+		};
+		function calculateDeltasResponse(data, responseCode) {
+			if (responseCode === 200) {
+				updateProps(data);
+				setDeltas(data);
+				if (!showMusicPlayer) {
+					setShowMusicPlayer(true);
+				}
+			} else if (responseCode === 400) {
+				console.log(data);
+			} else if (responseCode === 404) {
+				localStorage.removeItem("room_code");
+				localStorage.removeItem("spotify_authenticated");
+				window.location.href = "/";
+			} else if (responseCode === 500) {
+				console.log(data);
+			}
+		}
+		if (trackId.current !== oldTrackId.current) {
+			localStorage.setItem("track_id", trackId.current);
+			oldTrackId.current = trackId.current;
+			updateRoomDetails();
+		}
+		calculateDeltas(actualState, calculateDeltasResponse);
+	}
 
-  function leaveRoomResponse(data, responseCode) {
-    console.log(responseCode);
-    localStorage.removeItem("room_code");
-    history.push("/");
-    if (responseCode === 200) {
-      console.log("Everything ok");
-    } else if (responseCode === 404) {
-      console.log("Room doesn't exist");
-    } else {
-      console.log("Leave room with problem");
-    }
-  }
+	function joinRoomFromCodeInPath() {
+		function joinRoomResponse(data, responseCode) {
+			// handle http responseCode
+			if (responseCode === 201) {
+				updateRoomDetails();
+			} else {
+				localStorage.clear();
+			}
+		}
+		let data = {
+			code: roomCodeFromPath.current,
+		};
+		joinRoom(data, joinRoomResponse);
+	}
 
-  function calculateDeltasResponse(data, responseCode) {
-    if (responseCode === 200) {
-      setDeltas(data);
-    }
-  }
+	function updateRoomDetails() {
+		function getRoomDetailsResponse(data, responseCode) {
+			if (responseCode === 200) {
+				roomDetails.current = data;
+			} else if (responseCode === 403) {
+				if (data.detail === "user not in room") {
+					joinRoomFromCodeInPath();
+				}
+			}
+			// logic to update the room details if apply
+		}
+		getRoomDetails(getRoomDetailsResponse);
+		updateTracksLists();
+	}
+
+	function updateUserDetails() {
+		function getUserDetailsResponse(data, responseCode) {
+			if (responseCode === 200) {
+				user.current = data;
+			} else {
+				console.log("user details not get");
+			}
+		}
+		getUserDetails(getUserDetailsResponse);
+	}
+				
+
+	function updateTracksLists() {
+		function getTracksResponse(data, responseCode) {
+			if (responseCode === 200) {
+				setTracks(data);
+			} else {
+				console.warn("No tracks obtained, data: ", data);
+			}
+		}
+		getTracks(localStorage.getItem("room_code"), getTracksResponse);
+	}
+
+	function renderMusicPlayer() {
+		return (
+			<MusicPlayer
+				currentPlayback={currentPlayback.current}
+				participants={participants.current}
+				votesToSkip={votesToSkip.current}
+				queue={queue.current}
+				roomDetails={roomDetails.current}
+				successTracks={successTracks.current}
+				recommendedTracks={recommendedTracks.current}
+				queueTracks={queueTracks.current}
+				user={user.current}
+			/>
+		);
+	}
+
+	function sendTrackToQueue(trackId) {
+		function addTrackToQueueResponse(data, statusCode) {
+			if (statusCode === 201) {
+				console.log("Track added to queue");
+			} else {
+				console.log(statusCode);
+			}
+		}
+
+		let body = {
+			track_id: trackId,
+			code: localStorage.getItem("room_code"),
+		};
+		addTrackToQueue(body, addTrackToQueueResponse);
+	}
+
+	function defineTrackActionOnClick(action, track) {
+		if (action === "openSongInSpotify") {
+			window.open(track.external_url, "_blank", "noreferrer", "noopener'");
+		} else if (action === "addSongToQueue") {
+			sendTrackToQueue(track.track_id);
+		} else {
+			console.log("No action defined");
+		}
+	}
+
+	function mapTracks(tracksList, action = "openSongInSpotify") {
+		return tracksList.map((track) => (
+			/*
+       <div key={track.track_id} className="footer__box--content-grid">
+       // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
+       */
+			<Fragment>
+				<div id={track.track_id} onClick={() => defineTrackActionOnClick(action, track)}>
+					<div className="footer__box--content-grid">
+						<a target="_blank" rel="noreferrer noopener" href={track.uri}>
+							<img src={track.album_image_url} title={track.name} alt={track.name} />
+						</a>
+						<div>
+							{/* <p>track_id: {track.track_id}</p> <br /> */}
+							<p>
+								song: <span>{track.name}</span>
+							</p>
+							<p>
+								by <span>{track.artists_str}</span>
+							</p>
+							<p>
+								album: <span>{track.album_name}</span>
+							</p>
+							{/* <p>external_url: {track.external_url}</p> This open just the track in the web */}
+							{/* <p>track_id: {track.track_id}</p> */}
+							{/* <p>uri: {track.uri}</p> This open the track in his own albun on spotify's app */}
+						</div>
+					</div>
+				</div>
+			</Fragment>
+		));
+	}
 }
