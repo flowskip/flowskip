@@ -1,13 +1,12 @@
 import React, { Fragment } from "react";
 import { useState, useEffect, useRef } from "react";
-import { useHistory } from "react-router";
 import {
-	leaveRoom,
 	joinRoom,
 	calculateDeltas,
 	getRoomDetails,
 	getTracks,
 	addTrackToQueue,
+	getUserDetails,
 } from "../components/FlowskipApi";
 import MusicPlayer from "../components/MusicPlayer";
 import Loader from "../components/Loader";
@@ -39,12 +38,13 @@ export default function Room() {
 	const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
 	const [, setDeltas] = useState(null);
 	const [tracks, setTracks] = useState(defTracks);
-	const [recommendedTracks, setRecommendedTracks] = useState(null);
-	const [successTracks, setSuccessTracks] = useState(null);
-	const [queueTracks, setQueueTracks] = useState(null);
+	const recommendedTracks = useRef([]);
+	const successTracks = useRef([]);
+	const queueTracks = useRef([]);
 	const trackId = useRef(defTrackId);
 	const oldTrackId = useRef(defTrackId);
 	const roomDetails = useRef(defRoomDetails);
+	const user = useRef(null);
 	const currentPlayback = useRef(defCurrentPlayback);
 	const participants = useRef(defParticipants);
 	const votesToSkip = useRef(defVotesToSkip);
@@ -53,7 +53,6 @@ export default function Room() {
 
 	const windowPath = window.location.pathname.split("/");
 	const roomCodeFromPath = useRef(windowPath[2] ? windowPath[2].toString() : null);
-	const history = useHistory();
 	const interval = useRef(null);
 
 	useEffect(() => {
@@ -61,15 +60,27 @@ export default function Room() {
 		if (roomDetails.current === null) {
 			updateRoomDetails();
 		}
+		if (user.current === null) {
+			updateUserDetails();
+		}
 		return function cleanup() {
 			clearInterval(interval.current);
 		};
 	}, []);
 
 	useEffect(() => {
-		setRecommendedTracks(mapTracks(tracks.recommended_tracks, "addSongToQueue"));
-		setSuccessTracks(mapTracks(tracks.success_tracks));
-		setQueueTracks(mapTracks(tracks.queue_tracks));
+		let mapRecommendedTracks = mapTracks(tracks.recommended_tracks, "addSongToQueue");
+		let mapSuccessTracks = mapTracks(tracks.success_tracks)
+		let mapQueueTracks = mapTracks(tracks.queue_tracks);
+		
+		recommendedTracks.current = mapRecommendedTracks;
+
+		if (mapSuccessTracks.length !== successTracks.length){
+			successTracks.current = mapSuccessTracks;
+		}
+		if (mapQueueTracks.length !== queueTracks.length){
+			queueTracks.current = mapQueueTracks;
+		}
 	}, [tracks]);
 
 	if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
@@ -92,6 +103,10 @@ export default function Room() {
 		currentPlayback.current = data.current_playback;
 		participants.current = data.participants;
 		votesToSkip.current = data.votes_to_skip;
+		queue.current = data.queue;
+		if(queue.current.new.length > 0){
+			updateTracksLists();
+		}
 	}
 
 	function updateState() {
@@ -120,7 +135,6 @@ export default function Room() {
 			}
 		}
 		if (trackId.current !== oldTrackId.current) {
-			console.log("track id changed");
 			localStorage.setItem("track_id", trackId.current);
 			oldTrackId.current = trackId.current;
 			updateRoomDetails();
@@ -135,7 +149,6 @@ export default function Room() {
 				updateRoomDetails();
 			} else {
 				localStorage.clear();
-				// history.push("/");
 			}
 		}
 		let data = {
@@ -159,6 +172,18 @@ export default function Room() {
 		updateTracksLists();
 	}
 
+	function updateUserDetails() {
+		function getUserDetailsResponse(data, responseCode) {
+			if (responseCode === 200) {
+				user.current = data;
+			} else {
+				console.log("user details not get");
+			}
+		}
+		getUserDetails(getUserDetailsResponse);
+	}
+				
+
 	function updateTracksLists() {
 		function getTracksResponse(data, responseCode) {
 			if (responseCode === 200) {
@@ -178,9 +203,10 @@ export default function Room() {
 				votesToSkip={votesToSkip.current}
 				queue={queue.current}
 				roomDetails={roomDetails.current}
-				successTracks={successTracks}
-				recommendedTracks={recommendedTracks}
-				queueTracks={queueTracks}
+				successTracks={successTracks.current}
+				recommendedTracks={recommendedTracks.current}
+				queueTracks={queueTracks.current}
+				user={user.current}
 			/>
 		);
 	}
@@ -189,7 +215,6 @@ export default function Room() {
 		function addTrackToQueueResponse(data, statusCode) {
 			if (statusCode === 201) {
 				console.log("Track added to queue");
-				updateTracksLists();
 			} else {
 				console.log(statusCode);
 			}
@@ -199,7 +224,6 @@ export default function Room() {
 			track_id: trackId,
 			code: localStorage.getItem("room_code"),
 		};
-		console.log(body);
 		addTrackToQueue(body, addTrackToQueueResponse);
 	}
 
@@ -220,7 +244,7 @@ export default function Room() {
        // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
        */
 			<Fragment>
-				<div onClick={() => defineTrackActionOnClick(action, track)}>
+				<div id={track.track_id} onClick={() => defineTrackActionOnClick(action, track)}>
 					<div className="footer__box--content-grid">
 						<a target="_blank" rel="noreferrer noopener" href={track.uri}>
 							<img src={track.album_image_url} title={track.name} alt={track.name} />

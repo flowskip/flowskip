@@ -13,7 +13,7 @@
 
 /* Estilos del código de la sala */
 .room__code {
-    color: white;
+    color: var(--white);
     text-align: center;
     font: 1.6rem/100% var(--font-bold);
     position: absolute;
@@ -113,7 +113,7 @@
 }
 
 .song__details {
-    color: white;
+    color: var(--white);
     font: 1.4rem/1.4rem var(--font-bold);
     line-height: 100%;
     text-align: center;
@@ -126,13 +126,13 @@
 }
 
 .song__name {
-    color: white;
+    color: var(--white);
     font: 1.6rem/1.6rem var(--font-bold);
     margin-bottom: 5px;
 }
 
 .song__artist {
-    color: #cccccc;
+    color: var(--light-white);
     font: 1.4rem/1.4rem var(--font-bold);
     line-height: 100%;
     margin-bottom: 5px;
@@ -141,13 +141,13 @@
 }
 
 .song__album {
-    color: #cccccc;
+    color: var(--light-white);
     font: 1.4rem/1.4rem var(--font-bold);
     margin-bottom: 5px;
 }
 
 .votes-to-skip {
-    color: #cccccc;
+    color: var(--light-white);
     font: 1.4rem/1.4rem var(--font-bold);
 }
 
@@ -159,12 +159,12 @@
 }
 
 #bucle path {
-    stroke: white;
+    stroke: var(--white);
 }
 
 #bucle path.arrow {
-    fill: white;
-    stroke: white;
+    fill: var(--white);
+    stroke: var(--white);
 }
 
 svg {
@@ -196,7 +196,7 @@ svg#bucle:hover path.arrow {
 #playpause svg#play,
 #playpause svg#pause {
     position: absolute;
-    fill: white;
+    fill: var(--white);
 }
 
 #playpause:hover svg#play,
@@ -209,7 +209,7 @@ svg#bucle:hover path.arrow {
 #skip {
     width: 50px;
     height: 50px;
-    fill: white;
+    fill: var(--white);
     transition: all .3s;
 }
 
@@ -244,16 +244,16 @@ svg#bucle:hover path.arrow {
 }
 
 #album {
-    fill: white;
+    fill: var(--white);
     padding: 5px;
 }
 
 #library {
-    fill: white;
+    fill: var(--white);
 }
 
 #song {
-    fill: white;
+    fill: var(--white);
     padding: 5px;
 }
 
@@ -292,13 +292,13 @@ svg#bucle:hover path.arrow {
 
 #gear {
     padding: 5px;
-    fill: white;
+    fill: var(--white);
 }
 
 #close {
     padding: 5px;
     position: absolute;
-    fill: white;
+    fill: var(--white);
 }
 
 #aside {
@@ -337,7 +337,7 @@ svg#bucle:hover path.arrow {
 
 details summary {
     font: normal 1.4rem/1.4rem var(--font-bold);
-    color: white;
+    color: var(--white);
     position: relative;
     overflow: hidden;
     padding: 5px 0;
@@ -370,7 +370,7 @@ details .aside__container--qr {
 
 details .aside__container--qr .aside__title--qr {
     font: normal 1.2rem/1.4rem var(--font-bold);
-    color: white;
+    color: var(--white);
     max-width: 250px;
     margin-bottom: 20px;
     text-align: center;
@@ -400,11 +400,11 @@ details .aside__container--user img {
 
 details .aside__container--user p {
     font: normal 1.2rem/1.4rem var(--font-bold);
-    color: #cccccc;
+    color: var(--light-white);
 }
 
 details .aside__container--user p span {
-    color: white;
+    color: var(--white);
 }
 
 
@@ -453,7 +453,7 @@ details[open] summary~* {
     bottom: 80px;
     left: 0;
     right: 0;
-    height: calc(100vh - 150px);
+    height: calc(100vh - 125px);
     display: none;
 }
 
@@ -469,6 +469,10 @@ details[open] summary~* {
     box-shadow: 0 0 10px #000;
 }
 
+.footer__box--tracks {
+    padding: 0 0 20px;
+}
+
 .footer__box .footer__box--content {
     width: 100%;
     height: 100%;
@@ -480,7 +484,7 @@ details[open] summary~* {
 
 .footer__content--box-title {
     font: normal 1.6rem/2rem var(--font-bold);
-    color: white;
+    color: var(--white);
     margin: 0 0 20px;
     text-align: center;
 }
@@ -509,12 +513,12 @@ details[open] summary~* {
 .footer__box--content-grid div p {
     font: normal 1.2rem/1.5rem var(--font-bold);
     word-wrap: break-word;
-    color: #cccccc;
+    color: var(--light-white);
 }
 
 .footer__box--content-grid div p span {
 
-    color: white;
+    color: var(--white);
 }
 
 .footer__triangle-1 {
@@ -610,7 +614,7 @@ details[open] summary~* {
 }
 
 .footer__box--advice {
-    color: white;
+    color: var(--white);
     font: normal 1.2rem/2rem var(--font-bold);
     text-align: center;
 }
@@ -728,4 +732,49 @@ details[open] summary~* {
         max-width: none;
         margin: 0 auto;
     }
+}
+
+.add-playlist {
+    border-radius: 10px;
+    font: 1.6rem/2rem var(--font-bold);
+    background-color: var(--purple);
+    color: var(--white);
+    border: none;
+    box-shadow: 5px 5px 10px 5px #00000033;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    width: fit-content;
+    text-decoration: none;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    opacity: 0.9;
+    margin: 10px auto;
+}
+
+.add-playlist a {
+    color: var(--white);
+}
+
+.add-playlist img {
+    width: 30px;
+    margin: 0 0 0 10px;
+}
+
+.add-playlist:active {
+    transform: scale(0.9);
+    opacity: 1;
+}
+
+.add-playlist:hover {
+    filter: brightness(120%);
+    opacity: 1;
+}
+
+.texto-ayuda {
+    color: var(--white);
+    font: normal 1.2rem/2rem var(--font-bold);
+    text-align: center;
 }

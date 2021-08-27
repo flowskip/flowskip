@@ -4,6 +4,8 @@ import Button from "../components/Button";
 import { useState, useRef } from "react";
 import { useHistory } from "react-router";
 import { getUserDetails, createRoom } from "../components/FlowskipApi";
+import Swal from "sweetalert2";
+
 import Loader from "../components/Loader";
 
 const defUserDetails = null;
@@ -59,12 +61,24 @@ export default function ConfigRoom() {
 		console.log(data, responseCode);
 		if (responseCode === 201 || responseCode === 208) {
 			if (responseCode === 208) {
-				console.log("Here: alert the user that is already on a room");
-				// leave the room first please or something like that
-			}
-			if (responseCode === 201) {
+				Swal.fire({
+					customClass: {
+						title: "swal-title",
+						confirmButton: "swal-button-text",
+						htmlContainer: "swal-text",
+					},
+					type: "info",
+					title: "Room code already exists",
+					text: "Please enter a different room code",
+					confirmButtonText: "Ok",
+					closeOnConfirm: true,
+					closeOnCancel: true,
+					timer: 2000,
+				});
+			} else if (responseCode === 201) {
 				console.log("New room created");
 			}
+
 			localStorage.setItem("room_code", data.code);
 			setRoomCodeInDb(data.code);
 		}
@@ -175,7 +189,7 @@ const Title = styled.h1`
 	font-size: clamp(2.5rem, 8vw, 3rem);
 	line-height: clamp(2.8rem, 8vw, 3.3rem);
 	font-family: var(--font-bold);
-	color: white;
+	color: var(--white);
 	text-align: center;
 	grid-area: Title;
 `;
@@ -186,7 +200,7 @@ const Controls = styled.div`
 `;
 
 const Subtitle = styled.h2`
-	color: white;
+	color: var(--white);
 	font-size: 2rem;
 	line-height: 2.3rem;
 	font-family: var(--font-bold);
@@ -214,7 +228,7 @@ const RadioButton = styled.input`
 `;
 
 const Label = styled.label`
-	color: white;
+	color: var(--white);
 	font-size: 1.6rem;
 	position: relative;
 	padding: 5px 5px 5px 30px;
@@ -224,7 +238,7 @@ const Label = styled.label`
 
 	&::before {
 		content: "";
-		background: white;
+		background: var(--white);
 		height: 20px;
 		width: 20px;
 		position: absolute;
@@ -247,16 +261,16 @@ const Input = styled.input`
 	border: none;
 	width: 40px;
 	padding: 5px;
-	color: white;
+	color: var(--white);
 	font-size: 1.8rem;
-	border-bottom: 1px solid white;
+	border-bottom: 1px solid var(--white);
 
 	&:focus {
 		outline: none;
 	}
 
 	&::placeholder {
-		color: white;
+		color: var(--white);
 		opacity: 0.6;
 	}
 `;
