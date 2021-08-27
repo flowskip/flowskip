@@ -4,6 +4,7 @@ if(process.env.NODE_ENV === "development"){
   flowskipBaseUrl = process.env.REACT_APP_DEV_FLOWSKIP_API_BASE_URL;
   redirect_url = process.env.REACT_APP_DEV_REDIRECT_FROM_API;
 } else{
+  require('dotenv').config()
   flowskipBaseUrl = process.env.REACT_APP_PROD_FLOWSKIP_API_BASE_URL;
   redirect_url = process.env.REACT_APP_PROD_REDIRECT_FROM_API;
 }
