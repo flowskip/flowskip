@@ -1,5 +1,13 @@
-const baseUrl = "https://flowskip-api.herokuapp.com";
-const redirect_url = "http://localhost:3000/redirect-from-api";
+let flowskipBaseUrl;
+let redirect_url;
+if(process.env.NODE_ENV === "development"){
+  flowskipBaseUrl = process.env.REACT_APP_DEV_FLOWSKIP_API_BASE_URL;
+  redirect_url = process.env.REACT_APP_DEV_REDIRECT_FROM_API;
+} else{
+  require('dotenv').config()
+  flowskipBaseUrl = process.env.REACT_APP_PROD_FLOWSKIP_API_BASE_URL;
+  redirect_url = process.env.REACT_APP_PROD_REDIRECT_FROM_API;
+}
 const userEndpoint = "user";
 const roomEndpoint = "room";
 const spotifyEndpoint = "spotify";
@@ -30,7 +38,7 @@ async function executeRequest(
   onCatch = null,
   onFinally = null
 ) {
-  fetch(url, requestOptions)
+  return fetch(url, requestOptions)
     .then((res) => {
       responseCode = res.status;
       if (responseCode !== 204) {
@@ -41,9 +49,9 @@ async function executeRequest(
     })
     .then((data) => {
       if (data === null) {
-        onResponse(null, responseCode);
+        return onResponse(null, responseCode);
       } else {
-        onResponse(data, responseCode);
+        return onResponse(data, responseCode);
       }
     })
     .catch((err) => {
@@ -68,14 +76,14 @@ export function startSession(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, userEndpoint, "session", "start"];
+  const endpoint = [flowskipBaseUrl, userEndpoint, "session", "start"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("POST"),
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getSessionDetails(
@@ -84,14 +92,14 @@ export function getSessionDetails(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, userEndpoint, "session", "details"];
+  const endpoint = [flowskipBaseUrl, userEndpoint, "session", "details"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("GET"),
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function deleteSession(
@@ -100,14 +108,14 @@ export function deleteSession(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, userEndpoint, "session", "delete"];
+  const endpoint = [flowskipBaseUrl, userEndpoint, "session", "delete"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("DELETE"),
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // user endpoints
@@ -118,14 +126,14 @@ export function createUser(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, userEndpoint, "create"];
+  const endpoint = [flowskipBaseUrl, userEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("POST"),
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getUserDetails(
@@ -134,14 +142,14 @@ export function getUserDetails(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, userEndpoint, "details"];
+  const endpoint = [flowskipBaseUrl, userEndpoint, "details"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("GET"),
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function deleteUser(
@@ -150,13 +158,13 @@ export function deleteUser(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, userEndpoint, "delete"];
+  const endpoint = [flowskipBaseUrl, userEndpoint, "delete"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("DELETE"),
     options
   );
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // participants endpoints
@@ -168,7 +176,7 @@ export function joinRoom(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "participants", "join"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "participants", "join"];
   let url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("POST"),
@@ -176,7 +184,7 @@ export function joinRoom(
   );
   requestOptions.body = JSON.stringify(body);
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function leaveRoom(
@@ -185,13 +193,13 @@ export function leaveRoom(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "participants", "leave"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "participants", "leave"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("DELETE"),
     options
   );
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // state endpoints
@@ -203,7 +211,7 @@ export function voteToSkip(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "state", "vote-to-skip"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "state", "vote-to-skip"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("POST"),
@@ -211,7 +219,7 @@ export function voteToSkip(
   );
   requestOptions.body = JSON.stringify(body);
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function calculateDeltas(
@@ -221,7 +229,7 @@ export function calculateDeltas(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "state"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "state"];
   const url = new URL(endpoint.join("/") + "/");
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("PATCH"),
@@ -229,7 +237,7 @@ export function calculateDeltas(
   );
   requestOptions.body = JSON.stringify(body);
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getTracks(
@@ -239,7 +247,7 @@ export function getTracks(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "state", "tracks"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "state", "tracks"];
   const params = {
     code: roomCode,
   };
@@ -250,7 +258,7 @@ export function getTracks(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function addTrackToQueue(
@@ -260,14 +268,14 @@ export function addTrackToQueue(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "state", "add-to-queue"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "state", "add-to-queue"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("PUT"),
     options
   );
   requestOptions.body = JSON.stringify(body);
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function toggleIsPlaying(
@@ -277,14 +285,14 @@ export function toggleIsPlaying(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "state", "toggle-is-playing"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "state", "toggle-is-playing"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("PUT"),
     options
   );
   requestOptions.body = JSON.stringify(body);
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // room endpoints
@@ -296,7 +304,7 @@ export function createRoom(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, roomEndpoint, "create"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "create"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("POST"),
@@ -304,7 +312,7 @@ export function createRoom(
   );
   requestOptions.body = JSON.stringify(body);
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 export function getRoomDetails(
@@ -313,15 +321,14 @@ export function getRoomDetails(
   onCatch = null,
   onFinally = null
 ) {
-  console.log("Executing GET ROOM");
-  const endpoint = [baseUrl, roomEndpoint, "details"];
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "details"];
   const url = new URL(endpoint.join("/"));
   let requestOptions = Object.assign(
     constructRequestOptionsWithAuth("GET"),
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
 // spotify endpoints
@@ -332,7 +339,7 @@ export function getSpotifyAuthenticationUrl(
   onCatch = null,
   onFinally = null
 ) {
-  const endpoint = [baseUrl, spotifyEndpoint, "authenticate-user"];
+  const endpoint = [flowskipBaseUrl, spotifyEndpoint, "authenticate-user"];
   const params = {
     redirect_url: redirect_url,
   };
@@ -343,5 +350,59 @@ export function getSpotifyAuthenticationUrl(
     options
   );
 
-  executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
+export function createPlaylist(
+  body,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [flowskipBaseUrl, spotifyEndpoint, "api", "playlist-create"];
+  const url = new URL(endpoint.join("/"));
+
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
+export function addItemsToPlaylist(
+  body,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [flowskipBaseUrl, spotifyEndpoint, "api", "playlist-add-items"];
+  const url = new URL(endpoint.join("/"));
+
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
+export function uploadPlaylistCover(
+  body,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [flowskipBaseUrl, spotifyEndpoint, "api", "playlist-upload-cover-image"];
+  const url = new URL(endpoint.join("/"));
+
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("POST"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
