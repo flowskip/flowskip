@@ -388,7 +388,7 @@ export default function RenderMusicPlayer(props) {
 						window.open("https://open.spotify.com/", "_blank", "noreferrer", "noopener'");
 					});
 				} else {
-					console.log("No permission, maybe host is not premium");
+					alert("El host no te ha dado permisos para pausar/reproducir la cancion");
 				}
 			} else {
 				console.log("Play/pause don't work this time");
