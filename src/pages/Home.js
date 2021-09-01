@@ -123,7 +123,7 @@ const MainContainer = styled.main`
 		grid-template-rows: 50% 50%;
 	}
 
-	@media screen and (orientation: landscape) and (min-width: 400px) (max-width: 900px) {
+	@media screen and (orientation: landscape) and (min-width: 428px) and (max-width: 900px) {
 		padding: 5vw 10vw;
 		width: 100vw;
 		height: 100vh;
