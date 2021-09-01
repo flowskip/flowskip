@@ -111,8 +111,17 @@ export default function Home() {
 const MainContainer = styled.main`
 	padding: 15vw;
 	height: 100vh;
+	min-height: 100vh;
 	display: grid;
 	grid-template-rows: 50% 50%;
+
+	@media screen and (max-width: 926px) and (orientation: portrait) {
+		padding: 15vw;
+		height: 100vh;
+		min-height: 100vh;
+		display: grid;
+		grid-template-rows: 50% 50%;
+	}
 
 	@media screen and (orientation: landscape) and (max-width: 900px) {
 		padding: 5vw 10vw;
