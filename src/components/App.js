@@ -10,6 +10,7 @@ import RedirectFromApi from "./RedirectFromApi.js";
 import Room from "../pages/Room";
 import Loader from "./Loader";
 import AppNotAuthorizedInSpotify from "./AppNotAuthorizedInSpotify";
+import HelpPage from "./HelpPage"
 
 import GlobalStyle from "../styles/GlobalStyle";
 
@@ -56,6 +57,7 @@ export default function App() {
             path="/spotify-not-authorized"
             component={AppNotAuthorizedInSpotify}
           />
+          <Route path="/help" component={HelpPage} />
         </Switch>
       </BrowserRouter>
     );
