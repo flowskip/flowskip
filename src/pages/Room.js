@@ -240,7 +240,6 @@ export default function Room() {
 				console.log(statusCode);
 			}
 		}
-		console.log(e);
 		setClickProperties({isClicked: true, trackId: trackId});
 
 		let body = {

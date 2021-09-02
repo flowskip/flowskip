@@ -9,7 +9,6 @@ import {
 	createPlaylist,
 	getSpotifyAuthenticationUrl,
 } from "./FlowskipApi";
-import { useHistory } from "react-router";
 import Flowskip from "../assets/svg/logo.svg";
 import Button from "./Button";
 import LogoSpotify from "../assets/img/logo-spotify.png";
@@ -18,19 +17,7 @@ import "./styles/MusicPlayer.css";
 
 // function that converts an image url to base64 string
 // done completely by Github copilot
-function imageToBase64(url, callback) {
-	var xhr = new XMLHttpRequest();
-	xhr.responseType = "blob";
-	xhr.onload = function () {
-		var reader = new FileReader();
-		reader.onloadend = function () {
-			callback(reader.result);
-		};
-		reader.readAsDataURL(xhr.response);
-	};
-	xhr.open("GET", url);
-	xhr.send();
-}
+
 
 // function that returns today day into human readable day and month
 function FlowskipPlaylistDefaultName(language) {
@@ -126,7 +113,6 @@ export default function RenderMusicPlayer(props) {
 			});
 	}
 
-	let history = useHistory();
 	// console.log(counter + " " + (Date.now() - start) / 1000);
 
 	const [playlistSubscription, setPlaylistSubscription] = useState(
@@ -226,6 +212,8 @@ export default function RenderMusicPlayer(props) {
 				console.log(data);
 			}
 		}
+		/*
+		If the image will become from internet use this function
 		function imageToBase64Callback(result) {
 			let body = {
 				code: localStorage.getItem("room_code"),
@@ -234,6 +222,7 @@ export default function RenderMusicPlayer(props) {
 			};
 			uploadPlaylistCover(body, updatePlaylistImageResponse);
 		}
+		*/
 		// imageToBase64("https://i.imgur.com/v5Su4aN.jpeg", imageToBase64Callback);
 		let body = {
 			code: localStorage.getItem("room_code"),
@@ -347,7 +336,7 @@ export default function RenderMusicPlayer(props) {
 		});
 	};
 
-	const userIsHost = props.roomDetails.user_is_host;
+	// const userIsHost = props.roomDetails.user_is_host;
 	const toggleAside = () => {
 		const gearContainer = document.getElementById("gear-container");
 		const gearButton = document.getElementById("gear");
@@ -760,7 +749,7 @@ function mapUsers(userList) {
 		<div key={user.id} className="aside__container--user">
 		// Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
 		*/
-		<div className="aside__container--user">
+		<div key={user.id} className="aside__container--user">
 			<a
 				target="_blank"
 				rel="noreferrer noopener"
