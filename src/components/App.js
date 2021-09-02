@@ -29,6 +29,10 @@ export default function App() {
         createUser(createUserResponse);
       }
     }
+
+    return function cleanup(){
+      return null;
+    }
   }, [hasSession]);
 
   if (hasUser) {

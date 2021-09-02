@@ -94,7 +94,6 @@ export default function RenderMusicPlayer(props) {
 		navigator.clipboard
 			.writeText(localStorage.getItem("room_code"))
 			.then(() => {
-				console.log("%cCode copied successfully!", "color:#00ff00; font: bold 16px/20px monospace;");
 				const Toast = Swal.mixin({
 					customClass: {
 						title: "swal-text-dark",
@@ -162,7 +161,6 @@ export default function RenderMusicPlayer(props) {
 
 		async function sendToPlaylist(itemsIds) {
 			function addItemsToPlaylistResponse(data, responseCode) {
-				console.log(data, responseCode);
 				if (responseCode === 201) {
 					return true;
 				} else {
@@ -566,7 +564,6 @@ export default function RenderMusicPlayer(props) {
 								/>
 							</svg>
 							{/* Play and pause Icons */}
-							{console.log(loading)}
 							<div id="playpause" onClick={playPauseClick}>
 								{is_playing === false ? (
 									loading === false ? (
