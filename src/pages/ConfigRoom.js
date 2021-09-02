@@ -13,7 +13,6 @@ const defIsPremium = true;
 const defGuestCanPause = false;
 const defVotesToSkip = 2;
 const defRoomCodeInDb = localStorage.getItem("room_code") === null ? "" : localStorage.getItem("room_code");
-const defIsReadyToCreateRoom = false;
 export default function ConfigRoom() {
 	const [roomCodeInDb, setRoomCodeInDb] = useState(defRoomCodeInDb);
 	const [isPremium, setIsPremium] = useState(defIsPremium);

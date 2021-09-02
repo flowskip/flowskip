@@ -405,3 +405,31 @@ export function uploadPlaylistCover(
   requestOptions.body = JSON.stringify(body);
   return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
+
+
+// utils
+
+export function imageToBase64(url, callback) {
+  /*
+  Accepts an image url and converts it to base 64 string.
+  params:
+  url: image url
+  callback: callback function where you can access to the result in the first parameter
+  */
+	var xhr = new XMLHttpRequest();
+	xhr.responseType = "blob";
+	xhr.onload = function () {
+		var reader = new FileReader();
+    var result = reader.result;
+    if(! result.includes("data:image/jpeg;base64,")){
+      console.warn("This is not a jpeg image, spotify only allows jpeg images");
+    }
+    result.replace("data:image/jpeg;base64,", "")
+		reader.onloadend = function () {
+			callback(result);
+		};
+		reader.readAsDataURL(xhr.response);
+	};
+	xhr.open("GET", url);
+	xhr.send();
+}
