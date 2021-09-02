@@ -70,7 +70,6 @@ export default function ConfigRoom() {
 					type: "info",
 					title: "Room code already exists",
 					text: "Please enter a different room code",
-					background: "var(--gradient)",
 					confirmButtonText: "Ok",
 					closeOnConfirm: true,
 					closeOnCancel: true,
