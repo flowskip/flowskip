@@ -812,7 +812,7 @@ function showQrCode() {
 	return (
 		// QR reference: qrcode.react
 		<div className="aside__container--qr">
-			<h1 className="aside__title--qr">Let your friends scan this QR code to join your room!</h1>
+			<h1 className="aside__title--qr">¡Tus amigos se pueden unir escaneando este código QR!</h1>
 			<QRCode value={window.location.href} level="M" size={250} bgColor="white" />
 		</div>
 	);
