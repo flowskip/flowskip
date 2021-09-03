@@ -744,6 +744,7 @@ details[open] summary~* {
     padding: 5px 10px;
     cursor: pointer;
     transition: 0.3s;
+    max-width: 90%;
     width: fit-content;
     text-decoration: none;
     display: flex;
@@ -752,6 +753,7 @@ details[open] summary~* {
     align-items: center;
     opacity: 0.9;
     margin: 10px auto;
+    height: initial;
 }
 
 .add-playlist a {

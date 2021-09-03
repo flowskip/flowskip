@@ -278,7 +278,9 @@ export default function RenderMusicPlayer(props) {
 				},
 				icon: "info",
 				title: "No iniciaste sesión",
+				background: "var(--gradient)",
 				text: "Para poder crear un playlist en Spotify, debes estar autenticado.",
+				cancelButtonColor: "#ee0000",
 				confirmButtonText: "Iniciar sesión",
 				showCancelButton: true,
 			}).then((result) => {
@@ -391,16 +393,16 @@ export default function RenderMusicPlayer(props) {
 							htmlContainer: "swal-text",
 						},
 						title: "Abriendo spotify",
-						text: "Estás abriendo spotify, ¿qué deseas hacer?",
+						text: "Por favor espera, abriendo spotify...",
 						icon: "info",
 						iconColor: "#fff",
 						background: "var(--gradient)",
-						timer: 2000,
+						timer: 3000,
 					}).then((result) => {
 						window.open("https://open.spotify.com/", "_blank", "noreferrer", "noopener'");
 					});
 				} else {
-					alert("El host no te ha dado permisos para pausar/reproducir la cancion");
+					// alert("El host no te ha dado permisos para pausar/reproducir la cancion");
 				}
 			} else {
 				console.log("Play/pause don't work this time");
@@ -432,7 +434,9 @@ export default function RenderMusicPlayer(props) {
 	let playlistSubscriptionButtonRender = null;
 	if (playlistSubscription === "no-subscribed") {
 		playlistSubscriptionButtonRender = (
-			<Button onClick={playlistButtonClick}>Añade esta lista a tu libreria en spotify</Button>
+			<button className="add-playlist" onClick={playlistButtonClick}>
+				¡Añade esta lista en tu spotify!
+			</button>
 		);
 	} else if (playlistSubscription === "subscribed") {
 		playlistSubscriptionButtonRender = (
