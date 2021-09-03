@@ -15,8 +15,29 @@ import LogoSpotify from "../assets/img/logo-spotify.png";
 
 import "./styles/MusicPlayer.css";
 
-// function that converts an image url to base64 string
-// done completely by Github copilot
+const getTwitterIntentUrl = (songName) => {
+
+	const comaUpper = (hashtags) => {
+		let result = hashtags.join(",");
+		result = result.split(" ")
+		result = result.reduce((allHashtag='', hashtag) => {
+			return allHashtag + hashtag.charAt(0).toUpperCase() + hashtag.slice(1);
+		})
+		result = result.replace(/[^0-9a-zA-Z]/g, '');
+		return result;
+	}
+
+	const baseUrl = "https://twitter.com/intent/tweet";
+	const url = new URL(baseUrl);
+	const params = {
+		text: `Estoy escuchando ${songName} en flowskip, crea tu propia sala e invita a todos!`,
+		via: "FlowskipApp",
+		hashtags: comaUpper(["flowskip", songName]),
+		url: "flowskip.com",
+	};
+	url.search = new URLSearchParams(params).toString();
+	return url;
+}
 
 
 // function that returns today day into human readable day and month
@@ -232,6 +253,10 @@ export default function RenderMusicPlayer(props) {
 		console.log(body);
 		uploadPlaylistCover(body, updatePlaylistImageResponse);
 	};
+
+	const shareInTwitter = (trackName) => {
+		window.open(getTwitterIntentUrl(trackName), "_blank", "noreferrer", "noopener'");
+	}
 
 	const playlistButtonClick = () => {
 		function createPlaylistResponse(data, responseCode) {
@@ -528,30 +553,32 @@ export default function RenderMusicPlayer(props) {
 								max="100"
 							/>
 						</div>
-						<div className="buttons__container">
+						<div id="share" className="buttons__container">
 							{/* Repeat */}
-							<svg width="50" height="50" viewBox="0 0 50 50" fill="none" id="bucle">
-								<path
-									className="arrow"
-									d="M46.5599 11.6728C47.1865 11.2811 47.1865 10.3684 46.5599 9.97677L32.78 1.36436C32.114 0.948076 31.25 1.42692 31.25 2.21235V19.4372C31.25 20.2226 32.114 20.7015 32.78 20.2852L46.5599 11.6728Z"
-								/>
-								<path
-									className="arrow"
-									d="M3.67621 38.7561C3.04954 38.3644 3.04954 37.4518 3.67621 37.0601L17.4561 28.4477C18.1221 28.0314 18.9861 28.5102 18.9861 29.2957V46.5205C18.9861 47.3059 18.1221 47.7848 17.4561 47.3685L3.67621 38.7561Z"
-								/>
-								<path
-									d="M8.33337 22.9167V22.9167C8.33337 16.0131 13.9298 10.4167 20.8334 10.4167V10.4167H31.25"
-									strokeWidth="5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-								<path
-									d="M39.5834 25V25C39.5834 31.9036 33.9869 37.5 27.0834 37.5V37.5H16.6667"
-									strokeWidth="5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
+							<div onClick={()=>shareInTwitter(item.name)}>
+								<svg width="50" height="50" viewBox="0 0 50 50" fill="none" id="bucle">
+									<path
+										className="arrow"
+										d="M46.5599 11.6728C47.1865 11.2811 47.1865 10.3684 46.5599 9.97677L32.78 1.36436C32.114 0.948076 31.25 1.42692 31.25 2.21235V19.4372C31.25 20.2226 32.114 20.7015 32.78 20.2852L46.5599 11.6728Z"
+									/>
+									<path
+										className="arrow"
+										d="M3.67621 38.7561C3.04954 38.3644 3.04954 37.4518 3.67621 37.0601L17.4561 28.4477C18.1221 28.0314 18.9861 28.5102 18.9861 29.2957V46.5205C18.9861 47.3059 18.1221 47.7848 17.4561 47.3685L3.67621 38.7561Z"
+									/>
+									<path
+										d="M8.33337 22.9167V22.9167C8.33337 16.0131 13.9298 10.4167 20.8334 10.4167V10.4167H31.25"
+										strokeWidth="5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+									<path
+										d="M39.5834 25V25C39.5834 31.9036 33.9869 37.5 27.0834 37.5V37.5H16.6667"
+										strokeWidth="5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</div>
 							{/* Play and pause Icons */}
 							<div id="playpause" onClick={playPauseClick}>
 								{is_playing === false ? (
