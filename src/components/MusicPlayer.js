@@ -9,28 +9,36 @@ import {
 	createPlaylist,
 	getSpotifyAuthenticationUrl,
 } from "./FlowskipApi";
-import { useHistory } from "react-router";
 import Flowskip from "../assets/svg/logo.svg";
 import Button from "./Button";
 import LogoSpotify from "../assets/img/logo-spotify.png";
 
 import "./styles/MusicPlayer.css";
 
-// function that converts an image url to base64 string
-// done completely by Github copilot
-function imageToBase64(url, callback) {
-	var xhr = new XMLHttpRequest();
-	xhr.responseType = "blob";
-	xhr.onload = function () {
-		var reader = new FileReader();
-		reader.onloadend = function () {
-			callback(reader.result);
-		};
-		reader.readAsDataURL(xhr.response);
+const getTwitterIntentUrl = (songName) => {
+
+	const comaUpper = (hashtags) => {
+		let result = hashtags.join(",");
+		result = result.split(" ")
+		result = result.reduce((allHashtag='', hashtag) => {
+			return allHashtag + hashtag.charAt(0).toUpperCase() + hashtag.slice(1);
+		})
+		result = result.replace(/[^0-9a-zA-Z]/g, '');
+		return result;
+	}
+
+	const baseUrl = "https://twitter.com/intent/tweet";
+	const url = new URL(baseUrl);
+	const params = {
+		text: `Estoy escuchando ${songName} en flowskip, crea tu propia sala e invita a todos!`,
+		via: "FlowskipApp",
+		hashtags: comaUpper(["flowskip", songName]),
+		url: "flowskip.com",
 	};
-	xhr.open("GET", url);
-	xhr.send();
+	url.search = new URLSearchParams(params).toString();
+	return url;
 }
+
 
 // function that returns today day into human readable day and month
 function FlowskipPlaylistDefaultName(language) {
@@ -94,7 +102,6 @@ export default function RenderMusicPlayer(props) {
 		navigator.clipboard
 			.writeText(localStorage.getItem("room_code"))
 			.then(() => {
-				console.log("%cCode copied successfully!", "color:#00ff00; font: bold 16px/20px monospace;");
 				const Toast = Swal.mixin({
 					customClass: {
 						title: "swal-text-dark",
@@ -127,7 +134,6 @@ export default function RenderMusicPlayer(props) {
 			});
 	}
 
-	let history = useHistory();
 	// console.log(counter + " " + (Date.now() - start) / 1000);
 
 	const [playlistSubscription, setPlaylistSubscription] = useState(
@@ -162,7 +168,6 @@ export default function RenderMusicPlayer(props) {
 
 		async function sendToPlaylist(itemsIds) {
 			function addItemsToPlaylistResponse(data, responseCode) {
-				console.log(data, responseCode);
 				if (responseCode === 201) {
 					return true;
 				} else {
@@ -228,6 +233,8 @@ export default function RenderMusicPlayer(props) {
 				console.log(data);
 			}
 		}
+		/*
+		If the image will become from internet use this function
 		function imageToBase64Callback(result) {
 			let body = {
 				code: localStorage.getItem("room_code"),
@@ -236,6 +243,7 @@ export default function RenderMusicPlayer(props) {
 			};
 			uploadPlaylistCover(body, updatePlaylistImageResponse);
 		}
+		*/
 		// imageToBase64("https://i.imgur.com/v5Su4aN.jpeg", imageToBase64Callback);
 		let body = {
 			code: localStorage.getItem("room_code"),
@@ -245,6 +253,10 @@ export default function RenderMusicPlayer(props) {
 		console.log(body);
 		uploadPlaylistCover(body, updatePlaylistImageResponse);
 	};
+
+	const shareInTwitter = (trackName) => {
+		window.open(getTwitterIntentUrl(trackName), "_blank", "noreferrer", "noopener'");
+	}
 
 	const playlistButtonClick = () => {
 		function createPlaylistResponse(data, responseCode) {
@@ -266,7 +278,9 @@ export default function RenderMusicPlayer(props) {
 				},
 				icon: "info",
 				title: "No iniciaste sesión",
+				background: "var(--gradient)",
 				text: "Para poder crear un playlist en Spotify, debes estar autenticado.",
+				cancelButtonColor: "#ee0000",
 				confirmButtonText: "Iniciar sesión",
 				showCancelButton: true,
 			}).then((result) => {
@@ -349,7 +363,7 @@ export default function RenderMusicPlayer(props) {
 		});
 	};
 
-	const userIsHost = props.roomDetails.user_is_host;
+	// const userIsHost = props.roomDetails.user_is_host;
 	const toggleAside = () => {
 		const gearContainer = document.getElementById("gear-container");
 		const gearButton = document.getElementById("gear");
@@ -379,16 +393,16 @@ export default function RenderMusicPlayer(props) {
 							htmlContainer: "swal-text",
 						},
 						title: "Abriendo spotify",
-						text: "Estás abriendo spotify, ¿qué deseas hacer?",
+						text: "Por favor espera, abriendo spotify...",
 						icon: "info",
 						iconColor: "#fff",
 						background: "var(--gradient)",
-						timer: 2000,
+						timer: 3000,
 					}).then((result) => {
 						window.open("https://open.spotify.com/", "_blank", "noreferrer", "noopener'");
 					});
 				} else {
-					alert("El host no te ha dado permisos para pausar/reproducir la cancion");
+					// alert("El host no te ha dado permisos para pausar/reproducir la cancion");
 				}
 			} else {
 				console.log("Play/pause don't work this time");
@@ -420,7 +434,9 @@ export default function RenderMusicPlayer(props) {
 	let playlistSubscriptionButtonRender = null;
 	if (playlistSubscription === "no-subscribed") {
 		playlistSubscriptionButtonRender = (
-			<Button onClick={playlistButtonClick}>Añade esta lista a tu libreria en spotify</Button>
+			<button className="add-playlist" onClick={playlistButtonClick}>
+				¡Añade esta lista en tu spotify!
+			</button>
 		);
 	} else if (playlistSubscription === "subscribed") {
 		playlistSubscriptionButtonRender = (
@@ -541,32 +557,33 @@ export default function RenderMusicPlayer(props) {
 								max="100"
 							/>
 						</div>
-						<div className="buttons__container">
+						<div id="share" className="buttons__container">
 							{/* Repeat */}
-							<svg width="50" height="50" viewBox="0 0 50 50" fill="none" id="bucle">
-								<path
-									className="arrow"
-									d="M46.5599 11.6728C47.1865 11.2811 47.1865 10.3684 46.5599 9.97677L32.78 1.36436C32.114 0.948076 31.25 1.42692 31.25 2.21235V19.4372C31.25 20.2226 32.114 20.7015 32.78 20.2852L46.5599 11.6728Z"
-								/>
-								<path
-									className="arrow"
-									d="M3.67621 38.7561C3.04954 38.3644 3.04954 37.4518 3.67621 37.0601L17.4561 28.4477C18.1221 28.0314 18.9861 28.5102 18.9861 29.2957V46.5205C18.9861 47.3059 18.1221 47.7848 17.4561 47.3685L3.67621 38.7561Z"
-								/>
-								<path
-									d="M8.33337 22.9167V22.9167C8.33337 16.0131 13.9298 10.4167 20.8334 10.4167V10.4167H31.25"
-									strokeWidth="5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-								<path
-									d="M39.5834 25V25C39.5834 31.9036 33.9869 37.5 27.0834 37.5V37.5H16.6667"
-									strokeWidth="5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
+							<div onClick={()=>shareInTwitter(item.name)}>
+								<svg width="50" height="50" viewBox="0 0 50 50" fill="none" id="bucle">
+									<path
+										className="arrow"
+										d="M46.5599 11.6728C47.1865 11.2811 47.1865 10.3684 46.5599 9.97677L32.78 1.36436C32.114 0.948076 31.25 1.42692 31.25 2.21235V19.4372C31.25 20.2226 32.114 20.7015 32.78 20.2852L46.5599 11.6728Z"
+									/>
+									<path
+										className="arrow"
+										d="M3.67621 38.7561C3.04954 38.3644 3.04954 37.4518 3.67621 37.0601L17.4561 28.4477C18.1221 28.0314 18.9861 28.5102 18.9861 29.2957V46.5205C18.9861 47.3059 18.1221 47.7848 17.4561 47.3685L3.67621 38.7561Z"
+									/>
+									<path
+										d="M8.33337 22.9167V22.9167C8.33337 16.0131 13.9298 10.4167 20.8334 10.4167V10.4167H31.25"
+										strokeWidth="5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+									<path
+										d="M39.5834 25V25C39.5834 31.9036 33.9869 37.5 27.0834 37.5V37.5H16.6667"
+										strokeWidth="5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</div>
 							{/* Play and pause Icons */}
-							{console.log(loading)}
 							<div id="playpause" onClick={playPauseClick}>
 								{is_playing === false ? (
 									loading === false ? (
@@ -763,7 +780,7 @@ function mapUsers(userList) {
 		<div key={user.id} className="aside__container--user">
 		// Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
 		*/
-		<div className="aside__container--user">
+		<div key={user.id} className="aside__container--user">
 			<a
 				target="_blank"
 				rel="noreferrer noopener"
@@ -815,7 +832,7 @@ function showQrCode() {
 	return (
 		// QR reference: qrcode.react
 		<div className="aside__container--qr">
-			<h1 className="aside__title--qr">Let your friends scan this QR code to join your room!</h1>
+			<h1 className="aside__title--qr">¡Tus amigos se pueden unir escaneando este código QR!</h1>
 			<QRCode value={window.location.href} level="M" size={250} bgColor="white" />
 		</div>
 	);

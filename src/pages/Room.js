@@ -10,6 +10,7 @@ import {
 } from "../components/FlowskipApi";
 import MusicPlayer from "../components/MusicPlayer";
 import Loader from "../components/Loader";
+import JustLoader from "../components/JustLoader";
 
 const defTrackId = "";
 const defCurrentPlayback = {};
@@ -32,15 +33,20 @@ const defTracks = {
 	queue_tracks: [],
 };
 const defRoomDetails = null;
+const defRecommendedTracks = [];
+const defSuccessTracks = [];
+const defQueueTracks = [];
 
 const defShowPlayer = false;
 export default function Room() {
 	const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
 	const [, setDeltas] = useState(null);
 	const [tracks, setTracks] = useState(defTracks);
-	const recommendedTracks = useRef([]);
-	const successTracks = useRef([]);
-	const queueTracks = useRef([]);
+	const [clickProperties, setClickProperties] = useState({isClicked: false, trackId: ""});
+	const controllers = useRef([]);
+	const recommendedTracks = useRef(defRecommendedTracks);
+	const successTracks = useRef(defSuccessTracks);
+	const queueTracks = useRef(defQueueTracks);
 	const trackId = useRef(defTrackId);
 	const oldTrackId = useRef(defTrackId);
 	const roomDetails = useRef(defRoomDetails);
@@ -63,8 +69,11 @@ export default function Room() {
 		if (user.current === null) {
 			updateUserDetails();
 		}
+		let cleanupSignals = controllers.current;
 		return function cleanup() {
-			clearInterval(interval.current);
+			cleanupSignals.forEach((ctr) => {
+				ctr.abort()
+			})
 		};
 	}, []);
 
@@ -81,7 +90,13 @@ export default function Room() {
 		if (mapQueueTracks.length !== queueTracks.length){
 			queueTracks.current = mapQueueTracks;
 		}
-	}, [tracks]);
+
+		return function cleanup(){
+			mapRecommendedTracks = defRecommendedTracks;
+			mapSuccessTracks = defSuccessTracks;
+			mapQueueTracks = defQueueTracks;
+		}
+	}, [tracks, clickProperties]);
 
 	if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
 		localStorage.setItem("room_code", roomCodeFromPath.current);
@@ -168,7 +183,10 @@ export default function Room() {
 			}
 			// logic to update the room details if apply
 		}
-		getRoomDetails(getRoomDetailsResponse);
+		let controller = new AbortController();
+		let signal = controller.signal
+		getRoomDetails(getRoomDetailsResponse, {signal: signal});
+		controllers.current.push(controller);
 		updateTracksLists();
 	}
 
@@ -180,9 +198,12 @@ export default function Room() {
 				console.log("user details not get");
 			}
 		}
-		getUserDetails(getUserDetailsResponse);
+		let controller = new AbortController();
+		let signal = controller.signal
+		getUserDetails(getUserDetailsResponse, {signal: signal});
+		controllers.current.push(controller);
 	}
-				
+
 
 	function updateTracksLists() {
 		function getTracksResponse(data, responseCode) {
@@ -211,7 +232,7 @@ export default function Room() {
 		);
 	}
 
-	function sendTrackToQueue(trackId) {
+	function sendTrackToQueue(e, trackId) {
 		function addTrackToQueueResponse(data, statusCode) {
 			if (statusCode === 201) {
 				console.log("Track added to queue");
@@ -219,6 +240,7 @@ export default function Room() {
 				console.log(statusCode);
 			}
 		}
+		setClickProperties({isClicked: true, trackId: trackId});
 
 		let body = {
 			track_id: trackId,
@@ -227,31 +249,23 @@ export default function Room() {
 		addTrackToQueue(body, addTrackToQueueResponse);
 	}
 
-	function defineTrackActionOnClick(action, track) {
+	function defineTrackActionOnClick(e, action, track) {
 		if (action === "openSongInSpotify") {
 			window.open(track.external_url, "_blank", "noreferrer", "noopener'");
 		} else if (action === "addSongToQueue") {
-			sendTrackToQueue(track.track_id);
+			sendTrackToQueue(e, track.track_id);
 		} else {
 			console.log("No action defined");
 		}
 	}
 
 	function mapTracks(tracksList, action = "openSongInSpotify") {
-		return tracksList.map((track) => (
-			/*
-       <div key={track.track_id} className="footer__box--content-grid">
-       // Las keys se repiten porque son los mismos, pero no se puede usar el mismo key porque se repite en el map - Copilot :)
-       */
-			<Fragment>
-				<div id={track.track_id} onClick={() => defineTrackActionOnClick(action, track)}>
+		return tracksList.map((track, index) => (
+				<div key={index + track.track_id} id={action === "addSongToQueue" ? `queue:${track.track_id}` : track.track_id} onClick={(e) => defineTrackActionOnClick(e, action, track)}>
 					<div className="footer__box--content-grid">
-						<a target="_blank" rel="noreferrer noopener" href={track.uri}>
-							<img src={track.album_image_url} title={track.name} alt={track.name} />
-						</a>
+						{ clickProperties.isClicked && clickProperties.trackId === track.track_id ? <JustLoader /> : <img src={track.album_image_url} title={track.name} alt={track.name} />}
 						<div>
-							{/* <p>track_id: {track.track_id}</p> <br /> */}
-							<p>
+							{clickProperties.isClicked && clickProperties.trackId === track.track_id ? (<p>Enviando canción a la cola</p>):(<Fragment><p>
 								song: <span>{track.name}</span>
 							</p>
 							<p>
@@ -259,14 +273,10 @@ export default function Room() {
 							</p>
 							<p>
 								album: <span>{track.album_name}</span>
-							</p>
-							{/* <p>external_url: {track.external_url}</p> This open just the track in the web */}
-							{/* <p>track_id: {track.track_id}</p> */}
-							{/* <p>uri: {track.uri}</p> This open the track in his own albun on spotify's app */}
+							</p></Fragment>)}
 						</div>
 					</div>
 				</div>
-			</Fragment>
 		));
 	}
 }
