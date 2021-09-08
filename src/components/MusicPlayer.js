@@ -181,21 +181,21 @@ export default function RenderMusicPlayer(props) {
 			};
 			let makingRequest = addItemsToPlaylist(body, addItemsToPlaylistResponse);
 			let success = await makingRequest;
-			console.log(success);
 			return success;
 		}
 		let tracksIds = new Set(
 			successTracks.map((track) => {
-				return track.props.children.props.id;
+				return track.props.id;
 			})
 		);
+		console.log(tracksIds);
 		if (localStorage.getItem("tracksInSubscriptionPlaylist") === null) {
 			localStorage.setItem("tracksInSubscriptionPlaylist", "");
 		}
 		let tracksIdsInSubscription = new Set(localStorage.getItem("tracksInSubscriptionPlaylist").split(","));
 		let newSongsToPlaylist = difference(tracksIds, tracksIdsInSubscription);
 		if (newSongsToPlaylist.size > 0) {
-			let chunk = 5;
+			let chunk = 30;
 			newSongsToPlaylist = Array.from(newSongsToPlaylist);
 			let chunkList;
 			for (let i = 0, j = newSongsToPlaylist.length; i < j; i += chunk) {

@@ -71,21 +71,6 @@ export default function ConfigRoom() {
 				guests_can_pause: guestsCanPause.current,
 			}
 			updateRoom(body, updateRoomResponse);
-			Swal.fire({
-				customClass: {
-					title: "swal-title",
-					confirmButton: "swal-button-text",
-					htmlContainer: "swal-text",
-				},
-				type: "info",
-				title: "Room code already exists",
-				text: "Please enter a different room code",
-				background: "var(--gradient)",
-				confirmButtonText: "Ok",
-				closeOnConfirm: true,
-				closeOnCancel: true,
-				timer: 2000,
-			});
 		} else if (responseCode === 201) {
 			console.log("New room created");
 		}
