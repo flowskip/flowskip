@@ -294,12 +294,13 @@ export default function Room() {
 	}
 
 	function mapTracks(tracksList, action = "openSongInSpotify") {
+		const showAsyncMsg = clickProperties.isClicked && action !== "openSongInSpotify";
 		return tracksList.map((track, index) => (
 				<div key={index + track.track_id} id={action === "addSongToQueue" ? `queue:${track.track_id}` : track.track_id} onClick={(e) => defineTrackActionOnClick(e, action, track)}>
 					<div className="footer__box--content-grid">
-						{ clickProperties.isClicked && clickProperties.trackId === track.track_id ? <JustLoader /> : <img src={track.album_image_url} title={track.name} alt={track.name} />}
+						{ showAsyncMsg && clickProperties.trackId === track.track_id ? <JustLoader /> : <img src={track.album_image_url} title={track.name} alt={track.name} />}
 						<div>
-							{clickProperties.isClicked && clickProperties.trackId === track.track_id ? (<p>Enviando canción a la cola</p>):(<Fragment><p>
+							{showAsyncMsg && clickProperties.trackId === track.track_id ? (<p>Enviando canción a la cola</p>):(<Fragment><p>
 								song: <span>{track.name}</span>
 							</p>
 							<p>
