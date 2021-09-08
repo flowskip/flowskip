@@ -118,15 +118,25 @@ export default function Room() {
 			{lifeCycleStatus === "starting" && <Loader />}
 			{lifeCycleStatus === "started" && renderMusicPlayer()}
 			{lifeCycleStatus === "exiting" && exitRoom()}
+			{lifeCycleStatus === "exited" &&  userHasExitedAlready()}
 		</Fragment>
 	);
+
+	function userHasExitedAlready(){
+		localStorage.clear();
+		window.location.href = "/";
+	}
 	
 	function exitRoom(){
 		async function leaveRoomAndContinue (){
-			leaveRoom(leaveRoomResponse);
+			const ensureLeave = (err) => {
+				localStorage.clear();
+				window.location.href = "/";
+			}
+			clearInterval(interval.current);
+			leaveRoom(leaveRoomResponse, {}, ensureLeave);
 			setLifeCycleStatus("exited");
 		}
-		clearInterval(interval.current);
 		leaveRoomAndContinue();
 		return <Loader/>;
 	}
@@ -310,7 +320,6 @@ function leaveRoomResponse(data, responseCode) {
 	localStorage.removeItem("track_id");
 	localStorage.removeItem("playlist_id");
 	localStorage.removeItem("tracksInSubscriptionPlaylist");
-	window.location.href = "/";
 	if (responseCode === 200) {
 		console.log("OK");
 	} else if (responseCode === 404) {
@@ -318,4 +327,5 @@ function leaveRoomResponse(data, responseCode) {
 	} else {
 		console.log("Leave room with problem");
 	}
+	window.location.href = "/";
 }
