@@ -104,7 +104,7 @@ export default function Room() {
 		localStorage.setItem("room_code", roomCodeFromPath.current);
 	}
 
-	if (!["starting", "started", "exiting"].includes(lifeCycleStatus)){
+	if (!["starting", "started", "exiting", "exited"].includes(lifeCycleStatus)){
 		console.error(`lifeCycleStatus '${lifeCycleStatus}' not implemented`);
 		return(
 			<Fragment>
