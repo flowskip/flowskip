@@ -28,6 +28,7 @@
     cursor: pointer;
     text-decoration: underline;
     margin: 0 5px;
+    white-space: nowrap
 }
 
 /* Contenedor del cover del album */
@@ -160,6 +161,7 @@
     display: flex;
     width: 100%;
     justify-content: center;
+    white-space: nowrap;
 }
 
 .votes-to-skip img {
@@ -171,7 +173,7 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    margin: 20px 0 0;
+    padding: 20px 0 10px;
 }
 
 svg {

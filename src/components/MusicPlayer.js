@@ -309,7 +309,6 @@ export default function RenderMusicPlayer(props) {
 		}
 	};
 	const leaveRoomButton = () => {
-
 		//modal
 		const msgTitle = props.roomDetails.user_is_host ? "¿Estás segur@?" : "¿Estás segur@?";
 		const msg = props.roomDetails.user_is_host ? "Si sales la sala será destruida." : "Abandonarás la sala.";
@@ -510,7 +509,7 @@ export default function RenderMusicPlayer(props) {
 				<div id="wrapper" className="main__wrapper">
 					<div className="card__container">
 						<h1 className="room__code" onClick={copyRoomCode}>
-							<p>Room code:</p>
+							<p className="room__code--text">Room code:</p>
 							<span className="room__code--text" id="room-code">
 								{localStorage.getItem("room_code")}
 							</span>
@@ -558,7 +557,7 @@ export default function RenderMusicPlayer(props) {
 								{votes_to_skip === undefined || room_details === null ? (
 									`Loading`
 								) : (
-									<span>
+									<span style={{ width: "fit-content" }}>
 										{room_details.votes_to_skip - votes_to_skip.all.length === 1
 											? `${
 													room_details.votes_to_skip - votes_to_skip.all.length
@@ -706,8 +705,8 @@ export default function RenderMusicPlayer(props) {
 								id="recomendations"
 							>
 								<path
-									fill-rule="evenodd"
-									clip-rule="evenodd"
+									fillRule="evenodd"
+									clipRule="evenodd"
 									d="M15.3717 4C9.08721 4 4 9.07147 4 15.3183C4 21.5652 9.08721 26.6367 15.3717 26.6367C18.5136 26.6367 21.3556 25.3698 23.4143 23.3201C25.4728 21.2704 26.7434 18.4427 26.7434 15.3183C26.7434 9.07147 21.6562 4 15.3717 4ZM2 15.3183C2 7.95875 7.9908 2 15.3717 2C22.7526 2 28.7434 7.95875 28.7434 15.3183C28.7434 18.6362 27.5243 21.6715 25.5104 24.0022L31.5419 30.0076C31.9333 30.3973 31.9347 31.0305 31.545 31.4218C31.1553 31.8132 30.5221 31.8146 30.1308 31.4249L24.0936 25.4138C21.7524 27.4219 18.7034 28.6367 15.3717 28.6367C7.9908 28.6367 2 22.6779 2 15.3183Z"
 									fill="white"
 								/>
