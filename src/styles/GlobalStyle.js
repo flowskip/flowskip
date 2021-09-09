@@ -58,10 +58,10 @@ const GlobalStyle = createGlobalStyle`
         background-clip: padding-box;
     }
 
-    :focus {
-        outline: none;
-        color: var(--active);
-    }
+    // :focus {
+    //     outline: none;
+    //     color: var(--active);
+    // }
 
     .swal-title {
         font: bold 2rem/100% var(--font-bold);

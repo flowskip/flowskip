@@ -21,6 +21,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    word-break: break-all;
 }
 
 .room__code--text {
@@ -59,6 +60,7 @@
     .song__details--container * {
         margin: 5px 0;
     }
+
 }
 
 /* Contenedor de los controles, detalles de la canción y progreso */
