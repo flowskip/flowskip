@@ -18,11 +18,17 @@
     font: 1.6rem/100% var(--font-bold);
     position: absolute;
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    word-break: break-all;
 }
 
 .room__code--text {
     cursor: pointer;
     text-decoration: underline;
+    margin: 0 5px;
+    white-space: nowrap
 }
 
 /* Contenedor del cover del album */
@@ -53,8 +59,9 @@
     }
 
     .song__details--container * {
-        margin: 10px 0;
+        margin: 5px 0;
     }
+
 }
 
 /* Contenedor de los controles, detalles de la canción y progreso */
@@ -119,36 +126,46 @@
     text-align: center;
     text-decoration: none;
     overflow-wrap: normal;
+    display: flex;
+    width: fit-content;
+    justify-content: center;
+}
+
+.song__details--container>* {
+    margin: 5px 0;
+}
+
+.song__details img {
+    margin-right: 5px;
 }
 
 .song__details:hover {
     text-decoration: underline;
 }
 
-.song__name {
+.song__details--anchor {
     color: var(--white);
-    font: 1.6rem/1.6rem var(--font-bold);
-    margin-bottom: 5px;
-}
-
-.song__artist {
-    color: var(--light-white);
     font: 1.4rem/1.4rem var(--font-bold);
     line-height: 100%;
-    margin-bottom: 5px;
     text-align: center;
-    width: 100%;
-}
-
-.song__album {
-    color: var(--light-white);
-    font: 1.4rem/1.4rem var(--font-bold);
-    margin-bottom: 5px;
+    text-decoration: none;
 }
 
 .votes-to-skip {
-    color: var(--light-white);
+    color: var(--white);
     font: 1.4rem/1.4rem var(--font-bold);
+    line-height: 100%;
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: normal;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.votes-to-skip img {
+    margin-right: 5px;
 }
 
 .buttons__container {
@@ -156,33 +173,21 @@
     display: flex;
     justify-content: center;
     width: 100%;
-}
-
-#bucle path {
-    stroke: var(--white);
-}
-
-#bucle path.arrow {
-    fill: var(--white);
-    stroke: var(--white);
+    padding: 20px 0 10px;
 }
 
 svg {
-    transition: .5s;
     width: 40px;
 }
 
-svg#bucle:hover {
-    transform: rotate(180deg);
+#share {
+    fill: var(--white);
+    transition: all .1s;
 }
 
-svg#bucle:hover path {
-    stroke: var(--active);
-}
-
-svg#bucle:hover path.arrow {
+#share:hover {
     fill: var(--active);
-    stroke: var(--active);
+    transform: scale(1.1);
 }
 
 #playpause {
@@ -190,32 +195,35 @@ svg#bucle:hover path.arrow {
     height: 50px;
     position: relative;
     transition: all .1s;
-    margin: 0 10px 0 25px;
+    margin: 0 10px 0 10px;
 }
 
 #playpause svg#play,
 #playpause svg#pause {
-    position: absolute;
     fill: var(--white);
+    position: absolute;
+    transition: all .1s;
+    width: 100%;
 }
 
 #playpause:hover svg#play,
 #playpause:hover svg#pause {
     fill: var(--active);
-    transform: scale(1.3);
+    transform: scale(1.1);
 }
 
+svg#pause {
+    padding-right: 3px;
+}
 
 #skip {
-    width: 50px;
-    height: 50px;
     fill: var(--white);
-    transition: all .3s;
+    transition: all .1s;
 }
 
 #skip:hover {
     fill: var(--active);
-    transform: scale(1.2) rotateZ(180deg) rotateY(180deg);
+    transform: scale(1.1);
 }
 
 .opacity {
@@ -227,7 +235,7 @@ svg#bucle:hover path.arrow {
     height: 70px;
     background-color: var(--blue);
     margin-top: auto;
-    padding: 10px 0 30px;
+    padding: 10px 0;
     margin-left: -20px;
 
 }
@@ -238,27 +246,33 @@ svg#bucle:hover path.arrow {
     max-width: 500px;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-evenly;
     margin: 0 auto;
 }
 
-#album {
+#tracks {
     fill: var(--white);
-    padding: 5px;
+    padding: 0 5px;
+    width: 50px;
 }
 
-#library {
+#recomendations {
     fill: var(--white);
 }
 
-#song {
+#queue {
     fill: var(--white);
-    padding: 5px;
 }
 
 .active {
     fill: var(--active) !important;
+    stroke: var(--active) !important;
+}
+
+.active path {
+    fill: var(--active) !important;
+    stroke: var(--active) !important;
 }
 
 .header {
@@ -296,7 +310,7 @@ svg#bucle:hover path.arrow {
 }
 
 #close {
-    padding: 5px;
+    padding: 7px;
     position: absolute;
     fill: var(--white);
 }
@@ -330,7 +344,7 @@ svg#bucle:hover path.arrow {
     align-items: center;
     bottom: 0;
     right: 0;
-    padding: 0 20px;
+    padding: 0 10px;
 }
 
 /* General styles details and summary */
@@ -656,17 +670,14 @@ details[open] summary~* {
         height: calc(100vh - 100px);
     }
 
+    .room__code {
+        top: -5px;
+    }
+
     .card__container {
         margin: 0;
         width: 50%;
         position: relative;
-        padding: 20px;
-    }
-
-    .room__code {
-        width: 100%;
-        position: relative;
-        top: 10px;
     }
 
     .card {
@@ -681,6 +692,17 @@ details[open] summary~* {
         width: 50%;
         height: 100%;
         justify-content: center;
+        text-align: left;
+    }
+
+    .song__details--container {
+        align-items: flex-start;
+        text-align: left;
+        width: 100%;
+    }
+
+    .song__details--container * {
+        text-align: left;
     }
 
     .footer__box {
