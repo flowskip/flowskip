@@ -1,9 +1,8 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import {
 	voteToSkip,
 	toggleIsPlaying,
-	leaveRoom,
 	addItemsToPlaylist,
 	uploadPlaylistCover,
 	createPlaylist,
@@ -13,19 +12,24 @@ import Flowskip from "../assets/svg/logo.svg";
 import Button from "./Button";
 import LogoSpotify from "../assets/img/logo-spotify.png";
 
+import copy from "../assets/svg/copy.svg";
+import note from "../assets/svg/note.svg";
+import artist from "../assets/svg/artist.svg";
+import disk from "../assets/svg/disk.svg";
+import dislike from "../assets/svg/dislike.svg";
+
 import "./styles/MusicPlayer.css";
 
 const getTwitterIntentUrl = (songName) => {
-
 	const comaUpper = (hashtags) => {
 		let result = hashtags.join(",");
-		result = result.split(" ")
-		result = result.reduce((allHashtag='', hashtag) => {
+		result = result.split(" ");
+		result = result.reduce((allHashtag = "", hashtag) => {
 			return allHashtag + hashtag.charAt(0).toUpperCase() + hashtag.slice(1);
-		})
-		result = result.replace(/[^0-9a-zA-Z]/g, '');
+		});
+		result = result.replace(/[^0-9a-zA-Z]/g, "");
 		return result;
-	}
+	};
 
 	const baseUrl = "https://twitter.com/intent/tweet";
 	const url = new URL(baseUrl);
@@ -37,8 +41,7 @@ const getTwitterIntentUrl = (songName) => {
 	};
 	url.search = new URLSearchParams(params).toString();
 	return url;
-}
-
+};
 
 // function that returns today day into human readable day and month
 function FlowskipPlaylistDefaultName(language) {
@@ -97,7 +100,8 @@ function FlowskipPlaylistDefaultName(language) {
 var QRCode = require("qrcode.react");
 export default function RenderMusicPlayer(props) {
 	const [loading, setLoading] = useState(false);
-
+	const lifeCycleStatus = props.lifeCycleStatusState[0];
+	const setLifeCycleStatus = props.lifeCycleStatusState[1];
 	function copyRoomCode() {
 		navigator.clipboard
 			.writeText(localStorage.getItem("room_code"))
@@ -181,21 +185,21 @@ export default function RenderMusicPlayer(props) {
 			};
 			let makingRequest = addItemsToPlaylist(body, addItemsToPlaylistResponse);
 			let success = await makingRequest;
-			console.log(success);
 			return success;
 		}
 		let tracksIds = new Set(
 			successTracks.map((track) => {
-				return track.props.children.props.id;
+				return track.props.id;
 			})
 		);
+		console.log(tracksIds);
 		if (localStorage.getItem("tracksInSubscriptionPlaylist") === null) {
 			localStorage.setItem("tracksInSubscriptionPlaylist", "");
 		}
 		let tracksIdsInSubscription = new Set(localStorage.getItem("tracksInSubscriptionPlaylist").split(","));
 		let newSongsToPlaylist = difference(tracksIds, tracksIdsInSubscription);
 		if (newSongsToPlaylist.size > 0) {
-			let chunk = 5;
+			let chunk = 30;
 			newSongsToPlaylist = Array.from(newSongsToPlaylist);
 			let chunkList;
 			for (let i = 0, j = newSongsToPlaylist.length; i < j; i += chunk) {
@@ -256,7 +260,7 @@ export default function RenderMusicPlayer(props) {
 
 	const shareInTwitter = (trackName) => {
 		window.open(getTwitterIntentUrl(trackName), "_blank", "noreferrer", "noopener'");
-	}
+	};
 
 	const playlistButtonClick = () => {
 		function createPlaylistResponse(data, responseCode) {
@@ -305,17 +309,6 @@ export default function RenderMusicPlayer(props) {
 		}
 	};
 	const leaveRoomButton = () => {
-		function leaveRoomResponse(data, responseCode) {
-			console.log(responseCode);
-			if (responseCode === 200) {
-				console.log("OK");
-			} else if (responseCode === 404) {
-				console.log("Room doesn't exist");
-			} else {
-				console.log("Leave room with problem");
-			}
-		}
-
 		//modal
 		const msgTitle = props.roomDetails.user_is_host ? "¿Estás segur@?" : "¿Estás segur@?";
 		const msg = props.roomDetails.user_is_host ? "Si sales la sala será destruida." : "Abandonarás la sala.";
@@ -352,12 +345,7 @@ export default function RenderMusicPlayer(props) {
 					timer: 2000,
 					title: "Saliste de la sala",
 				}).then(() => {
-					leaveRoom(leaveRoomResponse);
-					localStorage.removeItem("room_code");
-					localStorage.removeItem("track_id");
-					localStorage.removeItem("playlist_id");
-					localStorage.removeItem("tracksInSubscriptionPlaylist");
-					window.location.href = "/";
+					setLifeCycleStatus("exiting");
 				});
 			}
 		});
@@ -376,13 +364,22 @@ export default function RenderMusicPlayer(props) {
 		aside.classList.toggle("displayed");
 	};
 
+	useEffect(() => {
+		if (is_playing) {
+			document.getElementById("play").classList.add("opacity");
+			document.getElementById("pause").classList.remove("opacity");
+		} else {
+			document.getElementById("play").classList.remove("opacity");
+			document.getElementById("pause").classList.add("opacity");
+		}
+	}, [is_playing]);
+
 	const playPauseClick = () => {
-		// Arrow function in react
 		const toggleIsPlayingResponse = (data, responseCode) => {
-			setLoading(true);
 			if (responseCode === 200) {
+				document.getElementById("play").classList.toggle("opacity");
+				document.getElementById("pause").classList.toggle("opacity");
 				console.log("Well sent, but is asynchronous");
-				setLoading(false);
 			} else if (responseCode === 403) {
 				if (room_details.user_is_host) {
 					Swal.fire({
@@ -489,50 +486,65 @@ export default function RenderMusicPlayer(props) {
 					</div>
 				</aside>
 				<div className="header__icon" id="gear-container" onClick={toggleAside}>
-					<svg width="42" height="42" viewBox="0 0 42 42" id="gear">
-						<path d="M24.7917 41.8334H17.2084C16.2294 41.8334 15.3824 41.1522 15.1729 40.1959L14.325 36.2709C13.1939 35.7753 12.1213 35.1556 11.1271 34.423L7.30003 35.6418C6.3667 35.9394 5.35209 35.5465 4.86253 34.698L1.06253 28.1334C0.578342 27.2845 0.745156 26.2136 1.46462 25.5522L4.43337 22.8438C4.29836 21.617 4.29836 20.379 4.43337 19.1522L1.46462 16.4501C0.744096 15.7883 0.577216 14.7162 1.06253 13.8667L4.8542 7.298C5.34376 6.44945 6.35837 6.05662 7.2917 6.35425L11.1188 7.573C11.6272 7.19624 12.1566 6.84847 12.7042 6.53133C13.2299 6.23486 13.7709 5.96643 14.325 5.72716L15.175 1.80633C15.3835 0.850016 16.2296 0.167778 17.2084 0.166748H24.7917C25.7705 0.167778 26.6166 0.850016 26.825 1.80633L27.6834 5.72925C28.2683 5.98657 28.838 6.27733 29.3896 6.60008C29.9048 6.89753 30.4028 7.22374 30.8813 7.57717L34.7104 6.35842C35.6432 6.06189 36.6565 6.45458 37.1459 7.30217L40.9375 13.8709C41.4217 14.7198 41.2549 15.7907 40.5354 16.4522L37.5667 19.1605C37.7017 20.3874 37.7017 21.6253 37.5667 22.8522L40.5354 25.5605C41.2549 26.2219 41.4217 27.2928 40.9375 28.1418L37.1459 34.7105C36.6565 35.5581 35.6432 35.9508 34.7104 35.6543L30.8813 34.4355C30.3968 34.7924 29.8932 35.1227 29.3729 35.4251C28.8268 35.7416 28.2634 36.0274 27.6854 36.2813L26.825 40.1959C26.6157 41.1514 25.7698 41.8326 24.7917 41.8334ZM20.9917 12.6667C16.3893 12.6667 12.6584 16.3977 12.6584 21.0001C12.6584 25.6025 16.3893 29.3334 20.9917 29.3334C25.5941 29.3334 29.325 25.6025 29.325 21.0001C29.325 16.3977 25.5941 12.6667 20.9917 12.6667Z" />
+					<svg width="42" height="42" viewBox="0 0 42 42" fill="none" id="gear">
+						<path
+							fillRule="evenodd"
+							clipRule="evenodd"
+							d="M15.3615 2.23705C15.3615 1.78404 15.6814 1.39552 16.1362 1.29617C19.2262 0.621233 22.3972 0.643172 25.4124 1.30166C25.8843 1.40473 26.2229 1.81312 26.2229 2.27942L26.2229 10.055C26.2229 10.8161 27.0782 11.3043 27.7557 10.93L34.8452 7.01218C35.2524 6.78716 35.7715 6.8666 36.0976 7.20383C37.1394 8.28117 38.0722 9.4851 38.8704 10.8084C39.6686 12.1316 40.2914 13.5068 40.7453 14.9089C40.8874 15.3479 40.6997 15.8179 40.2925 16.0429L33.2029 19.9608C32.5254 20.3351 32.5395 21.2882 33.2281 21.6688L40.2636 25.5567C40.6855 25.7898 40.8857 26.2746 40.743 26.7174C39.8312 29.5459 38.2656 32.1854 36.1099 34.4093C35.7926 34.7366 35.2811 34.8075 34.8712 34.581L27.7304 30.6349C27.0531 30.2606 26.2229 30.7194 26.2229 31.468L26.2229 39.3602C26.2229 39.8132 25.903 40.2018 25.4481 40.3011C22.3582 40.976 19.1872 40.9541 16.172 40.2956C15.7001 40.1925 15.3615 39.7841 15.3615 39.3178L15.3615 31.5421C15.3615 30.781 14.5062 30.2928 13.8287 30.6672L6.73915 34.585C6.33195 34.81 5.81282 34.7306 5.48673 34.3933C4.44504 33.316 3.51218 32.1121 2.71402 30.7889C1.91583 29.4656 1.29297 28.0904 0.839071 26.6882C0.696988 26.2493 0.884678 25.7792 1.29188 25.5542L8.38139 21.6364C9.05887 21.2621 9.04479 20.309 8.35617 19.9284L1.32088 16.0406C0.898973 15.8075 0.698732 15.3227 0.841457 14.8799C1.75323 12.0514 3.31887 9.41187 5.47455 7.18799C5.79183 6.86066 6.30332 6.78974 6.7132 7.01625L13.854 10.9623C14.5313 11.3366 15.3615 10.8779 15.3615 10.1292V2.23705ZM20.7925 25.0233C23.2304 25.0233 25.2067 23.1316 25.2067 20.7981C25.2067 18.4646 23.2304 16.573 20.7925 16.573C18.3545 16.573 16.3782 18.4646 16.3782 20.7981C16.3782 23.1316 18.3545 25.0233 20.7925 25.0233Z"
+							fill="var(--white)"
+						/>
 					</svg>
-					<svg width="50" height="50" viewBox="0 0 50 50" id="close" className="opacity">
-						<path d="M42.95 0L25 17.95L7.05 0L0 7.05L17.95 25L0 42.95L7.05 50L25 32.05L42.95 50L50 42.95L32.05 25L50 7.05L42.95 0Z" />
+					<svg width="50" height="50" viewBox="0 0 50 50" fill="none" id="close" className="opacity">
+						<path
+							d="M5 5L45 45M5 45L45 5"
+							stroke="var(--white)"
+							strokeWidth="10"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
 					</svg>
 				</div>
 			</div>
 			<main className="main__container--music-player">
 				<div id="wrapper" className="main__wrapper">
 					<div className="card__container">
-						<h1 className="room__code">
-							Room code:{" "}
-							<span className="room__code--text" id="room-code" onClick={copyRoomCode}>
+						<h1 className="room__code" onClick={copyRoomCode}>
+							<p className="room__code--text">Room code:</p>
+							<span className="room__code--text" id="room-code">
 								{localStorage.getItem("room_code")}
 							</span>
+							<img src={copy} alt="Copy" />
 						</h1>
 						<img alt="logo" src={item === undefined ? Flowskip : item.album.images[1].url} className="card" />
 					</div>
 					<div className="controls__container">
 						<div className="song__details--container">
-							<a
-								target="_blank"
-								className="song__name song__details"
-								rel="noreferrer noopener"
-								href={item === undefined ? "#" : item.external_urls.spotify}
-							>
-								{item === undefined ? "Artistas" : item.name}
-							</a>
-							<p className="song__artist">
-								{"de: "}
+							<p className="song__details">
+								<img src={note} alt="Song" />
+								<a
+									target="_blank"
+									className="song__details--anchor"
+									rel="noreferrer noopener"
+									href={item === undefined ? "#" : item.external_urls.spotify}
+								>
+									<span>{item === undefined ? "Artistas" : item.name}</span>
+								</a>
+							</p>
+							<p className="song__details">
+								<img src={artist} alt="Artistas" />
 								{item === undefined ? (
-									<a className="song__details" href="https://open.spotify.com">
+									<a className="song__details--anchor" href="https://open.spotify.com">
 										Open Spotify
 									</a>
 								) : (
 									convertArtistsToAnchor(item.artists)
 								)}
 							</p>
-							<p className="song__album">
-								del album:
+							<p className="song__details">
+								<img src={disk} alt="Album" />
 								<a
 									target="_blank"
-									className="song__details"
+									className="song__details--anchor"
 									rel="noreferrer noopener"
 									href={item === undefined ? "#" : item.album.external_urls.spotify}
 								>
@@ -541,12 +553,18 @@ export default function RenderMusicPlayer(props) {
 								</a>
 							</p>
 							<p className="votes-to-skip">
-								Skip:{" "}
+								<img src={dislike} alt="Dislike" />
 								{votes_to_skip === undefined || room_details === null ? (
 									`Loading`
 								) : (
-									<span className="song__details">
-										{votes_to_skip.all.length} / {room_details.votes_to_skip}
+									<span style={{ width: "fit-content" }}>
+										{room_details.votes_to_skip - votes_to_skip.all.length === 1
+											? `${
+													room_details.votes_to_skip - votes_to_skip.all.length
+											  } voto más para saltar canción`
+											: `${
+													room_details.votes_to_skip - votes_to_skip.all.length
+											  } votos más para saltar canción`}
 									</span>
 								)}
 							</p>
@@ -557,61 +575,44 @@ export default function RenderMusicPlayer(props) {
 								max="100"
 							/>
 						</div>
-						<div id="share" className="buttons__container">
-							{/* Repeat */}
-							<div onClick={()=>shareInTwitter(item.name)}>
-								<svg width="50" height="50" viewBox="0 0 50 50" fill="none" id="bucle">
+						<div className="buttons__container">
+							{/* Share */}
+							<div onClick={() => shareInTwitter(item.name)}>
+								<svg width="45" height="50" viewBox="0 0 47 50" id="share">
 									<path
-										className="arrow"
-										d="M46.5599 11.6728C47.1865 11.2811 47.1865 10.3684 46.5599 9.97677L32.78 1.36436C32.114 0.948076 31.25 1.42692 31.25 2.21235V19.4372C31.25 20.2226 32.114 20.7015 32.78 20.2852L46.5599 11.6728Z"
-									/>
-									<path
-										className="arrow"
-										d="M3.67621 38.7561C3.04954 38.3644 3.04954 37.4518 3.67621 37.0601L17.4561 28.4477C18.1221 28.0314 18.9861 28.5102 18.9861 29.2957V46.5205C18.9861 47.3059 18.1221 47.7848 17.4561 47.3685L3.67621 38.7561Z"
-									/>
-									<path
-										d="M8.33337 22.9167V22.9167C8.33337 16.0131 13.9298 10.4167 20.8334 10.4167V10.4167H31.25"
-										strokeWidth="5"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-									<path
-										d="M39.5834 25V25C39.5834 31.9036 33.9869 37.5 27.0834 37.5V37.5H16.6667"
-										strokeWidth="5"
-										strokeLinecap="round"
-										strokeLinejoin="round"
+										fillRule="evenodd"
+										clipRule="evenodd"
+										d="M38.6425 0.590088C34.4056 0.590088 30.9709 4.02477 30.9709 8.26167C30.9709 8.56635 30.9888 8.86727 31.0236 9.16335L12.9004 19.136C11.6135 18.1576 10.0063 17.5746 8.26167 17.5746C4.02476 17.5746 0.590088 21.0093 0.590088 25.2462C0.590088 29.4831 4.02477 32.9178 8.26167 32.9178C9.97289 32.9178 11.5519 32.3569 12.8261 31.4122L30.3994 41.922C30.357 42.248 30.3352 42.58 30.3352 42.9167C30.3352 47.1535 33.7699 50.5883 38.0068 50.5883C42.2437 50.5883 45.6784 47.1535 45.6784 42.9167C45.6784 38.6798 42.2437 35.2451 38.0068 35.2451C36.2956 35.2451 34.7166 35.8059 33.4423 36.7507L15.8691 26.2409C15.9114 25.9149 15.9333 25.5828 15.9333 25.2462C15.9333 24.9415 15.9154 24.6406 15.8806 24.3445L34.0038 14.3719C35.2907 15.3503 36.8979 15.9333 38.6425 15.9333C42.8794 15.9333 46.3141 12.4986 46.3141 8.26167C46.3141 4.02477 42.8794 0.590088 38.6425 0.590088Z"
 									/>
 								</svg>
 							</div>
 							{/* Play and pause Icons */}
 							<div id="playpause" onClick={playPauseClick}>
-								{is_playing === false ? (
-									loading === false ? (
-										<svg width="50" height="50" viewBox="0 0 50 50" id="play">
-											<path d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z" />
-										</svg>
-									) : (
-										<svg width="50" height="50" viewBox="0 0 50 50" id="playLoading">
-											<path d="M42.3932 25.848C43.0198 25.4563 43.0198 24.5437 42.3932 24.152L11.9466 5.12292C11.2806 4.70664 10.4166 5.18548 10.4166 5.97092V44.0291C10.4166 44.8145 11.2806 45.2934 11.9466 44.8771L42.3932 25.848Z" />
-										</svg>
-									)
-								) : loading === false ? (
-									<svg width="50" height="50" viewBox="0 0 50 50" id="pause">
-										<rect x="8.33337" y="6.25" width="12.5" height="37.5" rx="2" />
-										<rect x="29.1666" y="6.25" width="12.5" height="37.5" rx="2" />
-									</svg>
-								) : (
-									<svg width="50" height="50" viewBox="0 0 50 50" id="pauseLoading">
-										<rect x="8.33337" y="6.25" width="12.5" height="37.5" rx="2" />
-										<rect x="29.1666" y="6.25" width="12.5" height="37.5" rx="2" />
-									</svg>
-								)}
+								<svg width="50" height="50" viewBox="0 0 50 50" id="pause" className="opacity">
+									<path
+										fillRule="evenodd"
+										clipRule="evenodd"
+										d="M32.1138 7.99658C32.1138 4.13058 35.2478 0.996582 39.1138 0.996582H43.169C47.035 0.996582 50.169 4.13059 50.169 7.99658V43.8316C50.169 47.6976 47.035 50.8316 43.169 50.8316H39.1138C35.2478 50.8316 32.1138 47.6976 32.1138 43.8316V7.99658ZM7.16895 1.16187C3.30295 1.16187 0.168945 4.29587 0.168945 8.16186V43.9969C0.168945 47.8629 3.30295 50.9969 7.16895 50.9969H11.2242C15.0902 50.9969 18.2242 47.8629 18.2242 43.9969V8.16187C18.2242 4.29587 15.0902 1.16187 11.2242 1.16187H7.16895Z"
+									/>
+								</svg>
+								<svg width="48" height="50" viewBox="0 0 48 50" id="play">
+									<path
+										fillRule="evenodd"
+										clipRule="evenodd"
+										d="M16.4373 1.51421C9.2516 -2.62697 0 2.21455 0 10.1161V39.8837C0 47.7854 9.2516 52.6271 16.4373 48.4857L42.2633 33.6017C49.1067 29.6579 49.1067 20.3419 42.2633 16.3981L16.4373 1.51421Z"
+									/>
+								</svg>
 							</div>
 							{/* Skip button */}
-							<svg width="50" height="50" viewBox="0 0 50 50" id="skip" onClick={() => sendVoteToSkip()}>
-								<path d="M32.0075 25.8437C32.625 25.4507 32.625 24.5493 32.0075 24.1563L11.9535 11.3947C11.2878 10.971 10.4166 11.4492 10.4166 12.2383V37.7617C10.4166 38.5507 11.2878 39.029 11.9535 38.6053L32.0075 25.8437Z" />
-								<rect x="35.4166" y="10.4167" width="4.16667" height="29.1667" rx="1" />
-							</svg>
+							<div onClick={sendVoteToSkip}>
+								<svg width="44" height="40" viewBox="0 0 44 40" id="skip">
+									<path
+										fillRule="evenodd"
+										clipRule="evenodd"
+										d="M0 8.26922C0 1.67571 8.25091 -2.25705 14.4108 1.40037L34.1677 13.1311C35.4242 13.8771 36.3938 14.8281 37.0766 15.8909V3.48927C37.0766 1.96952 38.4599 0.737489 40.1663 0.737489C41.8728 0.737489 43.2561 1.96952 43.2561 3.48927V36.5105C43.2561 38.0303 41.8728 39.2623 40.1663 39.2623C38.4599 39.2623 37.0766 38.0303 37.0766 36.5105V24.1091C36.3938 25.1715 35.4242 26.1228 34.1677 26.8688L14.4108 38.5997C8.25088 42.2571 0 38.3242 0 31.7307V8.26922Z"
+									/>
+								</svg>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -644,17 +645,28 @@ export default function RenderMusicPlayer(props) {
 								onClick={() => {
 									showLists(0);
 								}}
-								width="50"
-								height="50"
-								viewBox="0 0 50 50"
-								id="album"
+								width="54"
+								height="39"
+								viewBox="0 0 54 39"
+								id="tracks"
 							>
+								<path
+									d="M3 3H30.3009M3 24H17.3689M3 35H17.3689M3 13H27.5"
+									stroke="var(--white)"
+									strokeWidth="5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
 								<path
 									fillRule="evenodd"
 									clipRule="evenodd"
-									d="M25 0C35.3553 0 43.75 8.39466 43.75 18.75H33.3333C33.3333 14.1476 29.6024 10.4167 25 10.4167C20.3976 10.4167 16.6667 14.1476 16.6667 18.75H6.25C6.25 8.39466 14.6447 0 25 0ZM29.1667 18.75C29.1667 16.4488 27.3012 14.5833 25 14.5833C22.6988 14.5833 20.8333 16.4488 20.8333 18.75H29.1667Z"
+									d="M40.4037 1.00039C40.1479 1.00741 39.9161 1.11051 39.7431 1.27489C39.726 1.29113 39.7095 1.30792 39.6937 1.32522C39.531 1.50308 39.4317 1.73995 39.4317 2.00001V9.71209V26.1092C38.2051 24.8891 36.5144 24.1351 34.6476 24.1351C30.9009 24.1351 27.8635 27.1724 27.8635 30.9192C27.8635 34.6659 30.9009 37.7032 34.6476 37.7032C38.3904 37.7032 41.4253 34.6723 41.4316 30.931L41.4317 30.9203V10.8925L51.8354 12.6265C52.1254 12.6748 52.4219 12.5931 52.6462 12.4031C52.8705 12.2131 52.9998 11.9341 52.9998 11.6401V3.92803C52.9998 3.43919 52.6464 3.022 52.1642 2.94163L40.6147 1.01671C40.5637 1.00729 40.5114 1.00173 40.4581 1.00035C40.44 0.999869 40.4218 0.999885 40.4037 1.00039Z"
+									fill="var(--white)"
 								/>
-								<path d="M2.08337 22.9167H47.9167V48C47.9167 49.1046 47.0213 50 45.9167 50H4.08337C2.9788 50 2.08337 49.1046 2.08337 48V22.9167Z" />
+								<path
+									d="M39.7431 1.27489L40.4316 2.00005L40.4318 1.9999L39.7431 1.27489ZM40.4037 1.00039L40.4312 2.00001L40.4317 2L40.4037 1.00039ZM39.6937 1.32522L40.4315 2.00021L40.4317 2.00003L39.6937 1.32522ZM39.4317 26.1092L38.7265 26.8182C39.0129 27.1031 39.4426 27.1877 39.8156 27.0326C40.1886 26.8775 40.4317 26.5132 40.4317 26.1092H39.4317ZM41.4316 30.931L40.4316 30.9257L40.4316 30.9293L41.4316 30.931ZM41.4317 30.9203L42.4317 30.9256V30.9203H41.4317ZM41.4317 10.8925L41.5961 9.90615C41.3061 9.85783 41.0096 9.93952 40.7853 10.1295C40.561 10.3195 40.4317 10.5986 40.4317 10.8925H41.4317ZM51.8354 12.6265L51.9998 11.6401H51.9998L51.8354 12.6265ZM52.6462 12.4031L51.9998 11.6401L51.9998 11.6401L52.6462 12.4031ZM52.1642 2.94163L51.9998 3.92803L51.9998 3.92803L52.1642 2.94163ZM40.6147 1.01671L40.4328 2.00004C40.4386 2.00111 40.4445 2.00213 40.4503 2.0031L40.6147 1.01671ZM40.4581 1.00035L40.4317 2L40.4322 2.00001L40.4581 1.00035ZM40.4318 1.9999L40.4312 2.00001L40.3763 0.000766993C39.8643 0.0148184 39.3994 0.22206 39.0543 0.549879L40.4318 1.9999ZM40.4317 2.00003L40.4316 2.00005L39.0545 0.549727C39.0203 0.582194 38.9873 0.615779 38.9557 0.650408L40.4317 2.00003ZM40.4317 2.00001L40.4315 2.00021L38.9558 0.650234C38.6311 1.0052 38.4317 1.48047 38.4317 2.00001H40.4317ZM40.4317 9.71209V2.00001H38.4317V9.71209H40.4317ZM40.4317 26.1092V9.71209H38.4317V26.1092H40.4317ZM34.6476 25.1351C36.2395 25.1351 37.6796 25.7769 38.7265 26.8182L40.1369 25.4002C38.7305 24.0014 36.7893 23.1351 34.6476 23.1351V25.1351ZM28.8635 30.9192C28.8635 27.7247 31.4531 25.1351 34.6476 25.1351V23.1351C30.3486 23.1351 26.8635 26.6202 26.8635 30.9192H28.8635ZM34.6476 36.7032C31.4531 36.7032 28.8635 34.1136 28.8635 30.9192H26.8635C26.8635 35.2182 30.3486 38.7032 34.6476 38.7032V36.7032ZM40.4316 30.9293C40.4262 34.1191 37.8387 36.7032 34.6476 36.7032V38.7032C38.9421 38.7032 42.4243 35.2255 42.4316 30.9327L40.4316 30.9293ZM40.4317 30.915L40.4316 30.9257L42.4316 30.9363L42.4317 30.9256L40.4317 30.915ZM40.4317 10.8925V30.9203H42.4317V10.8925H40.4317ZM51.9998 11.6401L41.5961 9.90615L41.2673 11.8789L51.671 13.6129L51.9998 11.6401ZM51.9998 11.6401L51.9998 11.6401L51.671 13.6129C52.2509 13.7095 52.844 13.5462 53.2926 13.1661L51.9998 11.6401ZM51.9998 11.6401V11.6401L53.2926 13.1661C53.7411 12.7861 53.9998 12.228 53.9998 11.6401H51.9998ZM51.9998 3.92803V11.6401H53.9998V3.92803H51.9998ZM51.9998 3.92803V3.92803H53.9998C53.9998 2.95035 53.293 2.11597 52.3286 1.95524L51.9998 3.92803ZM40.4503 2.0031L51.9998 3.92803L52.3286 1.95524L40.7791 0.0303168L40.4503 2.0031ZM40.4322 2.00001L40.4328 2.00004L40.7965 0.033381C40.6944 0.0144917 40.5899 0.00343406 40.4841 0.000686586L40.4322 2.00001ZM40.4317 2L40.4317 2L40.4846 0.000700414C40.4483 -0.000261545 40.412 -0.000230908 40.3758 0.000781476L40.4317 2Z"
+									fill="var(--white)"
+								/>
 							</svg>
 						</div>
 						{/* Recomendations Button */}
@@ -686,18 +698,22 @@ export default function RenderMusicPlayer(props) {
 								onClick={() => {
 									showLists(1);
 								}}
-								width="50"
-								height="50"
-								viewBox="0 0 50 50"
-								id="library"
+								width="34"
+								height="34"
+								viewBox="0 0 34 34"
+								fill="none"
+								id="recomendations"
 							>
 								<path
 									fillRule="evenodd"
 									clipRule="evenodd"
-									d="M2 16.6667C0.895431 16.6667 0 17.5621 0 18.6667V48C0 49.1046 0.895432 50 2 50H48C49.1046 50 50 49.1046 50 48V18.6667C50 17.5621 49.1046 16.6667 48 16.6667H2ZM19.7917 26.2586C19.7917 25.4908 20.6211 25.0094 21.2878 25.3903L32.8556 32.0005C33.5274 32.3844 33.5274 33.3531 32.8556 33.737L21.2878 40.3471C20.6212 40.7281 19.7917 40.2467 19.7917 39.4789V26.2586Z"
+									d="M15.3717 4C9.08721 4 4 9.07147 4 15.3183C4 21.5652 9.08721 26.6367 15.3717 26.6367C18.5136 26.6367 21.3556 25.3698 23.4143 23.3201C25.4728 21.2704 26.7434 18.4427 26.7434 15.3183C26.7434 9.07147 21.6562 4 15.3717 4ZM2 15.3183C2 7.95875 7.9908 2 15.3717 2C22.7526 2 28.7434 7.95875 28.7434 15.3183C28.7434 18.6362 27.5243 21.6715 25.5104 24.0022L31.5419 30.0076C31.9333 30.3973 31.9347 31.0305 31.545 31.4218C31.1553 31.8132 30.5221 31.8146 30.1308 31.4249L24.0936 25.4138C21.7524 27.4219 18.7034 28.6367 15.3717 28.6367C7.9908 28.6367 2 22.6779 2 15.3183Z"
+									fill="white"
 								/>
-								<rect x="2.08337" y="8.33333" width="45.8333" height="4.16667" rx="1" />
-								<rect x="4.16663" width="41.6667" height="4.16667" rx="1" />
+								<path
+									d="M23.4143 23.3201L22.0031 21.9028L23.4143 23.3201ZM25.5104 24.0022L23.9971 22.6946C23.3107 23.4889 23.3554 24.6787 24.0993 25.4194L25.5104 24.0022ZM31.5419 30.0076L32.9531 28.5904L31.5419 30.0076ZM30.1308 31.4249L31.5419 30.0076L30.1308 31.4249ZM24.0936 25.4138L25.5048 23.9965C24.7652 23.2601 23.5837 23.2162 22.7915 23.8957L24.0936 25.4138ZM6 15.3183C6 10.184 10.1838 6 15.3717 6V2C7.99058 2 2 7.95897 2 15.3183H6ZM15.3717 24.6367C10.1838 24.6367 6 20.4527 6 15.3183H2C2 22.6777 7.99058 28.6367 15.3717 28.6367V24.6367ZM22.0031 21.9028C20.305 23.5936 17.9648 24.6367 15.3717 24.6367V28.6367C19.0624 28.6367 22.4063 27.1461 24.8254 24.7374L22.0031 21.9028ZM24.7434 15.3183C24.7434 17.8882 23.701 20.2123 22.0031 21.9028L24.8254 24.7374C27.2446 22.3286 28.7434 18.9971 28.7434 15.3183H24.7434ZM15.3717 6C20.5596 6 24.7434 10.184 24.7434 15.3183H28.7434C28.7434 7.95897 22.7528 2 15.3717 2V6ZM15.3717 0C6.89458 0 0 6.84586 0 15.3183H4C4 9.07165 9.08702 4 15.3717 4V0ZM30.7434 15.3183C30.7434 6.84586 23.8488 0 15.3717 0V4C21.6564 4 26.7434 9.07165 26.7434 15.3183H30.7434ZM27.0238 25.3098C29.3388 22.6305 30.7434 19.1355 30.7434 15.3183H26.7434C26.7434 18.137 25.7097 20.7125 23.9971 22.6946L27.0238 25.3098ZM32.9531 28.5904L26.9216 22.5849L24.0993 25.4194L30.1308 31.4249L32.9531 28.5904ZM32.9622 32.833C34.1313 31.6589 34.1272 29.7594 32.9531 28.5904L30.1308 31.4249C29.7394 31.0352 29.738 30.4021 30.1277 30.0107L32.9622 32.833ZM28.7196 32.8422C29.8937 34.0112 31.7932 34.0071 32.9622 32.833L30.1277 30.0107C30.5174 29.6193 31.1506 29.618 31.5419 30.0076L28.7196 32.8422ZM22.6825 26.8311L28.7196 32.8422L31.5419 30.0076L25.5048 23.9965L22.6825 26.8311ZM15.3717 30.6367C19.1981 30.6367 22.7051 29.2397 25.3957 26.9318L22.7915 23.8957C20.7997 25.6042 18.2087 26.6367 15.3717 26.6367V30.6367ZM0 15.3183C0 23.7908 6.89458 30.6367 15.3717 30.6367V26.6367C9.08702 26.6367 4 21.565 4 15.3183H0Z"
+									fill="white"
+								/>
 							</svg>
 						</div>
 						{/* Queue Button */}
@@ -726,14 +742,22 @@ export default function RenderMusicPlayer(props) {
 								onClick={() => {
 									showLists(2);
 								}}
-								width="50"
-								height="50"
-								viewBox="0 0 50 50"
-								id="song"
+								width="34"
+								height="30"
+								viewBox="0 0 34 30"
+								fill="none"
+								id="queue"
 							>
-								<path d="M17.7083 47.9167C24.0366 47.9167 29.1667 42.7866 29.1667 36.4583C29.1667 30.1301 24.0366 25 17.7083 25C11.3801 25 6.25 30.1301 6.25 36.4583C6.25 42.7866 11.3801 47.9167 17.7083 47.9167Z" />
-								<rect x="22.9166" y="8.33334" width="6.25" height="27.0833" />
-								<rect x="22.9166" y="2.08334" width="22.9167" height="12.5" rx="2" />
+								<path
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+									d="M6.47026 7.38283L4.00003 5.21201L4.00003 9.55364L6.47026 7.38283ZM8.64526 8.13399C9.09844 7.73574 9.09844 7.02991 8.64526 6.63166L3.66015 2.25079C3.01402 1.68297 2.00003 2.14178 2.00003 3.00195V11.7637C2.00003 12.6239 3.01402 13.0827 3.66015 12.5149L8.64526 8.13399ZM14 11C14 10.4477 14.4477 10 15 10L31 10C31.5523 10 32 10.4477 32 11C32 11.5523 31.5523 12 31 12L15 12C14.4477 12 14 11.5523 14 11ZM15 2C14.4477 2 14 2.44772 14 3C14 3.55228 14.4477 4 15 4L31 4C31.5523 4 32 3.55228 32 3C32 2.44771 31.5523 2 31 2H15ZM2 19C2 18.4477 2.44772 18 3 18H31C31.5523 18 32 18.4477 32 19C32 19.5523 31.5523 20 31 20H3C2.44772 20 2 19.5523 2 19ZM3 26C2.44772 26 2 26.4477 2 27C2 27.5523 2.44772 28 3 28H31C31.5523 28 32 27.5523 32 27C32 26.4477 31.5523 26 31 26H3Z"
+									fill="white"
+								/>
+								<path
+									d="M4.00003 5.21201L4.9902 4.08526C4.54766 3.69636 3.91843 3.60253 3.38167 3.8454C2.84491 4.08827 2.50003 4.62286 2.50003 5.21201L4.00003 5.21201ZM6.47026 7.38283L7.46043 8.50957C7.7845 8.22478 7.97026 7.81425 7.97026 7.38283C7.97026 6.9514 7.7845 6.54087 7.46043 6.25608L6.47026 7.38283ZM4.00003 9.55364L2.50003 9.55364C2.50003 10.1428 2.84491 10.6774 3.38167 10.9203C3.91843 11.1631 4.54766 11.0693 4.9902 10.6804L4.00003 9.55364ZM8.64526 6.63166L9.63543 5.50492L9.63543 5.50492L8.64526 6.63166ZM8.64526 8.13399L9.63543 9.26074L9.63544 9.26074L8.64526 8.13399ZM3.66015 2.25079L4.65032 1.12404L4.65032 1.12404L3.66015 2.25079ZM3.66015 12.5149L2.66997 11.3881L2.66997 11.3881L3.66015 12.5149ZM15 10L15 8.5H15V10ZM31 10L31 11.5H31V10ZM31 12L31 13.5H31V12ZM15 12L15 10.5H15V12ZM15 4V5.5L15 5.5L15 4ZM31 4V2.5L31 2.5L31 4ZM3.00986 6.33875L5.48009 8.50957L7.46043 6.25608L4.9902 4.08526L3.00986 6.33875ZM5.50003 9.55364L5.50003 5.21201L2.50003 5.21201L2.50003 9.55364L5.50003 9.55364ZM5.48009 6.25608L3.00986 8.4269L4.9902 10.6804L7.46043 8.50957L5.48009 6.25608ZM7.65509 7.75841C7.4285 7.55928 7.4285 7.20637 7.65509 7.00725L9.63544 9.26074C10.7684 8.26511 10.7684 6.50054 9.63543 5.50492L7.65509 7.75841ZM2.66997 3.37753L7.65509 7.75841L9.63543 5.50492L4.65032 1.12404L2.66997 3.37753ZM3.50003 3.00195C3.50003 3.43204 2.99303 3.66143 2.66997 3.37753L4.65032 1.12404C3.03501 -0.295485 0.50003 0.851513 0.50003 3.00195H3.50003ZM3.50003 11.7637V3.00195H0.50003V11.7637H3.50003ZM2.66997 11.3881C2.99303 11.1042 3.50003 11.3336 3.50003 11.7637H0.50003C0.50003 13.9141 3.035 15.0611 4.65032 13.6416L2.66997 11.3881ZM7.65509 7.00724L2.66997 11.3881L4.65032 13.6416L9.63543 9.26074L7.65509 7.00724ZM15 8.5C13.6193 8.5 12.5 9.61929 12.5 11H15.5C15.5 11.2761 15.2761 11.5 15 11.5V8.5ZM31 8.5L15 8.5L15 11.5L31 11.5L31 8.5ZM33.5 11C33.5 9.61929 32.3807 8.5 31 8.5V11.5C30.7239 11.5 30.5 11.2761 30.5 11H33.5ZM31 13.5C32.3807 13.5 33.5 12.3807 33.5 11H30.5C30.5 10.7239 30.7239 10.5 31 10.5V13.5ZM15 13.5L31 13.5L31 10.5L15 10.5L15 13.5ZM12.5 11C12.5 12.3807 13.6193 13.5 15 13.5V10.5C15.2761 10.5 15.5 10.7239 15.5 11H12.5ZM15.5 3C15.5 3.27614 15.2761 3.5 15 3.5V0.5C13.6193 0.5 12.5 1.61929 12.5 3H15.5ZM15 2.5C15.2761 2.5 15.5 2.72386 15.5 3H12.5C12.5 4.38071 13.6193 5.5 15 5.5V2.5ZM31 2.5L15 2.5L15 5.5L31 5.5L31 2.5ZM30.5 3C30.5 2.72386 30.7239 2.5 31 2.5V5.5C32.3807 5.5 33.5 4.38071 33.5 3H30.5ZM31 3.5C30.7239 3.5 30.5 3.27614 30.5 3H33.5C33.5 1.61929 32.3807 0.5 31 0.5V3.5ZM15 3.5H31V0.5H15V3.5ZM3 16.5C1.61929 16.5 0.5 17.6193 0.5 19H3.5C3.5 19.2761 3.27614 19.5 3 19.5V16.5ZM31 16.5H3V19.5H31V16.5ZM33.5 19C33.5 17.6193 32.3807 16.5 31 16.5V19.5C30.7239 19.5 30.5 19.2761 30.5 19H33.5ZM31 21.5C32.3807 21.5 33.5 20.3807 33.5 19H30.5C30.5 18.7239 30.7239 18.5 31 18.5V21.5ZM3 21.5H31V18.5H3V21.5ZM0.5 19C0.5 20.3807 1.61929 21.5 3 21.5V18.5C3.27614 18.5 3.5 18.7239 3.5 19H0.5ZM3.5 27C3.5 27.2761 3.27614 27.5 3 27.5V24.5C1.61929 24.5 0.5 25.6193 0.5 27H3.5ZM3 26.5C3.27614 26.5 3.5 26.7239 3.5 27H0.5C0.5 28.3807 1.61929 29.5 3 29.5V26.5ZM31 26.5H3V29.5H31V26.5ZM30.5 27C30.5 26.7239 30.7239 26.5 31 26.5V29.5C32.3807 29.5 33.5 28.3807 33.5 27H30.5ZM31 27.5C30.7239 27.5 30.5 27.2761 30.5 27H33.5C33.5 25.6193 32.3807 24.5 31 24.5V27.5ZM3 27.5H31V24.5H3V27.5Z"
+									fill="white"
+								/>
 							</svg>
 						</div>
 					</div>
@@ -765,7 +789,7 @@ function convertArtistsToAnchor(artists) {
 		<a
 			key={artist.name}
 			target="_blank"
-			className="song__details"
+			className="song__details--anchor"
 			rel="noreferrer noopener"
 			href={artist.external_urls.spotify}
 		>

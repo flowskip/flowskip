@@ -7,6 +7,7 @@ import {
 	getTracks,
 	addTrackToQueue,
 	getUserDetails,
+	leaveRoom
 } from "../components/FlowskipApi";
 import MusicPlayer from "../components/MusicPlayer";
 import Loader from "../components/Loader";
@@ -43,6 +44,7 @@ export default function Room() {
 	const [, setDeltas] = useState(null);
 	const [tracks, setTracks] = useState(defTracks);
 	const [clickProperties, setClickProperties] = useState({isClicked: false, trackId: ""});
+	const [lifeCycleStatus, setLifeCycleStatus] = useState("starting");
 	const controllers = useRef([]);
 	const recommendedTracks = useRef(defRecommendedTracks);
 	const successTracks = useRef(defSuccessTracks);
@@ -102,13 +104,42 @@ export default function Room() {
 		localStorage.setItem("room_code", roomCodeFromPath.current);
 	}
 
+	if (!["starting", "started", "exiting", "exited"].includes(lifeCycleStatus)){
+		console.error(`lifeCycleStatus '${lifeCycleStatus}' not implemented`);
+		return(
+			<Fragment>
+				<Loader />
+			</Fragment>
+		);
+	}
+
 	return (
 		<Fragment>
-			{showMusicPlayer && renderMusicPlayer()}
-			{!showMusicPlayer && <Loader />}
+			{lifeCycleStatus === "starting" && <Loader />}
+			{lifeCycleStatus === "started" && renderMusicPlayer()}
+			{lifeCycleStatus === "exiting" && exitRoom()}
+			{lifeCycleStatus === "exited" &&  userHasExitedAlready()}
 		</Fragment>
 	);
 
+	function userHasExitedAlready(){
+		localStorage.clear();
+		window.location.href = "/";
+	}
+	
+	function exitRoom(){
+		async function leaveRoomAndContinue (){
+			const ensureLeave = (err) => {
+				localStorage.clear();
+				window.location.href = "/";
+			}
+			clearInterval(interval.current);
+			leaveRoom(leaveRoomResponse, {}, ensureLeave);
+			setLifeCycleStatus("exited");
+		}
+		leaveRoomAndContinue();
+		return <Loader/>;
+	}
 	function updateProps(data) {
 		if (data.current_playback.item === undefined) {
 			trackId.current = "";
@@ -136,8 +167,8 @@ export default function Room() {
 			if (responseCode === 200) {
 				updateProps(data);
 				setDeltas(data);
-				if (!showMusicPlayer) {
-					setShowMusicPlayer(true);
+				if (lifeCycleStatus !== "started" && lifeCycleStatus !== "exiting") {
+					setLifeCycleStatus("started");
 				}
 			} else if (responseCode === 400) {
 				console.log(data);
@@ -177,7 +208,7 @@ export default function Room() {
 			if (responseCode === 200) {
 				roomDetails.current = data;
 			} else if (responseCode === 403) {
-				if (data.detail === "user not in room") {
+				if (data.detail === "user not in room" && lifeCycleStatus !== "exiting") {
 					joinRoomFromCodeInPath();
 				}
 			}
@@ -213,7 +244,9 @@ export default function Room() {
 				console.warn("No tracks obtained, data: ", data);
 			}
 		}
-		getTracks(localStorage.getItem("room_code"), getTracksResponse);
+		if(lifeCycleStatus !== "exiting"){
+			getTracks(localStorage.getItem("room_code"), getTracksResponse);
+		}
 	}
 
 	function renderMusicPlayer() {
@@ -228,6 +261,7 @@ export default function Room() {
 				recommendedTracks={recommendedTracks.current}
 				queueTracks={queueTracks.current}
 				user={user.current}
+				lifeCycleStatusState={[lifeCycleStatus, setLifeCycleStatus]}
 			/>
 		);
 	}
@@ -260,12 +294,13 @@ export default function Room() {
 	}
 
 	function mapTracks(tracksList, action = "openSongInSpotify") {
+		const showAsyncMsg = clickProperties.isClicked && action !== "openSongInSpotify";
 		return tracksList.map((track, index) => (
 				<div key={index + track.track_id} id={action === "addSongToQueue" ? `queue:${track.track_id}` : track.track_id} onClick={(e) => defineTrackActionOnClick(e, action, track)}>
 					<div className="footer__box--content-grid">
-						{ clickProperties.isClicked && clickProperties.trackId === track.track_id ? <JustLoader /> : <img src={track.album_image_url} title={track.name} alt={track.name} />}
+						{ showAsyncMsg && clickProperties.trackId === track.track_id ? <JustLoader /> : <img src={track.album_image_url} title={track.name} alt={track.name} />}
 						<div>
-							{clickProperties.isClicked && clickProperties.trackId === track.track_id ? (<p>Enviando canción a la cola</p>):(<Fragment><p>
+							{showAsyncMsg && clickProperties.trackId === track.track_id ? (<p>Enviando canción a la cola</p>):(<Fragment><p>
 								song: <span>{track.name}</span>
 							</p>
 							<p>
@@ -279,4 +314,19 @@ export default function Room() {
 				</div>
 		));
 	}
+}
+
+function leaveRoomResponse(data, responseCode) {
+	localStorage.removeItem("room_code");
+	localStorage.removeItem("track_id");
+	localStorage.removeItem("playlist_id");
+	localStorage.removeItem("tracksInSubscriptionPlaylist");
+	if (responseCode === 200) {
+		console.log("OK");
+	} else if (responseCode === 404) {
+		console.log("Room doesn't exist");
+	} else {
+		console.log("Leave room with problem");
+	}
+	window.location.href = "/";
 }
