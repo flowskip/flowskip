@@ -4,9 +4,11 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { joinRoom } from "../components/FlowskipApi";
 import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
 
 import Button from "../components/Button";
 import LogoImg from "../assets/img/logo.png";
+import HelpIcon from "../assets/svg/help.svg";
 import Loader from "../components/Loader";
 
 const defRoomCodeInDb = localStorage.getItem("room_code") !== null ? localStorage.getItem("room_code") : "";
@@ -28,6 +30,10 @@ export default function Home() {
 
 	return (
 		<MainContainer>
+			<Help as={Link} to="/help">
+				<p>Ayuda</p>
+				<img src={HelpIcon} alt="Ayuda" />
+			</Help>
 			<LogoContainer>
 				<Logo src={LogoImg} alt="Logo" />
 			</LogoContainer>
@@ -95,7 +101,7 @@ export default function Home() {
 			}, 500);
 
 			setTimeout(() => {
-				inputCode.style.border = "initial";
+				inputCode.style.border = "2px";
 				invalidCode.style.display = "none";
 			}, 2000);
 		}
@@ -146,6 +152,54 @@ const MainContainer = styled.main`
 		height: 100vh;
 		display: grid;
 		grid-template-rows: 50% 50%;
+	}
+`;
+
+const Help = styled.div`
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: fit-content;
+	padding: 5px;
+	margin: 10px;
+	background: #6600cc;
+	color: white;
+	font: 2rem/100% var(--font-bold);
+	border-radius: 5px;
+	display: flex;
+	align-items: center;
+	box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.5);
+	text-decoration: none;
+	width: 35px;
+	overflow: hidden;
+	transition: all 0.3s ease-in-out;
+
+	p {
+		display: none;
+	}
+
+	img {
+		height: 25px;
+	}
+
+	&:hover {
+		animation: normal-width 0.2s forwards;
+		p {
+			display: inline-block;
+		}
+
+		img {
+			margin: 0 5px;
+		}
+
+		@keyframes normal-width {
+			0% {
+				width: 35px;
+			}
+			100% {
+				width: 113px;
+			}
+		}
 	}
 `;
 
