@@ -3,7 +3,6 @@ import Swal from "sweetalert2";
 import {
 	voteToSkip,
 	toggleIsPlaying,
-	leaveRoom,
 	addItemsToPlaylist,
 	uploadPlaylistCover,
 	createPlaylist,
@@ -101,7 +100,8 @@ function FlowskipPlaylistDefaultName(language) {
 var QRCode = require("qrcode.react");
 export default function RenderMusicPlayer(props) {
 	const [loading, setLoading] = useState(false);
-
+	const lifeCycleStatus = props.lifeCycleStatusState[0];
+	const setLifeCycleStatus = props.lifeCycleStatusState[1];
 	function copyRoomCode() {
 		navigator.clipboard
 			.writeText(localStorage.getItem("room_code"))
@@ -185,21 +185,21 @@ export default function RenderMusicPlayer(props) {
 			};
 			let makingRequest = addItemsToPlaylist(body, addItemsToPlaylistResponse);
 			let success = await makingRequest;
-			console.log(success);
 			return success;
 		}
 		let tracksIds = new Set(
 			successTracks.map((track) => {
-				return track.props.children.props.id;
+				return track.props.id;
 			})
 		);
+		console.log(tracksIds);
 		if (localStorage.getItem("tracksInSubscriptionPlaylist") === null) {
 			localStorage.setItem("tracksInSubscriptionPlaylist", "");
 		}
 		let tracksIdsInSubscription = new Set(localStorage.getItem("tracksInSubscriptionPlaylist").split(","));
 		let newSongsToPlaylist = difference(tracksIds, tracksIdsInSubscription);
 		if (newSongsToPlaylist.size > 0) {
-			let chunk = 5;
+			let chunk = 30;
 			newSongsToPlaylist = Array.from(newSongsToPlaylist);
 			let chunkList;
 			for (let i = 0, j = newSongsToPlaylist.length; i < j; i += chunk) {
@@ -309,16 +309,6 @@ export default function RenderMusicPlayer(props) {
 		}
 	};
 	const leaveRoomButton = () => {
-		function leaveRoomResponse(data, responseCode) {
-			console.log(responseCode);
-			if (responseCode === 200) {
-				console.log("OK");
-			} else if (responseCode === 404) {
-				console.log("Room doesn't exist");
-			} else {
-				console.log("Leave room with problem");
-			}
-		}
 
 		//modal
 		const msgTitle = props.roomDetails.user_is_host ? "¿Estás segur@?" : "¿Estás segur@?";
@@ -356,12 +346,7 @@ export default function RenderMusicPlayer(props) {
 					timer: 2000,
 					title: "Saliste de la sala",
 				}).then(() => {
-					leaveRoom(leaveRoomResponse);
-					localStorage.removeItem("room_code");
-					localStorage.removeItem("track_id");
-					localStorage.removeItem("playlist_id");
-					localStorage.removeItem("tracksInSubscriptionPlaylist");
-					window.location.href = "/";
+					setLifeCycleStatus("exiting");
 				});
 			}
 		});

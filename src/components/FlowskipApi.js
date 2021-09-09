@@ -330,6 +330,24 @@ export function getRoomDetails(
   return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
+export function updateRoom(
+  body,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+) {
+  const endpoint = [flowskipBaseUrl, roomEndpoint, "update"];
+  const url = new URL(endpoint.join("/") + "/");
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("PATCH"),
+    options
+  );
+  requestOptions.body = JSON.stringify(body);
+
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
 // spotify endpoints
 
 export function getSpotifyAuthenticationUrl(
