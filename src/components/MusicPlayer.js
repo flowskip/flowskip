@@ -553,10 +553,12 @@ export default function RenderMusicPlayer(props) {
 								</a>
 							</p>
 							<p className="votes-to-skip">
-								<img src={dislike} alt="Dislike" />
-								{votes_to_skip === undefined || room_details === null ? (
-									`Loading`
+								{votes_to_skip === undefined || room_details === null && `Loading`}
+								{ votes_to_skip.all.length === 0 ? (
+									null
 								) : (
+									<Fragment>
+									<img src={dislike} alt="Dislike" />
 									<span style={{ width: "fit-content" }}>
 										{room_details.votes_to_skip - votes_to_skip.all.length === 1
 											? `${
@@ -566,6 +568,7 @@ export default function RenderMusicPlayer(props) {
 													room_details.votes_to_skip - votes_to_skip.all.length
 											  } votos más para saltar canción`}
 									</span>
+									</Fragment>
 								)}
 							</p>
 							<progress
