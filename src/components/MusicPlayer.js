@@ -150,8 +150,8 @@ export default function RenderMusicPlayer(props) {
 	const successTracks = props.successTracks;
 	const queueTracks = props.queueTracks;
 	const recommendedTracks = props.recommendedTracks;
+	const featuredPlaylists = props.featuredPlaylists;
 	const user = props.user;
-
 	function getSpotifyAuthenticationUrlResponse(data, responseCode) {
 		if (responseCode === 208) {
 			localStorage.setItem("spotify_authenticated", "true");
@@ -675,10 +675,13 @@ export default function RenderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recomendadas</h1>
 									<div className="footer__box--content">
+										<p className="texto-ayuda">Buscar:</p><p className="texto-ayuda"><input type="text" id="searchInput" onChange={searchButton} value={props.query} /></p>
+										{props.queryTracks}
 										{recommendedTracks.length === 0 ? (
 											<p className="texto-ayuda">
-												Aquí aparecerán las canciones recomendadas
+												Aquí aparecerán las canciones recomendadas. Puedes empezar con las siguientes
 												<br />
+												{featuredPlaylists}
 												<small>
 													<b>Dato:</b> Se recomiendan canciones basadas en las escuchadas recientemente
 												</small>
@@ -780,6 +783,11 @@ export default function RenderMusicPlayer(props) {
 			{/* <Button onClick={() => leaveButtonRequest()}>Leave room</Button> */}
 		</Fragment>
 	);
+
+	function searchButton(){
+		let q = document.getElementById("searchInput").value;
+		props.setQuery(q);
+	}
 }
 
 // utils
