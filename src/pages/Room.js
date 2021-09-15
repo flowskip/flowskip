@@ -355,7 +355,7 @@ export default function Room() {
 	}
 
 	function mapTracks(tracksList, action = "openSongInSpotify") {
-		const showAsyncMsg = clickProperties.isClicked && action !== "openSongInSpotify";
+		const showAsyncMsg = clickProperties.isClicked && action === "addSongToQueue";
 		return tracksList.map((track, index) => (
 				<div key={index + track.track_id} id={action === "addSongToQueue" ? `queue:${track.track_id}` : track.track_id} onClick={(e) => defineTrackActionOnClick(e, action, track)}>
 					<div className="footer__box--content-grid">
