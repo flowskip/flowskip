@@ -425,6 +425,41 @@ export function uploadPlaylistCover(
 }
 
 
+export function search(
+  params,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [flowskipBaseUrl, spotifyEndpoint, "api", "search"];
+  const url = new URL(endpoint.join("/"));
+  url.search = new URLSearchParams(params).toString();
+
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("GET"),
+    options
+  );
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
+export function listAllFeaturedPlaylists(
+  params,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [flowskipBaseUrl, spotifyEndpoint, "api", "all-featured-playlists"];
+  const url = new URL(endpoint.join("/"));
+  url.search = new URLSearchParams(params).toString();
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("GET"),
+    options
+  );
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
 // utils
 
 export function imageToBase64(url, callback) {
