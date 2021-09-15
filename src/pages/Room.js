@@ -102,20 +102,18 @@ export default function Room() {
 			queueTracks.current = mapQueueTracks;
 		}
 
-		return function cleanup(){
-			mapRecommendedTracks = defRecommendedTracks;
-			mapSuccessTracks = defSuccessTracks;
-			mapQueueTracks = defQueueTracks;
-		}
-	}, [tracks, clickProperties]);
-
-	useEffect(()=>{
 		if(query.length > 0){
 			updateQueryResults();
 		} else {
 			queryTracks.current = [];
 		}
-	}, [query])
+
+		return function cleanup(){
+			mapRecommendedTracks = defRecommendedTracks;
+			mapSuccessTracks = defSuccessTracks;
+			mapQueueTracks = defQueueTracks;
+		}
+	}, [tracks, query, clickProperties]);
 
 	if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
 		localStorage.setItem("room_code", roomCodeFromPath.current);
@@ -284,7 +282,6 @@ export default function Room() {
 					item.album_image_url = item.album.images[1].url;
 					item.artists_str = item.artists.map(artist => artist.name).join(", ");
 					item.album_name = item.album.name;
-
 				});
 				queryTracks.current = mapTracks(data.tracks.items, "addSongToQueue");
 			} else {
@@ -325,7 +322,7 @@ export default function Room() {
 	function sendTrackToQueue(e, trackId) {
 		function addTrackToQueueResponse(data, statusCode) {
 			if (statusCode === 201) {
-				console.log("Track added to queue");
+				setQuery(defQuery);
 			} else {
 				console.log(statusCode);
 			}
