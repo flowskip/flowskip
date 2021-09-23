@@ -15,20 +15,23 @@
 .room__code {
     color: var(--white);
     text-align: center;
-    font: 1.6rem/100% var(--font-bold);
+    font: 1.6rem/1.6rem var(--font-bold);
     position: absolute;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    word-break: break-all;
 }
 
 .room__code--text {
     cursor: pointer;
+    display: flex;
+    font: 1.6rem/1.6rem var(--font-bold);
     text-decoration: underline;
     margin: 0 5px;
-    white-space: nowrap
+    white-space: nowrap;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Contenedor del cover del album */
@@ -136,7 +139,13 @@
 }
 
 .song__details img {
+    display: inline-block;
     margin-right: 5px;
+}
+
+.song__details img.img-song {
+    position: relative;
+    top: 5px;
 }
 
 .song__details:hover {
@@ -507,7 +516,7 @@ details[open] summary~* {
     display: grid;
     width: 100%;
     grid-template-columns: 20% calc(75% - 20px);
-    gap: 20px;
+    gap: 10px;
     margin-bottom: 10px;
     place-items: center flex-start;
     padding: 10px;
@@ -703,6 +712,10 @@ details[open] summary~* {
 
     .song__details--container * {
         text-align: left;
+    }
+
+    .votes-to-skip {
+        justify-content: flex-start;
     }
 
     .footer__box {
