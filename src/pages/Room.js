@@ -185,14 +185,10 @@ export default function Room() {
 				if (lifeCycleStatus !== "started" && lifeCycleStatus !== "exiting") {
 					setLifeCycleStatus("started");
 				}
-			} else if (responseCode === 400) {
-				console.log(data);
-			} else if (responseCode === 404) {
+			} else {
 				localStorage.removeItem("room_code");
 				localStorage.removeItem("spotify_authenticated");
 				window.location.href = "/";
-			} else if (responseCode === 500) {
-				console.log(data);
 			}
 		}
 		if (trackId.current !== oldTrackId.current) {
