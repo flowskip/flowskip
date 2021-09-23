@@ -150,8 +150,8 @@ export default function RenderMusicPlayer(props) {
 	const successTracks = props.successTracks;
 	const queueTracks = props.queueTracks;
 	const recommendedTracks = props.recommendedTracks;
+	const featuredPlaylists = props.featuredPlaylists;
 	const user = props.user;
-
 	function getSpotifyAuthenticationUrlResponse(data, responseCode) {
 		if (responseCode === 208) {
 			localStorage.setItem("spotify_authenticated", "true");
@@ -508,55 +508,61 @@ export default function RenderMusicPlayer(props) {
 			<main className="main__container--music-player">
 				<div id="wrapper" className="main__wrapper">
 					<div className="card__container">
-						<h1 className="room__code" onClick={copyRoomCode}>
-							<p className="room__code--text">Room code:</p>
-							<span className="room__code--text" id="room-code">
-								{localStorage.getItem("room_code")}
-							</span>
-							<img src={copy} alt="Copy" />
+						<h1 className="room__code">
+							Room code:
+							<p className="room__code--text" onClick={copyRoomCode}>
+								<span className="room__code--text" id="room-code">
+									{localStorage.getItem("room_code")}
+								</span>
+								<img src={copy} alt="Copy" />
+							</p>
 						</h1>
 						<img alt="logo" src={item === undefined ? Flowskip : item.album.images[1].url} className="card" />
 					</div>
 					<div className="controls__container">
 						<div className="song__details--container">
 							<p className="song__details">
-								<img src={note} alt="Song" />
 								<a
 									target="_blank"
 									className="song__details--anchor"
 									rel="noreferrer noopener"
 									href={item === undefined ? "#" : item.external_urls.spotify}
 								>
-									<span>{item === undefined ? "Artistas" : item.name}</span>
+									<span>
+										<img className="img-song" src={note} alt="Song" />
+										{item === undefined ? "Artistas" : item.name}
+									</span>
 								</a>
 							</p>
 							<p className="song__details">
-								<img src={artist} alt="Artistas" />
 								{item === undefined ? (
 									<a className="song__details--anchor" href="https://open.spotify.com">
 										Open Spotify
 									</a>
 								) : (
-									convertArtistsToAnchor(item.artists)
+									<Fragment>
+										<img src={artist} alt="Artistas" /> {convertArtistsToAnchor(item.artists)}
+									</Fragment>
 								)}
 							</p>
 							<p className="song__details">
-								<img src={disk} alt="Album" />
 								<a
 									target="_blank"
 									className="song__details--anchor"
 									rel="noreferrer noopener"
 									href={item === undefined ? "#" : item.album.external_urls.spotify}
 								>
-									{" "}
+									<img src={disk} alt="Album" />
 									{item === undefined ? "Artist" : item.album.name}
 								</a>
 							</p>
 							<p className="votes-to-skip">
-								<img src={dislike} alt="Dislike" />
-								{votes_to_skip === undefined || room_details === null ? (
-									`Loading`
+								{votes_to_skip === undefined || room_details === null && `Loading`}
+								{ votes_to_skip.all.length === 0 ? (
+									null
 								) : (
+									<Fragment>
+									<img src={dislike} alt="Dislike" />
 									<span style={{ width: "fit-content" }}>
 										{room_details.votes_to_skip - votes_to_skip.all.length === 1
 											? `${
@@ -566,6 +572,7 @@ export default function RenderMusicPlayer(props) {
 													room_details.votes_to_skip - votes_to_skip.all.length
 											  } votos más para saltar canción`}
 									</span>
+									</Fragment>
 								)}
 							</p>
 							<progress
@@ -675,10 +682,13 @@ export default function RenderMusicPlayer(props) {
 								<div className="footer__box">
 									<h1 className="footer__content--box-title">Canciones recomendadas</h1>
 									<div className="footer__box--content">
+										<p className="texto-ayuda">Buscar:</p><p className="texto-ayuda"><input type="text" id="searchInput" onChange={searchButton} value={props.query} /></p>
+										{(props.queryTracks)}
 										{recommendedTracks.length === 0 ? (
 											<p className="texto-ayuda">
-												Aquí aparecerán las canciones recomendadas
+												Aquí aparecerán las canciones recomendadas. Puedes empezar con las siguientes
 												<br />
+												{featuredPlaylists}
 												<small>
 													<b>Dato:</b> Se recomiendan canciones basadas en las escuchadas recientemente
 												</small>
@@ -749,8 +759,8 @@ export default function RenderMusicPlayer(props) {
 								id="queue"
 							>
 								<path
-									fill-rule="evenodd"
-									clip-rule="evenodd"
+									fillRule="evenodd"
+									clipRule="evenodd"
 									d="M6.47026 7.38283L4.00003 5.21201L4.00003 9.55364L6.47026 7.38283ZM8.64526 8.13399C9.09844 7.73574 9.09844 7.02991 8.64526 6.63166L3.66015 2.25079C3.01402 1.68297 2.00003 2.14178 2.00003 3.00195V11.7637C2.00003 12.6239 3.01402 13.0827 3.66015 12.5149L8.64526 8.13399ZM14 11C14 10.4477 14.4477 10 15 10L31 10C31.5523 10 32 10.4477 32 11C32 11.5523 31.5523 12 31 12L15 12C14.4477 12 14 11.5523 14 11ZM15 2C14.4477 2 14 2.44772 14 3C14 3.55228 14.4477 4 15 4L31 4C31.5523 4 32 3.55228 32 3C32 2.44771 31.5523 2 31 2H15ZM2 19C2 18.4477 2.44772 18 3 18H31C31.5523 18 32 18.4477 32 19C32 19.5523 31.5523 20 31 20H3C2.44772 20 2 19.5523 2 19ZM3 26C2.44772 26 2 26.4477 2 27C2 27.5523 2.44772 28 3 28H31C31.5523 28 32 27.5523 32 27C32 26.4477 31.5523 26 31 26H3Z"
 									fill="white"
 								/>
@@ -780,6 +790,11 @@ export default function RenderMusicPlayer(props) {
 			{/* <Button onClick={() => leaveButtonRequest()}>Leave room</Button> */}
 		</Fragment>
 	);
+
+	function searchButton(){
+		let q = document.getElementById("searchInput").value;
+		props.setQuery(q);
+	}
 }
 
 // utils

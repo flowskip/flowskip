@@ -58,6 +58,8 @@ async function executeRequest(
         onCatch(err);
       } else {
         console.error(fetchErrorMsg + err);
+        localStorage.clear();
+        window.location.href = "/";
       }
     })
     .finally(() => {
@@ -424,6 +426,41 @@ export function uploadPlaylistCover(
   return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
 }
 
+
+export function search(
+  params,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [flowskipBaseUrl, spotifyEndpoint, "api", "search"];
+  const url = new URL(endpoint.join("/"));
+  url.search = new URLSearchParams(params).toString();
+
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("GET"),
+    options
+  );
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
+
+export function listAllFeaturedPlaylists(
+  params,
+  onResponse,
+  options = {},
+  onCatch = null,
+  onFinally = null
+){
+  const endpoint = [flowskipBaseUrl, spotifyEndpoint, "api", "all-featured-playlists"];
+  const url = new URL(endpoint.join("/"));
+  url.search = new URLSearchParams(params).toString();
+  let requestOptions = Object.assign(
+    constructRequestOptionsWithAuth("GET"),
+    options
+  );
+  return executeRequest(url, requestOptions, onResponse, onCatch, onFinally);
+}
 
 // utils
 

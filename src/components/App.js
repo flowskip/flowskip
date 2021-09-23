@@ -13,17 +13,21 @@ import AppNotAuthorizedInSpotify from "./AppNotAuthorizedInSpotify";
 import Help from "../pages/Help";
 
 import GlobalStyle from "../styles/GlobalStyle";
+import { Fragment } from "react/cjs/react.production.min";
 
 export default function App() {
 	const defHasSession = localStorage.getItem("session_key") !== null ? true : false;
 	const defHasUser = localStorage.getItem("user_created") === "true";
 	const [hasSession, setHasSession] = useState(defHasSession);
 	const [hasUser, setHasUser] = useState(defHasUser);
+	const [showErrorPage, setShowErrorPage] = useState(false);
 
 	useEffect(() => {
 		if (!hasSession) {
 			localStorage.clear();
-			startSession(startSessionResponse);
+			startSession(startSessionResponse, {}, function(err){
+				setShowErrorPage(true);
+			});
 		} else {
 			if (localStorage.getItem("user_created") !== "true") {
 				createUser(createUserResponse);
@@ -34,6 +38,15 @@ export default function App() {
 			return null;
 		};
 	}, [hasSession]);
+
+	if(showErrorPage){
+		return (
+			<React.Fragment>
+				<GlobalStyle />
+				{errorScreen()}
+			</React.Fragment>
+		);
+	}
 
 	if (hasUser) {
 		return loadRouter();
@@ -65,6 +78,15 @@ export default function App() {
 	function loadScreen() {
 		console.log("My load screen");
 		return <Loader />;
+	}
+
+	function errorScreen() {
+		console.error("critical: maybe api is down!");
+		return (
+		<Fragment>
+			<p>Sorry, this app is currently unavailable</p>
+		</Fragment>
+		);
 	}
 
 	function startSessionResponse(data, responseCode) {

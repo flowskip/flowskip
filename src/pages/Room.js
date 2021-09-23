@@ -7,7 +7,9 @@ import {
 	getTracks,
 	addTrackToQueue,
 	getUserDetails,
-	leaveRoom
+	leaveRoom,
+	listAllFeaturedPlaylists,
+	search
 } from "../components/FlowskipApi";
 import MusicPlayer from "../components/MusicPlayer";
 import Loader from "../components/Loader";
@@ -37,18 +39,22 @@ const defRoomDetails = null;
 const defRecommendedTracks = [];
 const defSuccessTracks = [];
 const defQueueTracks = [];
+const defFeaturedPlaylists = [];
+const defQueryResults = [];
+const defQuery = "";
 
-const defShowPlayer = false;
 export default function Room() {
-	const [showMusicPlayer, setShowMusicPlayer] = useState(defShowPlayer);
-	const [, setDeltas] = useState(null);
+	const [deltas, setDeltas] = useState(null);
 	const [tracks, setTracks] = useState(defTracks);
 	const [clickProperties, setClickProperties] = useState({isClicked: false, trackId: ""});
 	const [lifeCycleStatus, setLifeCycleStatus] = useState("starting");
+	const [query, setQuery] = useState(defQuery);
 	const controllers = useRef([]);
 	const recommendedTracks = useRef(defRecommendedTracks);
 	const successTracks = useRef(defSuccessTracks);
 	const queueTracks = useRef(defQueueTracks);
+	const featuredPlaylists = useRef(defFeaturedPlaylists);
+	const queryTracks = useRef(defQueryResults)
 	const trackId = useRef(defTrackId);
 	const oldTrackId = useRef(defTrackId);
 	const roomDetails = useRef(defRoomDetails);
@@ -70,6 +76,9 @@ export default function Room() {
 		}
 		if (user.current === null) {
 			updateUserDetails();
+		}
+		if (featuredPlaylists.current.length === 0 && recommendedTracks.current.length === 0){
+			getFeaturedPlaylists();
 		}
 		let cleanupSignals = controllers.current;
 		return function cleanup() {
@@ -93,12 +102,18 @@ export default function Room() {
 			queueTracks.current = mapQueueTracks;
 		}
 
+		if(query.length > 0){
+			updateQueryResults();
+		} else {
+			queryTracks.current = [];
+		}
+
 		return function cleanup(){
 			mapRecommendedTracks = defRecommendedTracks;
 			mapSuccessTracks = defSuccessTracks;
 			mapQueueTracks = defQueueTracks;
 		}
-	}, [tracks, clickProperties]);
+	}, [tracks, query, clickProperties]);
 
 	if (roomCodeFromPath.current !== localStorage.getItem("room_code")) {
 		localStorage.setItem("room_code", roomCodeFromPath.current);
@@ -249,6 +264,40 @@ export default function Room() {
 		}
 	}
 
+	function getFeaturedPlaylists(){
+		function listAllFeaturedPlaylistsResponse(data, responseCode){
+			featuredPlaylists.current = mapPlaylists(data.playlists.items);
+		}
+		let params = {
+			code: localStorage.getItem("room_code")
+		}
+		listAllFeaturedPlaylists(params, listAllFeaturedPlaylistsResponse)
+	}
+
+	function updateQueryResults(){
+		function searchResponse(data, statusCode){
+			if(statusCode === 200){
+				data.tracks.items.forEach(item => {
+					item.track_id = item.id;
+					item.album_image_url = item.album.images[1].url;
+					item.artists_str = item.artists.map(artist => artist.name).join(", ");
+					item.album_name = item.album.name;
+				});
+				queryTracks.current = mapTracks(data.tracks.items, "addSongToQueue");
+			} else {
+				console.warn("not success response");
+				console.log(data, statusCode);
+			}
+		}
+		
+		let params = {
+			q:query,
+			type: "track",
+			code: localStorage.getItem("room_code")
+		}
+		search(params, searchResponse)
+	}
+
 	function renderMusicPlayer() {
 		return (
 			<MusicPlayer
@@ -260,6 +309,10 @@ export default function Room() {
 				successTracks={successTracks.current}
 				recommendedTracks={recommendedTracks.current}
 				queueTracks={queueTracks.current}
+				featuredPlaylists={featuredPlaylists.current}
+				query={query}
+				setQuery={setQuery}
+				queryTracks={queryTracks.current}
 				user={user.current}
 				lifeCycleStatusState={[lifeCycleStatus, setLifeCycleStatus]}
 			/>
@@ -269,18 +322,23 @@ export default function Room() {
 	function sendTrackToQueue(e, trackId) {
 		function addTrackToQueueResponse(data, statusCode) {
 			if (statusCode === 201) {
-				console.log("Track added to queue");
+				setQuery(defQuery);
 			} else {
 				console.log(statusCode);
 			}
 		}
-		setClickProperties({isClicked: true, trackId: trackId});
 
 		let body = {
 			track_id: trackId,
 			code: localStorage.getItem("room_code"),
 		};
-		addTrackToQueue(body, addTrackToQueueResponse);
+		if(JSON.stringify(deltas.current_playback) === "{}" ){
+			window.open("https://open.spotify.com/track/" + trackId, "_blank", "noreferrer", "noopener'");
+		}
+		else{
+			setClickProperties({isClicked: true, trackId: trackId});
+			addTrackToQueue(body, addTrackToQueueResponse);
+		}
 	}
 
 	function defineTrackActionOnClick(e, action, track) {
@@ -294,7 +352,7 @@ export default function Room() {
 	}
 
 	function mapTracks(tracksList, action = "openSongInSpotify") {
-		const showAsyncMsg = clickProperties.isClicked && action !== "openSongInSpotify";
+		const showAsyncMsg = clickProperties.isClicked && action === "addSongToQueue";
 		return tracksList.map((track, index) => (
 				<div key={index + track.track_id} id={action === "addSongToQueue" ? `queue:${track.track_id}` : track.track_id} onClick={(e) => defineTrackActionOnClick(e, action, track)}>
 					<div className="footer__box--content-grid">
@@ -313,6 +371,32 @@ export default function Room() {
 					</div>
 				</div>
 		));
+	}
+
+	function definePlaylistActionOnClick(action, playlist) {
+		if (action === "openPlaylistInSpotify") {
+			window.open(playlist.external_urls.spotify, "_blank", "noreferrer", "noopener'");
+		} else {
+			console.log("No action defined");
+		}
+	}
+
+	function mapPlaylists(playlists, action = "openPlaylistInSpotify"){
+		return playlists.map((playlist, index) => (
+			<div key={playlist.track_id} id={playlist.track_id} onClick={() => definePlaylistActionOnClick(action, playlist)}>
+				<div className="footer__box--content-grid">
+					<img src={playlist.images[0].url} title={playlist.name} alt={playlist.name} />
+					<div>
+						<Fragment><p>
+							Playlist: <span>{playlist.name}</span>
+						</p>
+						<p>
+							Description: <span>{playlist.description}</span>
+						</p></Fragment>
+					</div>
+				</div>
+			</div>
+	));
 	}
 }
 
