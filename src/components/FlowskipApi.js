@@ -58,6 +58,8 @@ async function executeRequest(
         onCatch(err);
       } else {
         console.error(fetchErrorMsg + err);
+        localStorage.clear();
+        window.location.href = "/";
       }
     })
     .finally(() => {
